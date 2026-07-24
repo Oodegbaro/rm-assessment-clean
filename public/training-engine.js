@@ -17,6 +17,7 @@ function advanceModule(fromNum){
     document.getElementById('mod' + nextNum).style.display = 'block';
     document.getElementById('modStatus').textContent = 'Module ' + nextNum + ' of 8 \u00b7 ' + MODULE_TITLES[nextNum-1];
     document.getElementById('overallFill').style.width = (nextNum/8*100) + '%';
+    saveTrainingProgress(nextNum);
   } else {
     document.getElementById('mod-final').style.display = 'block';
     document.getElementById('modStatus').textContent = 'All modules complete';
@@ -24,6 +25,40 @@ function advanceModule(fromNum){
   }
   window.scrollTo(0,0);
 }
+
+function saveTrainingProgress(moduleNum){
+  fetch('/api/training/progress', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ moduleNum })
+  }).catch(e => console.warn('Could not save training progress', e));
+}
+
+function jumpToModule(n){
+  for(let i=1;i<=8;i++){
+    const el = document.getElementById('mod'+i);
+    if(el) el.style.display = (i===n) ? 'block' : 'none';
+  }
+  const finalEl = document.getElementById('mod-final');
+  if(finalEl) finalEl.style.display = 'none';
+  document.getElementById('modStatus').textContent = 'Module ' + n + ' of 8 \u00b7 ' + MODULE_TITLES[n-1];
+  document.getElementById('overallFill').style.width = (n/8*100) + '%';
+}
+
+async function bootstrapTrainingProgress(){
+  try {
+    const res = await fetch('/api/training/progress');
+    if(!res.ok) return;
+    const data = await res.json();
+    if(data.moduleNum && data.moduleNum > 1 && data.moduleNum <= 8){
+      jumpToModule(data.moduleNum);
+    }
+  } catch(e){
+    console.warn('Could not load saved training progress, starting from Module 1', e);
+  }
+}
+
+bootstrapTrainingProgress();
 
 
 
