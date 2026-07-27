@@ -1,572 +1,838 @@
 
-const QUESTION_BANK = 
-{"1": {"sec": 0, "type": "mcq", "variants": [{"prompt": "Here's a quick one. A logistics client still has an open account with Access Bank. But there's been no activity \u2014 no transactions, no calls returned, no meetings \u2014 in over a year.<br><br>How would you classify this client on the Cover page?", "options": ["Current Client", "Target Prospect", "Dormant", "SOE"], "correctIndex": 2, "explain": "An open account doesn't mean an active one. A year or more of silence is what makes a client Dormant.", "wrongNote": "An open account, a never-banked prospect, or government ownership are all different concepts from activity \u2014 check which one the question is really about."}, {"prompt": "Ashanti Foundry Works has had exactly ten months of silence on their Access account \u2014 no transactions, no calls returned. The ops manager insists it's 'basically inactive already.' How should this be classified?", "options": ["Current Client", "Target Prospect", "Dormant", "SOE"], "correctIndex": 0, "explain": "Ten months feels long, but the Dormant line is twelve months. This tests knowing the actual threshold, not just the general vibe of 'it's been a while.'", "wrongNote": "Ten months is under the twelve-month Dormant threshold \u2014 a feeling of inactivity isn't the same as crossing the actual line."}, {"prompt": "Savannah Telecom Supplies, based in Tamale, has never held any product with Access \u2014 but three promising conversations have happened and a term sheet is being drafted. How should this be classified?", "options": ["Current Client", "Target Prospect", "Dormant", "SOE"], "correctIndex": 1, "explain": "Active pursuit doesn't create a relationship. No account exists yet, so this isn't Current Client no matter how warm the conversation feels.", "wrongNote": "Warm conversations and a draft term sheet don't create an account \u2014 no product held yet means this is still a prospect, not a client."}, {"prompt": "Volta Trading Company is 35% owned by a government investment fund; the remaining 65% is held by private shareholders who appoint the board and run the company. Is this an SOE?", "options": ["Yes, any government ownership makes it an SOE", "No, SOE requires a controlling government stake, and 35% doesn't clear that bar", "Yes, because the fund's name includes 'government'", "No, SOEs only exist at the national level, not regional"], "correctIndex": 1, "explain": "SOE status depends on control, not just presence of government money. A 35% minority stake doesn't make the government the controlling party here.", "wrongNote": "Any government money, a fund's name, or the level of government are all beside the point \u2014 SOE hinges specifically on who controls the company."}, {"prompt": "Western Construct Ltd, based in Takoradi, shows a single loan repayment nine months ago and nothing since. The RM argues it's still fully live because 'the loan hasn't defaulted.'", "options": ["Current Client \u2014 nine months is under the Dormant threshold and a repayment is genuine activity", "Dormant \u2014 nine months without a new transaction is long enough", "Target Prospect \u2014 the relationship clearly isn't active", "SOE \u2014 construction firms are often government-linked"], "correctIndex": 0, "explain": "Dormancy is about elapsed time since real activity, not about whether a loan has defaulted. Nine months with a genuine repayment keeps this Current.", "wrongNote": "Loan performance and elapsed time are two different questions \u2014 dormancy is only about the second one."}]}, "2": {"sec": 0, "type": "mcq", "variants": [{"prompt": "Access holds three products with a client \u2014 an FX forward, a term loan, and a current account. A colleague says this should be Fringe Player since Access isn't the client's main bank. Do you agree?", "options": ["Yes, three products still isn't very much", "No, Fringe Player means one or two minor products; three products including real credit exposure makes this Secondary Banker", "Yes, most of the client's business sits with a competitor anyway", "No, Bank Position has nothing to do with product count"], "correctIndex": 1, "explain": "\u201cNot the biggest bank\u201d and \u201cbarely there\u201d are different things. Three real products, including credit exposure, is well past Fringe territory.", "wrongNote": "Being smaller than a competitor's share isn't the same as being barely present \u2014 depth of presence is what actually separates these labels."}, {"prompt": "Kumasi Rural Savings holds three products with Access \u2014 a term loan, an FX line, and treasury bill custody \u2014 and Access documents 65% of their total banking wallet, more than any other bank. A colleague says this is Secondary Banker since 'no client is ever 100% with one bank.' Correct?", "options": ["Yes, no relationship is ever truly Primary", "No, Primary Banker only needs the largest share, not 100% \u2014 65% and largest makes this Primary", "Yes, three products isn't enough for Primary status", "No, this should actually be Fringe Player"], "correctIndex": 1, "explain": "Primary Banker means holding the largest share of the wallet, not the entire wallet. 65% and clearly ahead of every competitor is Primary, full stop.", "wrongNote": "Primary doesn't require 100% of the wallet \u2014 it just requires being the largest share, which 65% clearly is."}, {"prompt": "Nkawie Cocoa Processing has a single unused overdraft facility with Access, opened two years ago and never drawn. A colleague says Access is 'Not Banked' with this client since nothing is happening. Correct?", "options": ["Yes, an unused facility doesn't count as a real relationship", "No, Not Banked means literally no products at all \u2014 an unused but live facility still makes this Fringe Player", "Yes, this should be classified as Dormant instead", "No, this should be classified as Secondary Banker"], "correctIndex": 1, "explain": "Not Banked is reserved for clients with zero relationship. A forgotten but technically live facility is minimal presence \u2014 that's Fringe Player, not Not Banked.", "wrongNote": "An unused facility is still a live product \u2014 that alone rules out 'Not Banked,' even though the relationship is clearly minimal."}, {"prompt": "Volta Fisheries holds exactly one product with Access \u2014 a single large trade finance facility worth GHS 200,000,000, easily their biggest banking relationship line. A colleague says this is automatically Fringe Player since 'it's only one product.' What's the flaw in that reasoning?", "options": ["There's no flaw \u2014 one product is always Fringe Player", "Bank Position is about depth of presence and wallet share, not raw product count \u2014 a single large, meaningful facility can outweigh several small ones", "The flaw is that trade finance never counts toward Bank Position", "There's no flaw, but the label should be Not Banked instead"], "correctIndex": 1, "explain": "Counting products without weighing their size gets this wrong. One large facility that represents real wallet share can mean more than three small ones combined.", "wrongNote": "Raw product count on its own says very little \u2014 a single large, meaningful facility can carry more real weight than several small ones."}, {"prompt": "Sunyani Poultry Farms holds five small products with Access \u2014 a savings account, a chequebook, a POS terminal, a small overdraft, and a salary account \u2014 but together these are well under 5% of their total banking spend, with the bulk sitting elsewhere. Is this automatically Secondary Banker because of the five products?", "options": ["Yes, five products is clearly more than Fringe Player level", "Not necessarily \u2014 wallet share and depth matter more than raw count, and this could still genuinely be Fringe Player despite the product count", "Yes, because five is more than the typical Fringe Player threshold of two", "No, this should be classified as Not Banked"], "correctIndex": 1, "explain": "Many tiny products spread thin can still add up to minimal real presence. Depth of the relationship, not the number of product lines, is what actually defines the position.", "wrongNote": "Five products sounds like a lot, but if together they're a tiny sliver of the wallet, the position is still shallow \u2014 count alone doesn't decide this."}]}, "3": {"sec": 1, "type": "mcq", "variants": [{"prompt": "Picture a building-materials distributor. Their Company Overview page tells you: where they operate, how they're owned, the name of their NYSE-listed U.S. parent, and what they distribute. They import most of their raw materials, so they carry real foreign-exchange exposure.<br><br>What's missing here that would actually matter?", "options": ["Whether the parent has a credit rating, or would stand behind local facilities", "The exact square footage of their warehouse", "The CEO's education background", "How many trucks their fleet has"], "correctIndex": 0, "explain": "If Access ever extends real credit to this client, whether the U.S. parent would back that exposure changes everything about the risk conversation. The rest just looks thorough on paper.", "wrongNote": "Warehouse size, education background, and fleet size all feel thorough but wouldn't change how Access actually engages with real credit risk."}, {"prompt": "A Tamale-based rice milling client's overview lists ownership, location, and product line \u2014 but the client is 70% dependent on one single buyer for all its sales. What's the most consequential gap?", "options": ["No mention of customer concentration and buyer-dependency risk", "No mention of the mill's exact production capacity in tonnes", "No mention of how many years the client has operated", "No mention of staff headcount"], "correctIndex": 0, "explain": "A client this dependent on one buyer carries real revenue risk that a credit or coverage conversation absolutely needs to account for. Capacity and headcount are surface detail by comparison.", "wrongNote": "Capacity, years in business, and headcount are all reasonable background \u2014 but none of them touch the real risk sitting in a single-buyer dependency."}, {"prompt": "A GSE-listed manufacturing client's overview mentions ownership and sector, but doesn't mention that 40% of its shares are pledged as loan collateral to another bank. What's the consequential gap?", "options": ["The share pledge, since it directly affects Access's real security position and the client's financial flexibility", "The client's recent dividend history", "The size of the board of directors", "The company's stock ticker symbol"], "correctIndex": 0, "explain": "A pledge like this changes what's actually available as security and signals real financial pressure \u2014 that's a fact any lending conversation needs, unlike dividend history or ticker trivia.", "wrongNote": "Dividend history, board size, and the ticker symbol are all cosmetic next to a pledge that actually changes what security is genuinely available."}, {"prompt": "A state utility's Company Overview lists its mandate and governance structure but doesn't mention that its budget allocation depends entirely on an annual parliamentary vote. What's the consequential gap?", "options": ["The budget's dependency on the annual parliamentary vote", "The utility's founding year", "The number of regional offices it operates", "The color scheme of its corporate branding"], "correctIndex": 0, "explain": "For a public-sector client, funding uncertainty tied to a political process is central to any credit or pipeline decision \u2014 everything else on the list is background noise.", "wrongNote": "Founding year, office count, and branding are all irrelevant next to something that could change the client's funding overnight."}, {"prompt": "An Accra subsidiary of a European FMCG group has a Company Overview describing local operations, but doesn't mention whether local decisions on new banking facilities need group treasury sign-off. What's the consequential gap?", "options": ["Whether local decisions actually need group-level approval", "The parent's stock exchange listing city", "The number of global offices the group operates", "The group's founding history"], "correctIndex": 0, "explain": "For a global/group client, knowing whether the local team can actually decide anything on its own changes the entire approach \u2014 that's far more consequential than the parent's corporate trivia.", "wrongNote": "Listing city, global office count, and founding history are corporate trivia next to the one fact that determines who can actually say yes."}]}, "4": {"sec": 1, "type": "mcq", "variants": [{"prompt": "Two lines sit next to each other on a page:<div class='quote'>\u201cThe client imports steel and cement additives to distribute to contractors.\u201d<br>\u201cThe client's FX exposure is probably becoming a growing worry for their parent company.\u201d</div>What's really going on with these two lines?", "options": ["Both are facts \u2014 they're both written down in the plan", "The first is a fact about the business. The second is the RM's own read on things, and should be labelled that way rather than stated as if it were confirmed", "The second is a fact too, since exchange rates are public", "It doesn't really matter \u2014 the plan doesn't need to separate these"], "correctIndex": 1, "explain": "This is exactly how a guess quietly turns into a \u201cfact\u201d a few pages later \u2014 and how contradictions sneak into a plan unnoticed.", "wrongNote": "Being written down, or being about public data, doesn't turn a guess into a fact \u2014 only an actual source does that."}, {"prompt": "Two lines sit next to each other:<div class='quote'>\u201cThe client's factory is located in the Tema Export Processing Zone.\u201d<br>\u201cThe client is likely under real pressure from rising fuel costs.\u201d</div>What's really going on here?", "options": ["Both lines are equally solid facts", "The first is a fact about location; the second is the RM's own inference about pressure, and shouldn't be stated as confirmed", "Neither line is useful for the account plan", "The second becomes a fact because fuel prices are public information"], "correctIndex": 1, "explain": "Fuel prices being public doesn't make a guess about how they're affecting this specific client a confirmed fact \u2014 it's still the RM's read, worth flagging as such.", "wrongNote": "Public data about fuel prices doesn't confirm anything about how this particular client is actually affected by it."}, {"prompt": "Two lines sit next to each other:<div class='quote'>\u201cThe client reported GHS 40 million in exports last year, per audited accounts.\u201d<br>\u201cThis confirms the client will hit their expansion target next year.\u201d</div>What's the issue?", "options": ["Both statements are equally reliable", "The first is a sourced fact; the second is an unsupported leap from a fact to a prediction about the future", "The second is more reliable since it builds on the first", "Neither statement belongs in an account plan"], "correctIndex": 1, "explain": "A real, audited number doesn't automatically justify a confident prediction built on top of it \u2014 that's a separate claim needing its own evidence.", "wrongNote": "Building on a real fact doesn't automatically make a prediction reliable \u2014 the prediction still needs its own evidence."}, {"prompt": "Three lines appear in a plan:<div class='quote'>1) \u201cThe client was incorporated in 2009.\u201d<br>2) \u201cThe client holds a current account and one term loan with Access.\u201d<br>3) \u201cThe client is clearly planning a major expansion soon.\u201d</div>Which one is the RM's inference rather than a fact?", "options": ["Line 1", "Line 2", "Line 3", "None of them, all three are facts"], "correctIndex": 2, "explain": "Lines 1 and 2 are simple, checkable facts. Line 3 asserts something about the future with no stated evidence \u2014 that's a read, not a fact, however confidently it's phrased.", "wrongNote": "Incorporation dates and product holdings are checkable facts \u2014 a claim about future plans, stated with no evidence, is the odd one out."}, {"prompt": "A note reads: \u201cClient mentioned in passing that competitors in their sector are struggling.\u201d Is this a fact for the account plan?", "options": ["Yes, since the client said it, it's confirmed fact", "It's a fact that the client made this claim \u2014 but the claim itself (that competitors are struggling) is the client's own opinion, not verified information", "No, client comments should never be recorded at all", "Yes, and it should be treated as equivalent to audited data"], "correctIndex": 1, "explain": "There's a real difference between \u201cthe client said this\u201d (a fact worth logging) and \u201cthis is true\u201d (an unverified claim). Both matter, but they belong in different categories.", "wrongNote": "The client saying something makes it a fact that they said it \u2014 it doesn't automatically make the content of what they said verified information."}]}, "5": {"sec": 2, "type": "numeric", "variants": [{"prompt": "Here's the deal with a client we bank: last year, Access Bank earned <b>GHS 900,000</b> in total revenue from them. Their total revenue across their whole business was <b>GHS 600,000,000</b>.<br><br>One rule to know: the \u201crevenue pool\u201d \u2014 the total banking revenue this client is estimated to generate across every bank they use \u2014 is always 3% of the client's total revenue.<br><br>What's Access Bank's wallet share with this client, to the nearest percent?", "correct": 5, "unit": "%", "tolerance": 0.5, "explain": "Revenue pool = 3% of 600,000,000 = 18,000,000. Wallet share = 900,000 \u00f7 18,000,000 = 5%.", "wrongNote": "A common slip is dividing by the client's total revenue instead of the revenue pool. Wallet share is always measured against the pool, not the whole business."}, {"prompt": "Osu Beverages Ltd generated <b>GHS 1,500,000</b> in total revenue for Access last year, against total company revenue of <b>GHS 250,000,000</b>. What's Access's wallet share, to the nearest percent?", "correct": 20, "unit": "%", "tolerance": 0.5, "explain": "Revenue pool = 3% of 250,000,000 = 7,500,000. Wallet share = 1,500,000 \u00f7 7,500,000 = 20%.", "wrongNote": "A common slip is dividing by total revenue instead of the revenue pool."}, {"prompt": "Tema Steel Fabricators has total revenue of <b>GHS 400,000,000</b>. To hit a 10% wallet share, how much revenue, in GHS, does Access need to earn from this client?", "correct": 1200000, "unit": "GHS", "tolerance": 10000, "explain": "Revenue pool = 3% of 400,000,000 = 12,000,000. 10% of that pool = GHS 1,200,000.", "wrongNote": "A common slip is taking 10% of total revenue instead of 10% of the revenue pool."}, {"prompt": "Kumasi Agro Processing Co. has total revenue of <b>GHS 800,000,000</b>, but Finance has already calculated this client's actual revenue pool at <b>GHS 20,000,000</b>, reflecting a negotiated banking-panel arrangement rather than the standard 3% estimate. Access earned <b>GHS 1,000,000</b>. What's the wallet share, to the nearest percent?", "correct": 5, "unit": "%", "tolerance": 0.5, "explain": "Wallet share = 1,000,000 \u00f7 20,000,000 (the given pool figure) = 5%.", "wrongNote": "A common slip is re-deriving 3% of revenue instead of using the actual pool figure given. The 3% rule is a default estimate, not a rule to apply even when a real figure is already known."}, {"prompt": "Volta Aquaculture Ltd has total revenue of <b>GHS 350,000,000</b>. What's the estimated total banking revenue pool for this client, in GHS?", "correct": 10500000, "unit": "GHS", "tolerance": 50000, "explain": "Revenue pool = 3% of 350,000,000 = GHS 10,500,000.", "wrongNote": "This isolates the revenue-pool definition on its own \u2014 it's simply 3% of total revenue."}]}, "6": {"sec": 2, "type": "mcq", "variants": [{"prompt": "A client's wallet share with Access Bank has climbed every year for three years: 3%, then 4%, then 5%. Sounds like a win, right?<br><br>Look at where that revenue is actually coming from:<div class='quote'>Year 1: GHS 500,000 total revenue, of which GHS 50,000 was FX income<br>Year 2: GHS 700,000 total revenue, of which GHS 300,000 was FX income<br>Year 3: GHS 900,000 total revenue, of which GHS 640,000 was FX income</div>What's the real risk hiding in this trend?", "options": ["Nothing \u2014 climbing wallet share is always good news", "Almost all the growth is coming from FX income. If this client ever moves that flow to another bank, the relationship collapses back to almost nothing", "The client's total revenue is falling, which makes the number misleading", "5% is already a strong number, so there's nothing to worry about"], "correctIndex": 1, "explain": "FX income went from 10% of Access's revenue with this client to over 70% of it. That's not depth \u2014 it's one flow away from disappearing.", "wrongNote": "A rising number, a falling number, or a strong-looking level can all hide the same problem \u2014 check what the growth is actually made of, not just its direction."}, {"prompt": "A client's wallet share has held steady at 5% for three years. But the composition has shifted: it used to be spread across deposits, loans, and fees; this year, 90% of it comes from a single one-off advisory fee on one M&A deal that won't repeat. What's the real risk?", "options": ["None, stable wallet share is always a healthy sign", "The stability is masking fragility, since most of it now depends on a fee that has no reason to happen again next year", "The risk is that advisory fees are always unreliable regardless of context", "The risk is that the client's total revenue must be falling"], "correctIndex": 1, "explain": "A stable-looking number can hide the exact same fragility as a growing one, if the composition underneath has quietly become a one-off.", "wrongNote": "Stability on the surface says nothing about what's actually driving it \u2014 a one-off fee behaves very differently from a recurring stream, even at the same percentage."}, {"prompt": "A client's wallet share has fallen for three years: 5%, 4%, 3%. But the client's own total revenue has roughly doubled over that same period, while Access's revenue from them has stayed flat. What's the real story?", "options": ["Access must be losing the relationship to a competitor", "The client's total revenue growth is outpacing Access's revenue, meaning Access isn't capturing any of the client's growth, not necessarily that the relationship has soured", "5% was never a real number to begin with", "Falling wallet share always means the relationship is ending"], "correctIndex": 1, "explain": "Falling share can mean the client is simply outgrowing the bank's flat revenue, which points to a growth-capture opportunity, not necessarily a relationship at risk.", "wrongNote": "A falling percentage isn't automatically a relationship problem \u2014 check whether the client's own growth, not a soured relationship, explains the drop."}, {"prompt": "A client's wallet share jumped sharply this year, and almost all of the increase came from a large one-off advisory fee tied to a single IPO transaction. A colleague argues fee income is always the safest, stickiest kind of revenue. Is that right here?", "options": ["Yes, fee income is always the most stable revenue type", "No, this particular fee is a one-off transaction fee, which is actually more fragile than recurring income, not more stable", "Yes, because fees are generally higher-margin than lending income", "No, because all fee income is inherently unstable in every case"], "correctIndex": 1, "explain": "Fee income isn't uniformly \u201csticky\u201d \u2014 a one-off transaction fee is one of the least repeatable revenue types there is, despite the general reputation fees have.", "wrongNote": "Fee income has a general reputation for stickiness, but a one-off transaction fee is the exception, not the rule \u2014 it's about as repeatable as a lottery win."}, {"prompt": "A client's wallet share has climbed for three years: 3%, 4%, 5%, and the growth is spread proportionally across deposits, loans, and fees, with no single flow dominating. Is there a hidden risk here, the way there was in similar-looking trends before?", "options": ["Yes, any rising wallet share should be treated with suspicion", "No, broad-based growth across multiple product lines is genuinely healthy and doesn't carry the same concentration risk as growth driven by one flow", "Yes, because FX income must be involved somewhere", "No, but only because the client's total revenue must be falling"], "correctIndex": 1, "explain": "Not every growing number is hiding a trap. When the growth is genuinely diversified across products, it's exactly the healthy pattern account planning is meant to find.", "wrongNote": "Not every rising number is a trap \u2014 this is the one where the composition genuinely checks out, so treat it on its own evidence rather than defaulting to suspicion."}]}, "7": {"sec": 2, "type": "text", "variants": [{"prompt": "Two different pages of the same account plan say two different things about the same client.<div class='quote'>Strategic Priorities page: \u201cClient is planning aggressive growth, targeting GHS 950,000,000 in revenue next year.\u201d<br>Financial Performance page (this year's audited accounts): current revenue is GHS 600,000,000.</div>Before this plan goes anywhere near a client meeting, what should the RM actually do?", "keywords": ["flag", "inconsist", "discrepan", "mismatch", "confirm", "which", "source", "final"], "model": "Flag the mismatch rather than quietly picking one number to go with \u2014 then confirm which figure is right, and where the GHS 950,000,000 came from, before the plan gets used for anything.", "explain": "Flag the mismatch rather than quietly picking one number to go with \u2014 then confirm which figure is right, and where the other one came from.", "wrongNote": "A common instinct is to just pick whichever number looks more official or recent. Silently choosing one without asking is the exact failure mode this question is testing."}, {"prompt": "One table on the Financial Performance page shows client revenue as GHS 12,000,000. A second table further down the same page shows GHS 120,000,000 for the same year. What should the RM do before treating either figure as reliable?", "keywords": ["flag", "decimal", "unit", "error", "confirm", "check", "verify"], "model": "Flag the discrepancy and check whether it's a decimal or unit error, confirming the correct figure before using either number.", "explain": "A tenfold gap on the same page is very likely a data-entry or unit error, but that has to be confirmed, not assumed, before either number is trusted.", "wrongNote": "A common instinct is to assume the larger, more impressive-looking number is the correct one \u2014 that's a guess, not a confirmation."}, {"prompt": "A call memo from last month records the CFO committing to a GHS 20,000,000 facility increase. The account plan's Strategic Priorities section, updated this week, makes no mention of this commitment at all. What should the RM do?", "keywords": ["flag", "update", "sync", "reconcile", "gap", "confirm", "supersede"], "model": "Flag the gap between the memo and the plan, and update the plan to reflect the commitment (or confirm it was superseded) before treating either as current.", "explain": "A commitment recorded in a memo but missing from the plan is a sync failure. It needs to be reconciled, not left as a silent gap.", "wrongNote": "A common mistake is assuming the plan is automatically up to date just because it was recently touched \u2014 recency doesn't guarantee completeness."}, {"prompt": "Competitor intelligence notes say a rival bank \u201cholds the primary trade finance mandate\u201d for a client. The Relationships & Risks section of the same account plan lists Access as the client's Primary Banker. What should the RM do with this contradiction?", "keywords": ["flag", "conflict", "verify", "confirm", "check", "current"], "model": "Flag the conflict between the two sections and verify the client's actual current banking position before relying on either claim.", "explain": "Two sections making opposite claims about the same relationship is exactly the kind of conflict that needs resolving before the plan is trusted, not silently smoothed over.", "wrongNote": "A common mistake is assuming the internally-authored section (the plan) must automatically be the correct one \u2014 it deserves the same scrutiny as the competitor intel."}, {"prompt": "The Financial Performance page shows client revenue of GHS 5,000 (thousand), while the Strategic Priorities page separately references GHS 5,000,000 for what appears to be the same figure. Is this necessarily a real contradiction?", "keywords": ["unit", "thousand", "million", "convert", "confirm", "check"], "model": "Not necessarily \u2014 confirm the units on each page (thousands vs. millions) before assuming a genuine conflict; if they match once converted, there's no contradiction at all.", "explain": "Not every apparent mismatch is a real one. Checking units and scale before flagging a contradiction saves chasing a problem that doesn't exist.", "wrongNote": "A common mistake is assuming any two different-looking numbers are automatically a contradiction without checking units first."}]}, "8": {"sec": 2, "type": "mcq", "variants": [{"prompt": "An RM used a GenAI tool to help draft the Financial Performance notes for a client. The draft came back with this line:<div class='quote'>\u201cCFO Kwame Asante has verbally confirmed the bank will approve a GHS 50,000,000 facility increase next quarter.\u201d</div>The RM checks their call notes, the financials, and every document they gave the AI. None of them mention this name, this conversation, or this number.<br><br>What's actually wrong here?", "options": ["Nothing \u2014 AI tools are usually reliable, so it's fine to leave in", "The AI invented a name, a conversation, and a commitment that don't exist anywhere in the source material. This needs to come out, or be clearly flagged as unverified, before it goes near the client", "It's fine to keep \u2014 the RM can fix the CFO's name later if it's wrong", "It's a reasonable projection, and GenAI tools are meant to make estimates like this"], "correctIndex": 1, "explain": "A confident, specific-sounding sentence is more dangerous than a vague one \u2014 it's easier to mistake for something real. This is exactly the \u201cnever invent decision-makers or commitments\u201d guardrail.", "wrongNote": "General reliability, a fixable typo, or a reasonable-sounding projection all miss the point \u2014 the whole claim, not just one detail, has no source at all."}, {"prompt": "An AI-drafted Company Overview states: \u201cThe parent company holds an A- credit rating from a major agency.\u201d No source document provided to the AI mentions any credit rating at all. What's the issue?", "options": ["None, credit ratings are usually public information so this is probably accurate", "The AI invented a specific rating with no source, and it needs to be verified or removed before use", "It's fine since A- is a reasonable guess for a company this size", "It's fine as long as the RM double-checks it eventually, no urgency needed"], "correctIndex": 1, "explain": "A specific-sounding rating is exactly the kind of detail that must trace back to a real source before it goes anywhere near a credit conversation.", "wrongNote": "Public availability, a plausible guess, or eventual double-checking don't substitute for an actual source behind a specific rating claim."}, {"prompt": "An AI-drafted Relationships section lists: \u201cGroup CFO, Mr. Adjei, has expressed strong support for expanding the Access relationship.\u201d No call memo, note, or document mentions a Group CFO by this or any name. What's the issue?", "options": ["Nothing, the AI likely inferred this from context reasonably", "The AI invented both a person and their stated opinion with no source at all, which is a serious guardrail violation", "It's fine, the name can be corrected later if wrong", "It's fine since expressing support is a low-stakes claim"], "correctIndex": 1, "explain": "Inventing a stakeholder's identity and their opinion is a double violation, not a minor detail to tidy up later, since it could shape real coverage decisions.", "wrongNote": "A reasonable-sounding inference, a fixable name, or a low-stakes-seeming claim are all beside the point \u2014 a person and their opinion were both invented from nothing."}, {"prompt": "An AI-drafted pipeline note recommends: \u201cA spread of 2.3% is appropriate for this facility, based on current market benchmarks.\u201d No market benchmark or comparable pricing data was included in anything given to the AI. What's the issue?", "options": ["Nothing, 2.3% sounds like a reasonable market rate", "The AI presented an unsupported number as if it were benchmarked fact, when no benchmark data was actually provided", "It's fine, pricing can always be adjusted at proposal stage", "It's fine since spreads are usually similar across deals anyway"], "correctIndex": 1, "explain": "Stating a number \u201cbased on market benchmarks\u201d implies real data behind it. Without that data, it's a guess dressed up as evidence.", "wrongNote": "Sounding reasonable, being adjustable later, or matching typical deals are all beside the point \u2014 the claim to a benchmark source is what's actually false."}, {"prompt": "An AI-drafted Financial Performance section includes: \u201cFY2025 deposit figures are not available in the provided documents; RM to confirm before this section is finalized.\u201d Is this good or bad AI output?", "options": ["Bad, a usable draft should never have gaps in it", "Good, flagging a genuine data gap instead of inventing a number is exactly the right behavior", "Bad, the AI should have estimated a reasonable figure instead", "Good, but only because deposit figures don't really matter much anyway"], "correctIndex": 1, "explain": "An honest gap is far more useful than a confident invention. This is the AI doing exactly what the guardrails ask for.", "wrongNote": "A gap-free draft or an estimated figure would actually be worse here \u2014 the honest flag is the correct behavior, not a shortcoming."}]}, "9": {"sec": 3, "type": "duo", "variants": [{"prompt": "Here's a contact on one of our accounts. See what you make of him.<br><br>You've tried twice to get 15 minutes with him. Both times, his assistant redirected you to \u201csend materials for review.\u201d The local finance team mentions he's had a long relationship with a competitor bank and doesn't see much reason to change that. Every deal you've proposed for this client is stuck waiting on his sign-off, and none of it has moved in months.<br><br>How would you classify him?", "groupA": {"label": "Influence level", "options": ["Decision Maker", "Gatekeeper", "Influencer"], "correctIndex": 0, "wrongNote": ["", "Gatekeeper would mean he's just filtering access to someone else's decision \u2014 but every deal is stuck waiting on his own sign-off, which points to him being the decision maker.", "An Influencer shapes opinions without final say \u2014 this contact controls whether deals move at all, which is more than influence."]}, "groupB": {"label": "Sentiment toward Access", "options": ["Positive", "Neutral", "Negative"], "correctIndex": 2, "wrongNote": ["Nothing here points to warmth toward Access \u2014 redirecting you twice and favoring a competitor both point away from Positive.", "Neutral would mean no real preference either way \u2014 but a long-standing relationship with a competitor is a real, if quiet, preference.", ""]}, "explain": "He's not just filtering access \u2014 that would be a Gatekeeper. He holds the actual sign-off, and he isn't neutral: he has a standing preference for someone else."}, {"prompt": "Efua Owusu, a Finance Manager, always takes the RM's calls and seems genuinely friendly, but has told the RM plainly: \u201cI just process what head office decides, I don't have any say in it.\u201d Classify Influence and Sentiment.", "groupA": {"label": "Influence level", "options": ["Decision Maker", "Gatekeeper", "Influencer"], "correctIndex": 1, "wrongNote": ["She's told you directly she has no real sign-off power \u2014 that rules out Decision Maker regardless of how accessible she is.", "", "An Influencer shapes opinions without controlling access \u2014 she's explicitly said she just processes decisions made elsewhere, which is closer to a Gatekeeper role."]}, "groupB": {"label": "Sentiment toward Access", "options": ["Positive", "Neutral", "Negative"], "correctIndex": 0, "wrongNote": ["", "Consistently friendly and accessible is a real, positive signal, not a neutral one \u2014 don't undersell genuine warmth just because her authority is limited.", ""]}, "explain": "She's warm and accessible, which is genuinely useful, but she's told you directly she has no real sign-off power, only the ability to pass things along or hold them up."}, {"prompt": "Kwesi Ankrah, an Operations Director, is short and dismissive on calls and has said Access's service \u201chasn't impressed him.\u201d He's also the one who ultimately signs all vendor and banking approvals for his division. Classify Influence and Sentiment.", "groupA": {"label": "Influence level", "options": ["Decision Maker", "Gatekeeper", "Influencer"], "correctIndex": 0, "wrongNote": ["", "He signs the approvals himself \u2014 that's final authority, not just filtering access to someone else.", "Final sign-off authority is more than shaping opinion without a say \u2014 that makes him the Decision Maker."]}, "groupB": {"label": "Sentiment toward Access", "options": ["Positive", "Neutral", "Negative"], "correctIndex": 2, "wrongNote": ["Dismissiveness and a stated lack of being impressed are not positive signals, however brief the interactions are.", "A direct, stated complaint is more than a lack of preference \u2014 that's an actual negative signal.", ""]}, "explain": "Same combination as a classic difficult contact, but for a different underlying reason this time \u2014 real service complaints, not competitor loyalty. The signals still point to real sign-off power and real dissatisfaction."}, {"prompt": "Adjoa Frimpong, a newly hired CFO, has been warm and engaged in her first two calls, but hasn't made any real decisions yet either way. Classify Influence and Sentiment.", "groupA": {"label": "Influence level", "options": ["Decision Maker", "Gatekeeper", "Influencer"], "correctIndex": 0, "wrongNote": ["", "CFOs typically hold real sign-off authority by role, even before a track record of decisions exists.", "The CFO title itself implies more than shaping opinion without final say."]}, "groupB": {"label": "Sentiment toward Access", "options": ["Positive", "Neutral", "Negative"], "correctIndex": 1, "wrongNote": ["Early warmth in two calls isn't the same as a tested, settled preference \u2014 it's too soon to call this confirmed Positive.", "", "Nothing here suggests dissatisfaction \u2014 Negative doesn't fit two warm calls."]}, "explain": "Early warmth isn't the same as a settled, tested relationship. Without a real decision behind it yet, Neutral is the honest read, not Positive."}, {"prompt": "Nana Yaw Ansah, Board Chairman, rarely engages directly with RMs at all, delegating everything to the CFO, but is known industry-wide to personally approve any facility above GHS 100,000,000. Classify Influence and Sentiment for large facilities specifically.", "groupA": {"label": "Influence level", "options": ["Decision Maker", "Gatekeeper", "Influencer"], "correctIndex": 0, "wrongNote": ["", "His approval authority above the threshold is more than filtering access \u2014 it's the final say on large facilities.", "Personal approval authority above a set size is a decision right, not just shaping opinion."]}, "groupB": {"label": "Sentiment toward Access", "options": ["Positive", "Neutral", "Negative"], "correctIndex": 1, "wrongNote": ["With no direct interaction on record, there's no real evidence to call this Positive.", "", "With no direct interaction on record, there's no real evidence to call this Negative either."]}, "explain": "Decision rights can be conditional \u2014 his authority only kicks in above a threshold, but where it applies, he's the real Decision Maker. With no direct interaction, Neutral is honest, not a guess at warmth or hostility."}]}, "10": {"sec": 3, "type": "mcq", "variants": [{"prompt": "Same contact as before: he holds sign-off on every deal, and has a long-standing preference for a competitor bank.<br><br>What's actually going wrong with this relationship?", "options": ["A Gatekeeper problem \u2014 he's just filtering what gets through to the real decision maker", "A Decision-Maker problem \u2014 he holds the pen, and he already favors a competitor", "A relationship-depth problem \u2014 nobody senior enough at Access has ever spoken to him", "A pricing problem \u2014 our offers probably aren't competitive enough"], "correctIndex": 1, "explain": "Option C is the trap. Seniority alone won't move someone who already has a working relationship elsewhere \u2014 the issue is the bias, not the rank of who's asking.", "wrongNote": "Filtering access, missing seniority, and uncompetitive pricing all sound plausible, but none of them match a contact who holds real sign-off and already favors someone else."}, {"prompt": "Ama Asantewaa, Procurement Director at a Tema-based cocoa processing firm, insists every new banking partner go through a formal RFP, and has told colleagues she prefers \u201cknown names.\u201d She has no sign-off authority herself, the MD signs everything, but nothing reaches him without her recommendation first. What's actually going wrong here?", "options": ["A Decision-Maker problem, she's the one really blocking things", "A Gatekeeper problem, she controls access to the real decision but doesn't hold final sign-off", "No problem at all, RFPs are a normal process", "A pricing problem, since RFPs are usually about cost"], "correctIndex": 1, "explain": "She filters what reaches the actual decision maker without holding the pen herself \u2014 that's the textbook Gatekeeper role, distinct from a Decision-Maker bias problem.", "wrongNote": "She doesn't sign off herself, so this isn't a Decision-Maker problem \u2014 and a formal process existing doesn't mean there's no real access challenge to solve."}, {"prompt": "Kwabena Osei, a newly appointed CFO at a Kumasi-based textile exporter, signed off on two small facility requests quickly, but a larger one has sat unanswered for months. What's the right read here?", "options": ["He clearly favors a competitor bank", "There isn't enough evidence yet to diagnose bias, the real next step is finding out why the larger request has stalled, not assuming a preference", "He must be a Gatekeeper, not a real Decision Maker", "The delay definitely means the deal is lost"], "correctIndex": 1, "explain": "A slow larger deal isn't automatically the same signal as a pattern of bias. Jumping straight to \u201ccompetitor preference\u201d here is an over-diagnosis without the evidence to back it.", "wrongNote": "Two quick approvals already show real decision authority, and a stalled bigger deal doesn't automatically mean bias, a blocked Gatekeeper role, or a lost deal \u2014 it means more digging is needed."}, {"prompt": "Yaw Darko, Operations Head at a Takoradi shipping company, has told the RM directly, twice, that Access's rates are higher than what he's seen elsewhere. He has some influence but not final sign-off, and deals stall once they reach him. What's actually going wrong?", "options": ["A relationship-depth problem, he just needs to meet someone senior", "This genuinely is a pricing problem, he's told you directly what the issue is", "A Gatekeeper problem unrelated to price", "A Decision-Maker bias problem toward a specific competitor"], "correctIndex": 1, "explain": "Sometimes the client is telling you exactly what's wrong. \u201cIt's never about price\u201d isn't a universal law, and here the stated objection is the real one.", "wrongNote": "He's told you directly and twice what the issue is \u2014 reaching for seniority, an unrelated access problem, or a specific competitor bias all overlook his own stated reason."}, {"prompt": "Nana Akwasi Boateng, Group Treasurer at the Accra-based parent of an agribusiness group, has never engaged with Access despite three outreach attempts. All decisions above a set threshold defer to his sign-off from group level. What's actually going wrong?", "options": ["A Decision-Maker bias problem, he clearly favors someone else", "A Decision-Maker access problem, there's simply no relationship or evidence of bias, just no access yet", "A pricing problem, since group treasurers usually care most about cost", "A Gatekeeper problem, since he's not the final decision maker"], "correctIndex": 1, "explain": "Three unanswered outreach attempts show an access gap, not evidence of bias toward a competitor. The fix is building a path in, not assuming hostility that hasn't been shown.", "wrongNote": "Nothing here shows a competitor preference or a pricing complaint, and his threshold-based authority makes him a real Decision Maker, not a Gatekeeper \u2014 the honest read is simply no access yet."}]}, "11": {"sec": 3, "type": "mcq", "variants": [{"prompt": "Same contact once more. Given that he already favors a competitor and holds real sign-off power, what's the smartest thing to actually try next?", "options": ["Keep sending proposals and hope one eventually lands", "Have someone he already trusts make a warm, specific introduction tied to one live deal \u2014 not a general pitch", "Skip him entirely and get an Access senior leader to call his boss directly", "Beat the competitor's pricing to make the switch worth his while"], "correctIndex": 1, "explain": "Escalating past him looks decisive but skips the person who actually has his trust \u2014 that usually backfires. And this isn't a price problem: a better deal rarely changes a mind that isn't being reached in the first place.", "wrongNote": "Repetition, a leadership escalation, and a pricing sweetener all skip the real fix \u2014 reaching him through someone he already trusts."}, {"prompt": "A Procurement Director follows a strict, legitimate RFP process for any new banking partner. What's the best move?", "options": ["Try to bypass her and go straight to the MD", "Work credibly within her process, submitting a genuinely strong, compliant proposal", "Wait for the process to fail on its own", "Offer to skip parts of the RFP to save time"], "correctIndex": 1, "explain": "Bypassing a legitimate process-driven Gatekeeper is the wrong instinct here. Respecting and winning within her actual process is what earns credibility.", "wrongNote": "Bypassing her, waiting passively, or trying to shortcut a legitimate process all risk damaging the one relationship that actually controls access here."}, {"prompt": "A Decision Maker has directly and clearly said pricing is the reason deals stall. What's the best move?", "options": ["Arrange a warm introduction through someone he trusts", "Bring an actually improved, benchmarked offer that addresses the stated concern", "Wait and see if he changes his mind on his own", "Escalate to a senior Access leader for a general relationship conversation"], "correctIndex": 1, "explain": "When the stated blocker is genuinely price, a warm introduction doesn't fix the actual objection. The right move here is addressing what he's actually told you.", "wrongNote": "An introduction, passive waiting, or a general relationship conversation all sidestep the specific, stated objection he's already given you."}, {"prompt": "A brand-new CFO has no track record yet, either positive or negative, after two calls. What's the best move?", "options": ["Push a specific pitch immediately to establish momentum", "Invest in relationship-building and information-gathering before pitching anything specific", "Escalate to a senior leader to speed things up", "Assume she favors Access since the calls have gone well so far"], "correctIndex": 1, "explain": "Pitching too early, before really understanding a new contact, is the actual error here. This calls for more Think before any real Engage.", "wrongNote": "Pushing a pitch, escalating prematurely, or assuming warmth all move faster than the relationship actually supports at this early stage."}, {"prompt": "A Decision Maker at group level has simply never been reached, despite genuine outreach attempts. What's the best move?", "options": ["Keep cold-emailing until something lands", "Use the local counterpart who already has his trust to make a specific, warm introduction", "Assume he's biased toward a competitor and give up on this route", "Skip him and route everything through a Gatekeeper instead"], "correctIndex": 1, "explain": "The same warm-introduction instinct applies here, but for a different reason than bias \u2014 this time it's purely an access gap, and a trusted local counterpart is the way in.", "wrongNote": "Repeating cold outreach, assuming bias with no evidence, or routing around him entirely all miss the most direct fix \u2014 a warm path through someone who already has his trust."}]}, "12": {"sec": 4, "type": "mcq", "variants": [{"prompt": "A client tells you: <div class='quote'>\u201cWe're bringing in a lot more raw material from overseas this year, and every time the exchange rate moves, it eats into our margin before we've even sold anything.\u201d</div>What are they actually asking for, even though they didn't use this word?", "options": ["A better savings account rate", "A way to lock in exchange rates on their imports \u2014 FX hedging", "A bigger overdraft facility", "A dedicated relationship manager"], "correctIndex": 1, "explain": "The client is describing FX risk in plain language. Translating a real complaint into a specific, credible product is the whole point of this section.", "wrongNote": "Nothing in the complaint is about deposits, general credit, or coverage \u2014 it's specifically about currency movement eating into margin."}, {"prompt": "A client says: <div class='quote'>\u201cOur big customers pay us ninety days late, and we're always short on cash in between.\u201d</div>What are they actually asking for?", "options": ["Invoice discounting or receivables financing", "A term loan for equipment", "FX hedging on imports", "A general savings account"], "correctIndex": 0, "explain": "The complaint is specifically about the timing gap between delivering goods and getting paid \u2014 that's a receivables problem, best solved with receivables financing, not a term loan or FX product.", "wrongNote": "Nothing here is about equipment, currency exposure, or deposits \u2014 it's specifically about the cash gap created by slow customer payments."}, {"prompt": "A client says: <div class='quote'>\u201cWe're expanding into three new regional markets next year and need to open accounts in each place for our sales teams to collect cash.\u201d</div>What are they actually asking for?", "options": ["A single term loan for the expansion", "A multi-branch or regional cash-management and collections solution", "An FX hedging program", "A dedicated relationship manager in each region"], "correctIndex": 1, "explain": "The specific need is about collecting cash across several new locations \u2014 that points to a cash-management and collections setup, not a lump-sum loan.", "wrongNote": "A loan, FX hedging, and extra relationship managers don't address the actual logistics problem of collecting cash across several new locations."}, {"prompt": "A client says: <div class='quote'>\u201cEvery payday, we're moving cash manually to twelve different branch accounts and it's a nightmare to track.\u201d</div>What are they actually asking for?", "options": ["An FX hedging product", "A payroll and cash-pooling solution", "A bigger overdraft facility", "A savings account for each branch"], "correctIndex": 1, "explain": "The pain point is specifically about moving and tracking payroll cash across branches \u2014 that's a cash-pooling or payroll solution, not a credit or FX product.", "wrongNote": "FX hedging, an overdraft, and multiple savings accounts don't solve the actual problem of manually moving and tracking payroll cash."}, {"prompt": "A client says: <div class='quote'>\u201cWe just won a big export order to a client abroad and need to know we'll actually get paid before we ship anything.\u201d</div>What are they actually asking for?", "options": ["Trade finance or a letter of credit", "A general savings account", "An overdraft facility", "A term loan for new equipment"], "correctIndex": 0, "explain": "The specific worry is payment certainty before shipping goods abroad \u2014 that's exactly what trade finance and letters of credit are built to solve.", "wrongNote": "A savings account, an overdraft, and equipment financing don't address the specific worry about payment certainty on an export shipment."}]}, "13": {"sec": 4, "type": "mcq", "variants": [{"prompt": "A client's Strategic Priorities section lists three things:<div class='quote'>1. \u201cWe need to expand our warehouse capacity by next year\u201d \u2014 said directly by the CFO in a meeting<br>2. \u201cThe client is probably worried about succession planning\u201d \u2014 the RM's own impression, no direct source<br>3. \u201cClient plans to diversify into logistics services\u201d \u2014 mentioned in a local news article about the industry, not confirmed by the client</div>Which of these is safest to build a real pipeline opportunity on right now?", "options": ["Priority 1 \u2014 it's a direct statement from the CFO", "Priority 2 \u2014 RM instinct is usually right", "Priority 3 \u2014 the news article is a credible outside source", "All three are equally safe to act on"], "correctIndex": 0, "explain": "A direct statement from someone who'd actually make the decision is real evidence. The RM's hunch and an unconfirmed news mention are worth noting as leads to validate \u2014 not worth pricing into a pipeline entry yet.", "wrongNote": "An RM's hunch and an unconfirmed news article are both worth investigating, but neither is confirmed the way a direct CFO statement is."}, {"prompt": "Priorities section lists: 1) A polished slide deck the client's marketing team shared publicly at a conference, describing ambitious but unconfirmed growth plans. 2) A short, specific verbal comment from the CFO in a private call, confirming an exact number. 3) A rumor passed on by a competitor's RM. Which is safest to act on?", "options": ["Priority 1, since it's a professional, public document", "Priority 2, the CFO's direct private confirmation, despite looking less polished", "Priority 3, since competitor RMs often have good intel", "All three carry equal weight"], "correctIndex": 1, "explain": "Looking official and polished isn't the same as being confirmed. A specific verbal commitment from the actual decision maker beats a glossy but aspirational public deck, and beats a third-party rumor entirely.", "wrongNote": "Polish and public visibility don't equal confirmation, and a rumor from a competitor's RM is one of the least reliable sources on this list."}, {"prompt": "Priorities section lists three RM-generated notes: 1) Notes from a call where the CFO explicitly agreed to a specific number. 2) The RM's own projection based on general industry trends. 3) The RM's assumption that \u201cclients like this usually need X.\u201d Which is safest to act on?", "options": ["Note 1, anchored in an actual client statement", "Note 2, industry trends are usually reliable", "Note 3, pattern-matching from experience is valuable", "All three are equally strong evidence"], "correctIndex": 0, "explain": "Only the first note is anchored in something the client actually said. The other two are the RM's own reasoning, useful for forming hypotheses, but not confirmed priorities.", "wrongNote": "Industry trends and pattern-matching are useful for forming hypotheses, but neither is the same as the client actually confirming something themselves."}, {"prompt": "A client tells the RM directly, \u201cwe're doing very well this year,\u201d while the audited financials on file show a net loss for the same period. What should the RM do with the client's statement?", "options": ["Trust the client's own words over the financials", "Flag the contradiction and validate before building any priority or pipeline entry on either claim", "Trust the financials automatically since they're audited", "Ignore both and wait for next year's numbers"], "correctIndex": 1, "explain": "Neither source should be blindly trusted when they disagree this sharply. The same golden rule from the financials section applies here: flag it, don't silently pick one.", "wrongNote": "Choosing one source outright, or ignoring the contradiction entirely, both skip the step that actually matters \u2014 flagging the mismatch and validating it."}, {"prompt": "Priorities section lists: 1) A signed letter of intent from the client confirming a specific expansion budget. 2) A verbal, off-the-cuff comment from a junior finance staffer speculating about future plans. Which is safest to build a pipeline opportunity on?", "options": ["The signed letter of intent", "The junior staffer's comment, since it's more recent", "Both equally, since both came from within the client organization", "Neither, until a third source confirms them"], "correctIndex": 0, "explain": "A signed commitment from someone with real standing to make it is far stronger evidence than a casual, speculative comment from someone without decision authority.", "wrongNote": "Recency and internal origin don't make a casual, speculative comment equivalent to a signed commitment from someone with real authority."}]}, "14": {"sec": 5, "type": "numeric", "variants": [{"prompt": "A client wants a term loan of <b>GHS 40,000,000</b> to buy new equipment. Access would earn a <b>2% spread</b> on it, and you'd put the odds of this actually closing at <b>50%</b>.<br><br>What's the annualized value of this opportunity, in GHS?", "correct": 400000, "unit": "GHS", "tolerance": 5000, "explain": "Volume \u00d7 spread \u00d7 probability = 40,000,000 \u00d7 2% \u00d7 50% = GHS 400,000.", "wrongNote": "A common slip is leaving out the probability step, or multiplying only two of the three numbers."}, {"prompt": "A client wants a facility of <b>GHS 25,000,000</b>. Access would earn a <b>1.5% spread</b>, with a <b>60% probability</b> of closing. What's the annualized value of this opportunity, in GHS?", "correct": 225000, "unit": "GHS", "tolerance": 5000, "explain": "Volume \u00d7 spread \u00d7 probability = 25,000,000 \u00d7 1.5% \u00d7 60% = GHS 225,000.", "wrongNote": "A common slip is rounding the spread or probability before multiplying, which throws off the final figure."}, {"prompt": "Access wants an annualized value of <b>GHS 300,000</b> from a deal with a <b>2.5% spread</b> and a <b>40% probability</b> of closing. What volume, in GHS, is needed to hit that target?", "correct": 30000000, "unit": "GHS", "tolerance": 200000, "explain": "300,000 \u00f7 (2.5% \u00d7 40%) = 300,000 \u00f7 0.01 = GHS 30,000,000.", "wrongNote": "A common slip is dividing by only the spread or only the probability instead of their combined product."}, {"prompt": "A term loan of <b>GHS 50,000,000</b> has a <b>1% spread</b>, an <b>80% probability</b> of closing, and a <b>3-year tenor</b>. What's the annualized value, in GHS?", "correct": 400000, "unit": "GHS", "tolerance": 5000, "explain": "Annualized value = volume \u00d7 spread \u00d7 probability = 50,000,000 \u00d7 1% \u00d7 80% = GHS 400,000. Tenor is not part of this calculation.", "wrongNote": "A common slip is multiplying by the tenor as well, which would wrongly triple the figure. Tenor affects total weighted value, not the annualized figure."}, {"prompt": "A client is being offered two products: a loan of <b>GHS 20,000,000</b> at a <b>2% spread</b> with <b>50% probability</b>, and an FX line of <b>GHS 10,000,000</b> at a <b>1% spread</b> with <b>70% probability</b>. What's the combined annualized value of both opportunities, in GHS?", "correct": 270000, "unit": "GHS", "tolerance": 5000, "explain": "Loan: 20,000,000 \u00d7 2% \u00d7 50% = 200,000. FX: 10,000,000 \u00d7 1% \u00d7 70% = 70,000. Combined = GHS 270,000.", "wrongNote": "A common slip is calculating only one of the two opportunities and forgetting to sum both."}]}, "15": {"sec": 5, "type": "bucket", "variants": [{"tile": "Client's finance team reviewed Access's proposal, sent back detailed comments on pricing, and is now going back and forth on the exact terms week to week.", "zones": ["Prospecting", "Proposal", "Negotiation", "Committed"], "correctZone": 2, "explain": "Terms are being actively discussed on both sides \u2014 that's the definition of Negotiation, one stage past a submitted Proposal.", "wrongNote": ["Prospecting is earlier-stage, before any real proposal has been made \u2014 but pricing comments are already being exchanged here.", "A Proposal has been submitted once \u2014 this is a stage further, with both sides actively going back and forth on terms.", "", "Committed means a verbal or written commitment is already in hand \u2014 going back and forth on terms isn't there yet."]}, {"tile": "Client has verbally agreed to the facility, and documentation is now being drawn up for signature.", "zones": ["Prospecting", "Proposal", "Negotiation", "Committed"], "correctZone": 3, "explain": "A verbal or written commitment already in hand, with documentation underway, is exactly what Committed describes.", "wrongNote": ["This is well past the early identification stage of Prospecting.", "A Proposal being reviewed is earlier than an agreement already reached.", "Negotiation is the discussion stage \u2014 this has moved past discussion into an actual agreement.", ""]}, {"tile": "The RM has identified a potential need based on the client's recent expansion announcement, but hasn't approached the client about it yet.", "zones": ["Prospecting", "Proposal", "Negotiation", "Committed"], "correctZone": 0, "explain": "An early-stage opportunity identified before any real discussion has started with the client is exactly Prospecting.", "wrongNote": ["", "A Proposal requires something to actually be submitted to the client \u2014 nothing has been sent yet.", "Negotiation requires active back-and-forth, which can't happen before any approach has been made.", "Committed is far beyond this early identification stage."]}, {"tile": "A formal term sheet was sent two weeks ago; the client hasn't responded despite a follow-up call.", "zones": ["Prospecting", "Proposal", "Negotiation", "Committed"], "correctZone": 1, "explain": "A submitted term sheet awaiting client feedback is still Proposal. A follow-up call without real engagement back doesn't count as active two-sided negotiation yet.", "wrongNote": ["A term sheet has already been sent, which is further along than Prospecting.", "", "A follow-up call with no response back isn't the same as active, two-sided negotiation.", "Committed requires an actual agreement, which hasn't happened here."]}, {"tile": "The client signed the facility, and it's now live and generating revenue.", "zones": ["Prospecting", "Proposal", "Negotiation", "Won"], "correctZone": 3, "explain": "A deal that's closed and actively generating revenue has moved past Committed into Won, the final stage once the facility is truly live.", "wrongNote": ["This is far beyond the early identification stage.", "This is well past a submitted proposal awaiting feedback.", "This is well past active discussion of terms \u2014 it's already signed and live.", ""]}]}, "16": {"sec": 5, "type": "mcq", "variants": [{"prompt": "A trade finance facility worth <b>GHS 150,000,000</b> is logged in the pipeline as \u201cNegotiation.\u201d But here's the catch \u2014 the only two people who could actually approve a new banking facility for this client have never met with anyone from Access, and neither has ever responded to an email or call.<br><br>Does \u201cNegotiation\u201d make sense here?", "options": ["Yes \u2014 negotiation just means the bank side is discussing terms internally", "No \u2014 negotiation means both sides are actively discussing terms. With no relationship to either approver, this belongs back at Prospecting, and building access to those two people is the real next step", "Yes \u2014 the deal is big enough to justify being this far along", "No \u2014 it should be marked Lost since there's no relationship at all"], "correctIndex": 1, "explain": "A stage should describe reality, not ambition. Without access to a single approver, calling this \u201cNegotiation\u201d hides exactly the gap that needs fixing.", "wrongNote": "Internal-only discussion, deal size, and a total absence of relationship don't justify Negotiation or Lost \u2014 the honest answer is this hasn't really started yet with the right people."}, {"prompt": "A facility is marked Committed, but the CFO, the only real sign-off authority, has told the RM in writing, \u201cI have not agreed to anything yet.\u201d Does Committed make sense here?", "options": ["Yes, an earlier verbal impression from someone else is enough to justify it", "No, a written denial from the actual decision maker overrides an assumed agreement, this should revert to Negotiation or Proposal", "Yes, the paperwork being drafted is what matters, not the CFO's comment", "No, this should be marked Lost immediately"], "correctIndex": 1, "explain": "A direct written denial from the person who actually decides overrides any earlier impression of agreement. The stage needs to reflect what's actually confirmed.", "wrongNote": "An earlier impression from someone else, or paperwork already in motion, don't override a direct written denial from the actual decision maker \u2014 and a denial isn't the same as Lost either."}, {"prompt": "A deal is marked Won, but Finance confirms no funds have been disbursed and nothing is signed, just a friendly verbal \u201csounds good\u201d from a mid-level contact with no sign-off power. Does Won make sense here?", "options": ["Yes, enthusiasm from anyone at the client counts", "No, Won requires a live product actually generating revenue, backed by someone with real sign-off authority, not just enthusiasm from an unauthorized contact", "Yes, since paperwork is just a formality at this point", "No, this should actually be marked Lost"], "correctIndex": 1, "explain": "Won means the facility is live and earning revenue with proper authority behind it, not a warm comment from someone who can't actually approve anything.", "wrongNote": "Enthusiasm from an unauthorized contact, or treating paperwork as a formality, both overstate real progress \u2014 and this also isn't Lost, since the client hasn't walked away."}, {"prompt": "A deal sits at Prospecting, but it's actually already had three rounds of pricing negotiation directly with the CFO. Does Prospecting still make sense here?", "options": ["Yes, Prospecting is fine until documents are signed", "No, this is under-staged, real progress with the actual decision maker means it should be moved up to Negotiation", "Yes, because pricing talks don't count as real progress", "No, this should be marked Proposal only, nothing further"], "correctIndex": 1, "explain": "Pipeline stages can be wrong in both directions. Real, active back-and-forth with the actual decision maker means this deal has clearly moved well past Prospecting.", "wrongNote": "Waiting for signatures, dismissing pricing talks, or capping it at Proposal all understate the real, active progress already made with the actual decision maker."}, {"prompt": "A facility is marked Proposal, but it legally requires Bank of Ghana regulatory approval before it can even be offered, and that approval hasn't been sought yet. What should the RM do?", "options": ["Move it straight to Negotiation since the client is enthusiastic", "Flag the regulatory step as a precondition, the deal can't honestly progress further until it's addressed, regardless of client enthusiasm", "Ignore the regulatory requirement since it's a legal matter, not a pipeline matter", "Mark it Lost since regulatory steps usually take too long"], "correctIndex": 1, "explain": "A real external precondition like regulatory approval has to be accounted for honestly in the stage, client enthusiasm alone can't move a deal past a hurdle that hasn't been cleared.", "wrongNote": "Client enthusiasm, treating it as purely a legal matter, or assuming the worst all miss the actual next step \u2014 flagging and addressing the regulatory precondition directly."}]}, "17": {"sec": 5, "type": "numeric", "variants": [{"prompt": "This client's pipeline currently adds up to <b>GHS 1,120,000</b> in weighted value. The target for this client this year is <b>GHS 2,500,000</b>.<br><br>What's the gap between where the pipeline is and where it needs to be?", "correct": 1380000, "unit": "GHS", "tolerance": 10000, "explain": "2,500,000 \u2212 1,120,000 = GHS 1,380,000. Naming this gap plainly is what makes the pipeline a forecast rather than a wish list.", "wrongNote": "A common mistake is subtracting in the wrong direction, or reporting the target itself as the answer."}, {"prompt": "A client's pipeline adds up to <b>GHS 3,200,000</b> in weighted value. The target for this client this year is <b>GHS 2,000,000</b>. What's the gap between the pipeline and the target, in GHS (enter the size of the gap, regardless of direction)?", "correct": 1200000, "unit": "GHS", "tolerance": 10000, "explain": "3,200,000 \u2212 2,000,000 = GHS 1,200,000, and since the pipeline exceeds the target, this is a surplus, not a shortfall.", "wrongNote": "A common mistake is not recognizing this is a positive gap, meaning the client is already ahead of plan, not behind."}, {"prompt": "Two opportunities sit in a client's pipeline: one with a weighted value of <b>GHS 650,000</b>, and another with a weighted value of <b>GHS 400,000</b>. The target for this client this year is <b>GHS 1,500,000</b>. What's the gap to target, in GHS?", "correct": 450000, "unit": "GHS", "tolerance": 10000, "explain": "Total pipeline = 650,000 + 400,000 = 1,050,000. Gap = 1,500,000 \u2212 1,050,000 = GHS 450,000.", "wrongNote": "A common mistake is forgetting to sum both opportunities before subtracting from the target."}, {"prompt": "A client's total revenue is <b>GHS 500,000,000</b>. The target wallet share for this client this year is <b>4%</b>. The pipeline currently totals <b>GHS 800,000</b> in weighted value. Using the standard 3% revenue-pool assumption, what's the gap between the pipeline and the target, in GHS (enter the size of the gap)?", "correct": 200000, "unit": "GHS", "tolerance": 10000, "explain": "Revenue pool = 3% of 500,000,000 = 15,000,000. Target = 4% of 15,000,000 = 600,000. Gap = pipeline (800,000) minus target (600,000) = a surplus of GHS 200,000, meaning the pipeline is already ahead of target.", "wrongNote": "A common mistake is skipping the target calculation and just subtracting the pipeline from the revenue pool or from the wallet share percentage directly."}, {"prompt": "A client's pipeline totals <b>USD 200,000</b> in weighted value. The target for this client this year is <b>GHS 1,000,000</b>. Using an exchange rate of GHS 12 to USD 1, what's the gap between the pipeline and the target, in GHS?", "correct": 1400000, "unit": "GHS", "tolerance": 20000, "explain": "USD 200,000 \u00d7 12 = GHS 2,400,000. Gap = 2,400,000 \u2212 1,000,000 = a surplus of GHS 1,400,000.", "wrongNote": "A common mistake is subtracting the raw USD figure from the GHS target without converting currencies first."}]}, "18": {"sec": 6, "type": "mcq", "variants": [{"prompt": "An RM logs this note in the client engagement tracker after a call:<div class='quote'>\u201cGood chat with the finance team today, they seem happy with us.\u201d</div>No date. No names. No next step. No owner.<br><br>Is this a good entry?", "options": ["Yes \u2014 it captures the mood of the relationship, which is what really matters", "No \u2014 a tracker entry needs to work for the whole team: who was there, what was agreed, what happens next, and who's on the hook for it. A mood note with none of that isn't something anyone else can act on", "Yes \u2014 the RM will remember the details anyway", "No \u2014 every entry needs to include a number"], "correctIndex": 1, "explain": "A tracker only earns its name if a colleague could pick up the account cold and know exactly what to do next.", "wrongNote": "Mood, personal memory, and a missing number are all beside the point \u2014 the real issue is missing structure a colleague could actually act on."}, {"prompt": "An RM logs a call with a clear next action and a date, but writes \u201csomeone will follow up\u201d instead of naming who. Is this entry complete?", "options": ["Yes, having an action and a date is enough", "No, without a named owner, nobody actually knows who's responsible, which defeats the purpose of the entry", "Yes, the RM is obviously the owner by default", "No, because dates don't matter as much as owners"], "correctIndex": 1, "explain": "An action with no named owner tends to quietly not happen. Every required field matters, missing just one still breaks the entry's usefulness.", "wrongNote": "Having some fields present, or assuming a default owner, doesn't fix the real gap \u2014 nobody is actually named as responsible."}, {"prompt": "An RM writes a full paragraph of narrative prose about a call, with real, useful content buried inside, but none of it organized under next action, owner, or date fields. Is this a usable entry?", "options": ["Yes, as long as the content itself is accurate and detailed", "The content might be valuable, but the format fails the tracker's job, useful information buried in prose isn't the same as a structured, actionable entry", "No, narrative writing should never be used in a call tracker", "Yes, because detail is always better than structure"], "correctIndex": 1, "explain": "Good information in the wrong shape still isn't usable by the next person in a hurry. Structure is what makes a tracker actually work as a tracker.", "wrongNote": "Accuracy and detail are valuable, but they don't substitute for structure \u2014 and narrative content itself isn't the problem, its lack of organization is."}, {"prompt": "An RM's entry has an action, an owner, a date, and a validation question, everything required, but the action itself reads \u201cfollow up soon.\u201d Is this entry genuinely complete?", "options": ["Yes, all four required elements are technically present", "Not really, a next action needs to be specific to be usable, \u201cfollow up soon\u201d doesn't tell anyone what to actually do", "Yes, vague actions are fine as long as a date is attached", "No, because the validation question is the only field that actually matters"], "correctIndex": 1, "explain": "Having all four fields present is necessary but not sufficient, each field also needs to actually say something specific to be genuinely usable.", "wrongNote": "Technically having every field, or having a date attached, doesn't fix a vague action that tells nobody what to actually do."}, {"prompt": "Two colleagues log separate notes about the same call: one says the client's budget was approved, the other says it's still pending, and neither entry names an owner or a date. What does this situation actually show?", "options": ["That call memos shouldn't be logged by more than one person", "That this is exactly why every entry needs a clear owner and date, conflicting, unattributed logs create the same risk as an under-detailed one", "That the two colleagues should just agree on one version informally", "That this kind of conflict doesn't really matter as long as one version is eventually right"], "correctIndex": 1, "explain": "Without ownership and dates, there's no way to tell which account is more current or reliable, conflicting logs are just as risky as incomplete ones.", "wrongNote": "Banning multiple loggers, or settling things informally, both dodge the real fix \u2014 attribution and dating that would make the conflict resolvable in the first place."}]}, "19": {"sec": 7, "type": "mcq", "variants": [{"prompt": "A competitor bank has held a client's trade finance mandate for eight years. They're steady, but slow \u2014 the client's finance team has mentioned more than once that getting a new letter of credit approved takes far longer than they'd like, especially next to how fast Access moves.<br><br>What's the sharpest way for Access to use this?", "options": ["Undercut hard on price to force a switch", "Lead with speed and responsiveness on LC turnaround as the specific reason to give Access a shot \u2014 not a general pitch", "Wait for the competitor to slip up before doing anything", "Copy the competitor's offering as closely as possible"], "correctIndex": 1, "explain": "Against an eight-year incumbent, price rarely moves the needle. A concrete, specific edge the client has already complained about is a far sharper wedge.", "wrongNote": "Price, passive waiting, and imitation all give up the one specific, already-validated edge Access actually has here."}, {"prompt": "A competitor is known for aggressive pricing, but has a reputation for poor after-sales service and slow complaint resolution, and the client has quietly mentioned frustration with this. What's the sharpest implication for Access?", "options": ["Match the competitor's aggressive pricing immediately", "Lead with service quality and responsiveness rather than trying to price-match", "Avoid the client until the competitor's pricing changes", "Assume price is the only thing that matters to this client"], "correctIndex": 1, "explain": "Trying to out-price an aggressive incumbent is a losing game. The real opening here is the service gap the client has already flagged.", "wrongNote": "Matching price, avoiding the client, or assuming price is everything all overlook the specific frustration the client has already voiced."}, {"prompt": "A competitor bank recently lost the relationship manager who personally held most of the relationship with a client. What's the sharpest implication for Access?", "options": ["Nothing changes, relationship managers don't matter that much", "This is a moment to increase Access's own engagement and visibility, since the incumbent's continuity with this client is now weaker", "Assume the client will automatically leave the competitor now", "Wait a year before doing anything, since the transition needs time to settle"], "correctIndex": 1, "explain": "A departed relationship owner is a genuine window, the client's connection to the incumbent bank is temporarily less personal, which is exactly when increased Access visibility can matter most.", "wrongNote": "Assuming nothing changes, assuming an automatic switch, or waiting passively all miss the real, time-sensitive opening this creates."}, {"prompt": "A competitor has just launched a new digital platform the client has specifically praised in conversation. What's the sharpest implication for Access?", "options": ["Compete on price instead, since digital platforms are hard to match", "Assess and work toward matching or exceeding the digital capability specifically, since that's the dimension the client actually cares about", "Ignore it, digital platforms rarely influence real banking decisions", "Try to convince the client digital platforms don't matter"], "correctIndex": 1, "explain": "The client has told you exactly what impressed them. Competing on an unrelated dimension like price ignores the actual signal being given.", "wrongNote": "Competing on price, dismissing digital entirely, or arguing against the client's own stated preference all ignore the specific signal the client just gave."}, {"prompt": "A client mentions that a competitor bank recently declined to increase their facility limit, citing sector risk concerns, in a cyclical industry the client operates in. What's the sharpest implication for Access?", "options": ["Assume this is purely a relationship opening and pursue aggressively", "Proceed cautiously and investigate the underlying credit-risk concern before assuming this is simply an opportunity", "Offer to approve the facility immediately to win the business", "Assume the competitor made a mistake and there's no real risk"], "correctIndex": 1, "explain": "A competitor's decline isn't automatically bad judgment on their part, there may be a genuine sector-risk reason behind it that Access should understand before rushing in.", "wrongNote": "Treating this as a pure opportunity, rushing to approve, or dismissing the competitor's judgment all skip the step of actually understanding the underlying risk first."}]}, "20": {"sec": 7, "type": "slider2", "variants": [{"prompt": "You've got two live opportunities with the same client. One is a GHS 500,000,000 mandate currently sitting entirely with a competitor \u2014 you don't have a relationship with anyone who'd approve moving it. The other is a GHS 40,000,000 facility where the client's own ops manager already trusts Access and has asked for a proposal.<br><br>Where should you actually put your energy first?", "leftLabel": "The GHS 500m mandate", "rightLabel": "The GHS 40m facility", "correctSide": 1, "explain": "The smaller deal is winnable now, and winning it builds real trust and momentum \u2014 that's often exactly what eventually opens the door to the bigger mandate. Chasing the big number with no relationship behind it is a common, expensive mistake.", "wrongNote": "Chasing the bigger number with no relationship behind it is a common, expensive mistake \u2014 size alone doesn't make an opportunity winnable."}, {"prompt": "One opportunity is GHS 300,000,000 with a Decision Maker who's explicitly hostile and loyal to a competitor, very low winnability despite the size. The other is GHS 15,000,000 where the client has already asked Access for a proposal.<br><br>Where should you put your energy first?", "leftLabel": "The GHS 300m opportunity", "rightLabel": "The GHS 15m opportunity", "correctSide": 1, "explain": "Chasing a hostile, low-winnability opportunity purely for its size is a common, expensive mistake. The smaller, genuinely winnable deal is the better use of effort.", "wrongNote": "A hostile decision maker with a competitor loyalty rarely converts just because the number is large \u2014 winnability matters more than size."}, {"prompt": "One opportunity is GHS 20,000,000 with a friendly client, but there's no stated need or budget behind it yet. The other is GHS 180,000,000 where the client has a confirmed, budgeted need and Access already holds a foothold relationship, early but not hostile.<br><br>Where should you put your energy first?", "leftLabel": "The GHS 20m opportunity", "rightLabel": "The GHS 180m opportunity", "correctSide": 1, "explain": "\u201cFriendly but no real need\u201d is actually the weaker opportunity here, despite feeling comfortable. A confirmed, budgeted need with an existing foothold is the stronger bet, even though it's the larger number this time.", "wrongNote": "A friendly relationship with no real, budgeted need behind it is a weaker bet than a confirmed need with an existing foothold, even when it's the smaller number."}, {"prompt": "Both opportunities are similar in size. One requires convincing a hostile Decision Maker with no relationship at all. The other is simply renewing an already-agreed facility with a client where Access is the Primary Banker.<br><br>Where should you put your energy first?", "leftLabel": "The hostile Decision Maker opportunity", "rightLabel": "The renewal with the existing relationship", "correctSide": 1, "explain": "Protecting and deepening an existing strong relationship is almost always a better use of effort than chasing a cold, hostile opportunity of similar size.", "wrongNote": "A cold, hostile opportunity rarely beats the value of protecting and deepening an already-strong existing relationship of similar size."}, {"prompt": "One opportunity is smaller but time-sensitive, the client needs an answer this month or will go elsewhere. The other is larger with no particular urgency and a lukewarm relationship.<br><br>Where should you put your energy first?", "leftLabel": "The smaller, time-sensitive opportunity", "rightLabel": "The larger, non-urgent opportunity", "correctSide": 0, "explain": "Urgency paired with reasonable winnability can outrank a bigger but non-urgent, uncertain opportunity, missing the smaller deal's window costs a real, ready client.", "wrongNote": "A bigger number with no urgency and a lukewarm relationship can easily lose to a smaller, time-sensitive deal that's ready to close now."}]}, "21": {"sec": 8, "type": "bucket", "variants": [{"tile": "Before the quarterly review, the RM re-reads last year's wallet share numbers and pulls the client's latest annual report.", "zones": ["Think", "Plan", "Engage"], "correctZone": 0, "explain": "This is pure information-gathering \u2014 economics, wallet position, relationship health. That's Think.", "wrongNote": ["", "Plan is about deciding what to pursue and lining up the team \u2014 this is still the information-gathering step before that.", "Engage is the actual client-facing meeting \u2014 re-reading numbers alone happens well before any of that."]}, {"tile": "The RM pulls the client's latest GSE filing and cross-checks it against last quarter's call memo before the meeting.", "zones": ["Think", "Plan", "Engage"], "correctZone": 0, "explain": "Cross-checking sources to build an accurate picture of the client, before deciding anything or meeting anyone, is Think.", "wrongNote": ["", "This is still fact-checking and diagnosis, not yet deciding what to pursue or who to involve.", "Reviewing documents before a meeting happens well before the meeting itself."]}, {"tile": "The RM asks a colleague in the Kumasi branch what they know about this client's payment behavior with other Access relationships.", "zones": ["Think", "Plan", "Engage"], "correctZone": 0, "explain": "Gathering internal intelligence to understand the client better, before any decision or meeting, is still Think.", "wrongNote": ["", "Gathering intelligence is diagnosis, not yet organizing a specific plan of action.", "Asking a colleague for background is internal, not client-facing engagement."]}, {"tile": "The RM notices a shift in the client's deposit pattern and digs into FINCON data to understand why.", "zones": ["Think", "Plan", "Engage"], "correctZone": 0, "explain": "Investigating a signal to understand what's actually happening with the client's economics is Think, before any decision about what to do about it.", "wrongNote": ["", "Investigating why something happened is diagnosis, not yet deciding what to do about it.", "Digging into internal data isn't a client-facing meeting."]}, {"tile": "The RM lists out every product the client currently holds with Access to understand where the real gaps are.", "zones": ["Think", "Plan", "Engage"], "correctZone": 0, "explain": "This looks close to Plan since it's about gaps, but it's still diagnosis, understanding the current position, not yet deciding which opportunities to pursue or who to involve.", "wrongNote": ["", "This is understanding the current position, not yet the decision-and-team-building step that defines Plan.", "Listing existing products internally isn't a client-facing meeting."]}]}, "22": {"sec": 8, "type": "bucket", "variants": [{"tile": "The RM decides which three opportunities to pursue this quarter, and loops in colleagues from credit and treasury to build the right team around them.", "zones": ["Think", "Plan", "Engage"], "correctZone": 1, "explain": "Prioritizing opportunities and assembling the right internal team to go after them \u2014 that's Plan.", "wrongNote": ["Think is the information-gathering step that should already be done by this point \u2014 this action is about deciding and organizing, a step further.", "", "Engage is the client-facing meeting itself \u2014 assembling the internal team happens before that, not during it."]}, {"tile": "The RM decides to bring in the trade finance specialist for the client's next meeting, since the opportunity clearly needs that expertise.", "zones": ["Think", "Plan", "Engage"], "correctZone": 1, "explain": "Deciding who from Access needs to be involved, based on what the opportunity requires, is Plan, before the actual meeting happens.", "wrongNote": ["This decision comes after diagnosis is already done \u2014 it's about organizing the team, a step further than Think.", "", "Bringing in the specialist is decided before the meeting, that's Plan, not the meeting itself."]}, {"tile": "The RM sets three specific objectives for the quarter with this client and assigns an owner to each.", "zones": ["Think", "Plan", "Engage"], "correctZone": 1, "explain": "Setting concrete objectives with clear ownership is exactly the organizing, prioritizing work of Plan.", "wrongNote": ["Setting objectives and owners is organizing work, a step beyond pure information-gathering.", "", "Setting objectives happens before the client-facing meetings that will pursue them."]}, {"tile": "The RM calendarizes the next three touchpoints with the client, tied to specific pipeline opportunities.", "zones": ["Think", "Plan", "Engage"], "correctZone": 1, "explain": "Building a tactical calendar tied to real opportunities is Plan, setting up for engagement, not yet the engagement itself.", "wrongNote": ["Building a calendar of touchpoints is organizing work, not just information-gathering.", "", "Scheduling touchpoints happens before the touchpoints themselves take place."]}, {"tile": "The RM drafts the agenda and objective for next week's client meeting, and decides who from Access should attend.", "zones": ["Think", "Plan", "Engage"], "correctZone": 1, "explain": "Preparing for a meeting, deciding its objective and attendees, is still Plan. The meeting itself is where Engage actually happens.", "wrongNote": ["Drafting an agenda and deciding attendees is preparation, a step beyond pure diagnosis.", "", "Preparing for the meeting is not the same as the meeting itself, which is where Engage happens."]}]}, "23": {"sec": 8, "type": "mcq", "variants": [{"prompt": "An RM reviews a client's financials on Monday, and by Wednesday is pitching a new credit facility directly to the CFO \u2014 without ever checking who else needs to be involved, or whether the CFO can even approve it alone.<br><br>Which part of the framework did they skip, and what's the real risk?", "options": ["They skipped Think \u2014 they moved too fast without understanding the client", "They skipped Plan \u2014 they never checked decision rights or lined up the right internal team before pitching, so the pitch may be going to the wrong person or missing support it needs", "They skipped Engage \u2014 they should have had more meetings first", "Nothing was skipped \u2014 moving fast is a good thing"], "correctIndex": 1, "explain": "They clearly did some Think \u2014 the financials were reviewed. What's missing is Plan: checking who actually decides, and lining up the right people internally before showing up with a pitch.", "wrongNote": "Some Think clearly happened here, and they did engage the client \u2014 the gap sits specifically in the organizing step between the two."}, {"prompt": "An RM has a great first meeting with a new contact, but never follows up with any internal alignment or a documented plan, and momentum fades over the following weeks. Which step did they skip?", "options": ["They skipped Think before the meeting", "They skipped Plan after the meeting, there was no follow-through structure to sustain the momentum", "They skipped Engage entirely", "Nothing was skipped, first meetings are always enough on their own"], "correctIndex": 1, "explain": "A strong Engage moment without a Plan behind it to carry it forward tends to fade. The framework is a cycle, not a one-time sequence.", "wrongNote": "A first meeting clearly did happen, and there's no sign of a knowledge gap going in \u2014 the missing piece is what should have come right after it."}, {"prompt": "An RM builds an excellent, thorough account plan, covering Think and Plan carefully, but never actually schedules a single client meeting for two full quarters. Which step did they skip?", "options": ["They skipped Think, the plan clearly isn't thorough enough", "They skipped Engage, planning without ever acting on it", "They skipped Plan, despite appearing thorough", "Nothing was skipped, a strong plan is enough on its own"], "correctIndex": 1, "explain": "Even excellent Think and Plan work delivers nothing if it never turns into real client engagement. A plan that never leaves the desk isn't actually working.", "wrongNote": "The plan itself is described as thorough and well-organized \u2014 the missing piece is turning that work into an actual client-facing meeting."}, {"prompt": "An RM engages the client constantly, frequent calls and meetings, but each conversation is unfocused with no clear objective. Which step is actually missing?", "options": ["Think is missing, they don't understand the client at all", "Plan is missing, frequent engagement without set objectives becomes busy but directionless", "Engage is missing, despite all the meetings", "Nothing is missing, frequent contact is always valuable"], "correctIndex": 1, "explain": "Lots of Engage without Plan underneath it just produces a lot of unfocused activity. Objectives are what give engagement direction.", "wrongNote": "Engagement is clearly happening frequently, so that's not the gap \u2014 the missing piece is the objective-setting that should sit underneath it."}, {"prompt": "An RM pitches a product based on information from over a year ago, without re-checking the client's current financials or situation. Which step did they skip?", "options": ["They skipped Think, they should have returned to it given how much time had passed", "They skipped Plan, the pitch itself wasn't well organized", "They skipped Engage, the pitch should have waited", "Nothing was skipped, a year-old understanding is usually still valid"], "correctIndex": 0, "explain": "Think isn't a one-time step done at the start of a relationship. Enough time passing is exactly the kind of trigger that should send an RM back to reassess before acting.", "wrongNote": "The pitch itself and the act of engaging aren't the issue here \u2014 the real gap is not returning to reassess the client before acting on stale information."}]}, "24": {"sec": 9, "type": "mcq", "variants": [{"prompt": "GenAI can read through a stack of documents and produce a clean first draft in minutes. What's something it genuinely can't do, no matter how well you prompt it?", "options": ["Format the output as a table", "Confirm that a fact is actually true if it wasn't in the source material you gave it", "Summarize a long annual report", "Draft a list of validation questions to ask the RM"], "correctIndex": 1, "explain": "AI can organize and summarize what you give it extremely well. It cannot verify anything against reality, it only knows what's in the source pack you handed it.", "wrongNote": "Formatting, summarizing, and drafting validation questions are all things AI genuinely handles well \u2014 the real limit is verifying facts against reality."}, {"prompt": "GenAI can draft a full first-pass account plan structure quickly from provided documents. What's something it genuinely can't do?", "options": ["Structure the plan into the right template sections", "Know whether a stakeholder's sentiment has changed since the last call it was told about", "Summarize call memos into a coherent narrative", "Flag missing data based on what it was given"], "correctIndex": 1, "explain": "AI's knowledge is frozen to whatever it was fed. It has no way of knowing anything changed in the real world unless someone tells it, no matter how well the prompt is written.", "wrongNote": "Structuring, summarizing, and flagging gaps are all real strengths \u2014 the limit is knowing about anything that happened after the last thing it was told."}, {"prompt": "GenAI can do the arithmetic in a wallet-share calculation instantly and correctly. What's something it genuinely can't do?", "options": ["Multiply volume, spread, and probability correctly", "Judge whether the RM's own probability estimate for a deal closing is actually realistic", "Calculate a revenue pool from a given percentage", "Show its calculation step by step"], "correctIndex": 1, "explain": "Arithmetic is a strength. Judging whether a real-world estimate is realistic requires actual relationship context, which is a human judgment call, not a computation.", "wrongNote": "Multiplication, percentage math, and showing steps are all mechanical strengths \u2014 the limit is judging whether a real-world estimate is realistic."}, {"prompt": "GenAI can synthesize a set of existing call memos into one coherent narrative. What's something it genuinely can't do?", "options": ["Combine several memos into a single readable summary", "Manufacture a stakeholder's opinion that was never actually expressed, even if asked to guess what they'd think", "Organize the summary by date", "Highlight recurring themes across the memos"], "correctIndex": 1, "explain": "Synthesizing what's already there is a real strength. Inventing an opinion nobody actually stated, even framed as a guess, crosses into fabrication.", "wrongNote": "Combining, organizing, and highlighting themes are all real synthesis strengths \u2014 the limit is inventing an opinion nobody actually stated."}, {"prompt": "GenAI can restructure a messy set of raw notes into the proper account-plan template format instantly. What's something it genuinely can't do?", "options": ["Reformat scattered notes into the right template sections", "Decide which opportunities are actually worth the RM's limited time this week", "Separate facts from interpretations if asked to", "Flag which template sections have no supporting data"], "correctIndex": 1, "explain": "Formatting and structuring is mechanical work AI handles well. Deciding where a real person's limited time is best spent is a judgment call that needs real context AI doesn't have.", "wrongNote": "Reformatting, separating facts from interpretation, and flagging gaps are all mechanical strengths \u2014 the limit is a genuine judgment call about a person's limited time."}]}, "25": {"sec": 9, "type": "mcq", "variants": [{"prompt": "An RM writes this prompt: <div class='quote'>\u201cSummarize this client's financials and suggest three opportunities for Access.\u201d</div>Compared to a well-built prompt, what's the single biggest thing missing here?", "options": ["It doesn't ask for a friendlier tone", "It doesn't specify the client archetype, the output format, or ask the AI to flag gaps and unsupported claims \u2014 it just asks for an answer and trusts whatever comes back", "It doesn't mention which bank the RM works for", "It's too short to work at all"], "correctIndex": 1, "explain": "This prompt has no source-pack boundary, no client archetype, no output format, and no instruction to flag gaps or unverified claims. It'll get an answer, just not one you can trust without redoing the work yourself.", "wrongNote": "Tone, mentioning the bank's name, and raw length are all beside the point \u2014 the real gaps are structural: no archetype, no format, no gap-flagging instruction."}, {"prompt": "An RM writes: <div class='quote'>\u201cDraft a call memo from these notes.\u201d</div>What's the biggest gap compared to a well-built prompt?", "options": ["It doesn't specify a preferred writing style", "It doesn't say what to separate, facts from interpretations from commitments, and gives no instruction on owner or date fields", "It's too short to be useful at all", "It doesn't mention the RM's name"], "correctIndex": 1, "explain": "Without being told to separate fact from interpretation and to attach an owner and date to actions, the AI has no way of knowing what structure the output actually needs.", "wrongNote": "Writing style, length, and the RM's name are all cosmetic \u2014 the real gap is no instruction on separating fact from interpretation or attaching owners and dates."}, {"prompt": "An RM writes: <div class='quote'>\u201cUsing everything you know about this client, write their strategic priorities.\u201d</div>What's the red flag in this prompt?", "options": ["It's too polite", "\u201cEverything you know\u201d invites the AI to use outside or training knowledge instead of only the provided source pack", "It doesn't mention a deadline", "It uses the word \u2018write\u2019 instead of \u2018draft\u2019"], "correctIndex": 1, "explain": "This phrasing actively invites the AI outside the boundary of what's actually been given, which is exactly how unsupported claims end up in a plan.", "wrongNote": "Politeness, deadlines, and word choice are irrelevant \u2014 the actual problem is inviting the AI to reach beyond the source material it was actually given."}, {"prompt": "An RM writes: <div class='quote'>\u201cWrite an aggressive pitch to win this client's trade finance mandate.\u201d</div>What's missing that matters most?", "options": ["It doesn't mention the client's name", "There's no client archetype, no evidence requirement, and it's steering toward persuasion rather than accuracy, risking confident but invented claims", "It's too aggressive in tone to be professional", "It doesn't ask for a shorter draft"], "correctIndex": 1, "explain": "Framing a prompt around winning rather than accuracy nudges the AI toward sounding convincing over being correct, exactly the wrong direction for a claim that needs to hold up.", "wrongNote": "Naming the client, tone, and draft length are all secondary \u2014 the real risk is steering the AI toward persuasion instead of accuracy."}, {"prompt": "An RM's prompt names the source pack, the client archetype, and the output format, but leaves out any instruction to include a confidence rating or flag gaps per section. What's the issue?", "options": ["Nothing, this prompt is already complete", "This is a subtler but real gap, without a confidence-rating or gap-flagging instruction, uncertain claims may be presented as settled fact", "The prompt is too long already, nothing more should be added", "There's no issue as long as the source pack is well defined"], "correctIndex": 1, "explain": "A prompt can look mostly complete and still miss the one instruction that keeps uncertainty visible, that omission is easy to overlook precisely because everything else looks right.", "wrongNote": "A prompt can look complete on the surface and still miss the one instruction that keeps uncertain claims from reading as settled fact."}]}, "26": {"sec": 9, "type": "multi", "variants": [{"prompt": "You're building an account plan for a government agency, a public-sector client. Which of these should actually shape your prompt and research? Select all that apply.", "options": ["Budget cycle and mandate approvals", "Share price and investor commentary", "Procurement and tender processes", "Board changes at a private-sector competitor"], "correctSet": [0, 2], "explain": "A public-sector client's world runs on budget cycles, mandates, and procurement, not share price or investor commentary, which only matter for listed companies.", "overallNote": "Share price and investor commentary matter for listed companies, not government agencies. A private competitor's board changes are just noise for this client."}, {"prompt": "Building an account plan for a privately-owned local trading company. Which of these should actually shape your prompt and research? Select all that apply.", "options": ["Management accounts and ownership structure", "GSE share price movements", "RM's own relationship intelligence and cash-cycle observations", "Parent company's global treasury policy"], "correctSet": [0, 2], "explain": "A private local client has no share price to track and no group treasury policy to consider, the prompt should lean on management accounts, ownership, and the RM's own relationship intelligence.", "overallNote": "This client has no share price to track and no group treasury structure to account for, both of those belong to different archetypes."}, {"prompt": "Building an account plan for the Ghana subsidiary of a European FMCG group. Which of these should actually shape your prompt and research? Select all that apply.", "options": ["Local P&L versus group KPIs, and FX or transfer pricing", "Group treasury policy and global bank panel arrangements", "Budget cycle and mandate approvals", "A private competitor's local board changes"], "correctSet": [0, 1], "explain": "A global or group client needs its local numbers separated from group-level policy and panel arrangements, budget cycles and mandate approvals belong to public-sector clients, not this one.", "overallNote": "Budget-cycle logic belongs to public-sector clients, and a competitor's board changes are noise, neither applies to this global subsidiary."}, {"prompt": "Building an account plan for a company listed on the Ghana Stock Exchange. Which of these should actually shape your prompt and research? Select all that apply.", "options": ["Audited numbers, ratios, and investor commentary", "Parent-company disclosures if applicable", "Budget releases and collection-cycle risk", "Informal cash-cycle guesses in place of available disclosures"], "correctSet": [0, 1], "explain": "A listed client has real audited disclosures and investor commentary available, there's no reason to rely on budget-release logic (a public-sector concept) or informal guesses when real disclosures exist.", "overallNote": "Budget-release logic is a public-sector concept, and informal guesses have no place when real audited disclosures are actually available."}, {"prompt": "A cocoa cooperative is 51% owned by a state marketing board, with the rest held by farmer-shareholder groups. Which of these should actually shape your prompt and research? Select all that apply.", "options": ["Budget, mandate, and procurement logic, since majority government ownership makes this a public-sector archetype", "Investor commentary and share-price narrative, as with any listed company", "RM relationship intelligence specific to the farmer-shareholder groups", "Group treasury policy from a foreign parent company"], "correctSet": [0, 2], "explain": "A majority government stake makes this a public-sector archetype, not a listed or global one, so budget and mandate logic applies, alongside real RM intelligence on the farmer-shareholder side of the ownership.", "overallNote": "This cooperative isn't listed and has no foreign parent, so investor commentary and group treasury policy simply don't apply here."}]}, "27": {"sec": 9, "type": "mcq", "variants": [{"prompt": "Here's a prompt an RM actually used:<div class='quote'>\u201cYou are supporting an RM to build an account plan for [CLIENT], a private local company. Use only the account plan template, financials, product holdings, call memos, and RM notes provided. Separate facts from interpretations. Do not invent figures, stakeholders, or priorities. Flag any missing data. Output should follow the 5-section template with a confidence rating per section.\u201d</div>What's true about this prompt?", "options": ["It's poorly built \u2014 it doesn't tell the AI what to do", "It's a strong prompt \u2014 it names the source pack, the client archetype, the output format, and the guardrails against inventing information", "It's too long and should be shortened", "It's missing the client's revenue figures, so it won't work"], "correctIndex": 1, "explain": "This is a genuinely well-built prompt \u2014 source pack, archetype, output format, and guardrails are all there. Revenue figures don't belong in the prompt itself; they belong in the source documents the AI is pointed at.", "wrongNote": "This prompt actually tells the AI quite a lot, length isn't the issue when every part is doing real work, and revenue figures belong in the source documents, not the prompt text."}, {"prompt": "A prompt includes the source pack and client archetype, but also tells the AI to \u201cuse your best judgment to estimate any missing figures rather than flagging them.\u201d What's the issue?", "options": ["Nothing, this is a normal and sensible instruction", "This directly invites the AI to invent or estimate rather than flag gaps, breaking the core guardrail despite looking otherwise solid", "The prompt is too vague about the output format", "The issue is that the archetype should be named first"], "correctIndex": 1, "explain": "A prompt can look complete on the surface and still contain one instruction that actively undermines the whole point of flagging gaps honestly.", "wrongNote": "Format vagueness and ordering aren't the issue here, the real problem is one specific instruction actively telling the AI to guess instead of flagging gaps."}, {"prompt": "A prompt is otherwise complete but adds: \u201cdon't bother listing sources for each claim, just give me the clean narrative.\u201d What's the issue?", "options": ["Nothing, cleaner narrative is always better for readability", "Removing source attribution defeats the proof-and-gaps requirement, even though everything else is well-built", "The issue is the word \u2018clean\u2019 is too vague", "There's no issue as long as the archetype is specified"], "correctIndex": 1, "explain": "A readable narrative without any source attached to its claims makes it impossible to know what's verified and what isn't, undoing the whole point of requiring evidence.", "wrongNote": "Readability itself is fine, and the archetype being specified doesn't fix this, the real issue is stripping out the source attribution that lets anyone check the claims."}, {"prompt": "Two prompts are otherwise nearly identical and both well-built, but only one asks for a confidence rating per section. What's the practical difference this makes?", "options": ["None, confidence ratings are a nice-to-have, not a real difference", "The one without a confidence rating risks presenting uncertain claims with the same authority as confirmed ones, which the other prompt avoids", "The one with a confidence rating will always run slower", "Confidence ratings only matter for numeric sections, not qualitative ones"], "correctIndex": 1, "explain": "A confidence rating is what keeps a reader from mistaking a shaky guess for a settled fact, its absence is a real, practical gap, not a cosmetic one.", "wrongNote": "Speed and section type aren't the real issue, the practical difference is whether uncertain claims can be told apart from confirmed ones at a glance."}, {"prompt": "A prompt instructs: \u201conly use the FY2025 balance sheet, nothing else.\u201d It's otherwise well-structured. What's the issue?", "options": ["There's no issue, narrowing sources is always safer", "It's actually too restrictive, excluding call memos and RM notes will prevent a usable account-plan draft from being produced at all", "The issue is that FY2025 is too recent a year to use", "The issue is that balance sheets should never be used in prompts"], "correctIndex": 1, "explain": "A prompt can fail by being too loose, but also by being too narrow, cutting out inputs the account plan genuinely needs makes the output unusable in a different way.", "wrongNote": "Narrowing sources isn't automatically safer, and the year or the document type aren't the issue, the real problem is excluding inputs the plan genuinely needs to be usable."}]}, "28": {"sec": 9, "type": "mcq", "variants": [{"prompt": "An AI-drafted account plan includes this line:<div class='quote'>\u201cClient's effective borrowing cost is expected to fall to 11.2% next quarter, based on current market conditions.\u201d</div>Nothing in the source documents given to the AI mentions this figure or this forecast. It sounds plausible and specific.<br><br>What should the RM do?", "options": ["Leave it \u2014 it sounds reasonable and specific enough to be trustworthy", "Treat the specificity as a warning sign, not reassurance \u2014 verify where this number actually came from before it goes anywhere near the client, or remove it", "Round the number down slightly to be safe, then keep it", "Leave it in, since forecasts are always somewhat uncertain anyway"], "correctIndex": 1, "explain": "A confident, precise-looking number is not the same as a sourced one. If it would change how the RM or the client acts, verify it before it leaves the RM's desk \u2014 that's the whole point of the golden rule.", "wrongNote": "Sounding reasonable, adjusting the number slightly, or treating it as normal forecast uncertainty all skip the real step, tracing it back to an actual source."}, {"prompt": "An AI-drafted line states: \u201cCompetitor Bank holds precisely 38% of this client's wallet.\u201d No competitor intelligence document provided this figure. What should the RM do?", "options": ["Leave it, competitor wallet share is usually a rough guess anyway so precision doesn't matter", "Verify the source of this precise figure before using it, an exact-sounding number with no basis is still unverified", "Round it to a cleaner number like 40% and keep it", "Trust it since AI tools often have broad market knowledge"], "correctIndex": 1, "explain": "A specific percentage with no underlying source is exactly the kind of confident-sounding claim that needs checking before it shapes a real competitive strategy.", "wrongNote": "Assuming it's a normal rough guess, rounding it, or trusting general AI knowledge all skip verifying whether this specific number has any real source at all."}, {"prompt": "An AI-drafted priorities section states a client's exact future CAPEX figure and date, framed authoritatively, with no supporting document among the source material. What should the RM do?", "options": ["Trust it, since it's stated with confidence", "Verify or remove it, an authoritative tone doesn't make an unsourced figure any more real", "Adjust the date slightly to be safer, then keep the figure", "Leave it in but mentally discount it by half"], "correctIndex": 1, "explain": "Confidence in the phrasing says nothing about whether the underlying number is real. The same verification standard applies regardless of section.", "wrongNote": "Trusting confident phrasing, tweaking the date, or discounting the number are all workarounds that avoid the real step, checking whether it's sourced at all."}, {"prompt": "An AI-drafted pipeline note recommends a specific spread \u201cbased on current market benchmarks,\u201d but no benchmark data was included anywhere in the source material. What should the RM do?", "options": ["Use the recommended spread as-is, since AI tools are trained on market data generally", "Verify or flag it as an estimate rather than a confirmed benchmark, since none was actually provided", "Increase the spread slightly to be cautious, then use it", "Ignore pricing recommendations from AI entirely in all cases"], "correctIndex": 1, "explain": "Stating a number as benchmarked implies real data behind it. Without that data actually being provided, it needs to be treated as an unverified estimate, not a fact.", "wrongNote": "General AI training data, a cautious adjustment, or a blanket ban all miss the actual point, checking whether this specific claim to a benchmark is real."}, {"prompt": "An AI-drafted line reads: \u201cBased on the FY2025 financials provided, revenue grew 12% year-on-year (source: Financial Performance table, page 2).\u201d Is this line safe to use as-is?", "options": ["No, all AI-generated numbers need independent verification regardless of citation", "Yes, this is properly sourced with a clear citation to a real provided document, unlike an unsupported claim", "No, because 12% growth always needs to be double-checked externally", "Yes, but only because 12% is a modest, believable number"], "correctIndex": 1, "explain": "Not every AI-generated number is suspect, this one is directly tied to a real source document. The golden rule is about unsupported claims, not about distrusting AI output categorically.", "wrongNote": "Blanket distrust of all AI numbers, or judging this by how believable the figure sounds, both miss the actual point, this specific claim has a real citation behind it."}]}, "29": {"sec": 10, "type": "multi", "variants": [{"prompt": "What does a call memo actually need to include to clear the minimum quality bar? Select all that apply.", "options": ["A next action", "An owner for that action", "A target date", "A joke to keep the tone light", "A validation question for the RM to check"], "correctSet": [0, 1, 2, 4], "explain": "Every call memo should produce a next action, an owner, a date, and a validation question. Anything short of that is notes, not a usable memo.", "overallNote": "A memo can be warm without needing a joke in it. What makes it usable is the four items every entry needs: a next action, an owner, a date, and a validation question."}, {"prompt": "A call memo has a clear next action, an owner, and a target date, but no validation question for the RM to check. Select all elements that are genuinely present and correct to include.", "options": ["A next action", "An owner", "A target date", "A validation question"], "correctSet": [0, 1, 2], "explain": "The validation question is missing, and it matters, since it's what prompts the RM to confirm accuracy rather than assume the memo is final.", "overallNote": "Three out of four required elements is close, but the missing validation question still matters, it's what prompts a second look at accuracy."}, {"prompt": "A call memo has an action, a date, and a validation question, but says \u201csomeone from the team will follow up\u201d instead of naming an owner. Select all elements that are genuinely present and correct to include.", "options": ["A next action", "A clear, named owner", "A target date", "A validation question"], "correctSet": [0, 2, 3], "explain": "Without a named owner, the action tends to quietly not happen, exactly the gap this element is meant to close.", "overallNote": "A vague reference to \u201csomeone\u201d doesn't count as a named owner, that gap is what tends to make actions quietly not happen."}, {"prompt": "A call memo has an action, an owner, and a validation question, but says the next step should happen \u201csoon\u201d instead of naming a date. Select all elements that are genuinely present and correct to include.", "options": ["A next action", "An owner", "A specific target date", "A validation question"], "correctSet": [0, 1, 3], "explain": "Without a specific date, \u201csoon\u201d tends to slip indefinitely, a target date is what actually makes an action trackable.", "overallNote": "\u201cSoon\u201d isn't a specific date, and that vagueness is exactly what lets a next step slip indefinitely without anyone noticing."}, {"prompt": "A call memo meets all four required elements, action, owner, date, and validation question, but also includes speculative gossip about the client's internal politics with no source. Select all elements that are genuinely present and appropriately included.", "options": ["A next action", "An owner", "A target date", "A validation question", "Speculative gossip stated as settled fact"], "correctSet": [0, 1, 2, 3], "explain": "Meeting the quality bar on the four required fields doesn't excuse mixing in unsourced speculation elsewhere in the same memo, that still needs to be labelled for what it is.", "overallNote": "The four required elements are genuinely present here, but the unsourced gossip shouldn't be treated as appropriately included, it needs to be flagged as speculation, not fact."}]}, "30": {"sec": 10, "type": "mcq", "variants": [{"prompt": "Raw notes from a call read:<div class='quote'>\u201cClient seemed really enthusiastic about the proposal. Confirmed Q3 budget has been approved for the new facility.\u201d</div>Which part is a fact ready to go into the call memo as a commitment, and which needs to be handled differently?", "options": ["Both lines are facts and can go straight into the memo as confirmed", "\u201cConfirmed Q3 budget has been approved\u201d is a fact worth logging as a commitment. \u201cSeemed really enthusiastic\u201d is the RM's impression and should be labelled as a read on sentiment, not stated as a confirmed fact", "Neither line belongs in a call memo at all", "Only the sentiment line matters, since relationships are what drive deals"], "correctIndex": 1, "explain": "A specific, stated commitment is a fact. A feeling about tone is a judgment call \u2014 useful, but not the same category of information. Mixing the two up is exactly how call memos become unreliable.", "wrongNote": "Treating both as equally solid, dismissing both entirely, or leaning only on sentiment all miss the real distinction between a stated commitment and an RM impression."}, {"prompt": "Raw notes read: <div class='quote'>\u201cClient complained prices are too high. Confirmed they will not renew the current facility unless terms change.\u201d</div>Is the complaint about pricing a fact for the memo?", "options": ["No, complaints are just opinions and shouldn't be logged at all", "Yes, it's a fact that the client made this statement, even though whether prices are objectively too high is a separate, unverified claim", "Yes, and it should be treated as proof that pricing is genuinely uncompetitive", "No, only the renewal commitment counts as anything worth logging"], "correctIndex": 1, "explain": "There's a real difference between \u201cthe client said this\u201d, a fact worth logging, and \u201cthis is objectively true\u201d, an unverified claim. Both matter, but they're different categories.", "wrongNote": "Dismissing the complaint entirely, treating it as proof of anything, or ignoring it in favor of only the renewal line all miss the useful, careful distinction here."}, {"prompt": "Raw notes read: <div class='quote'>\u201cMeeting felt tense throughout. Client's CFO said budget for this quarter is fully allocated already.\u201d</div>Which part is the interpretation, and which is the fact?", "options": ["\u201cFelt tense\u201d is the RM's interpretation; the CFO's statement about the budget is a fact worth logging", "Both lines are equally factual", "Both lines are equally speculative and neither should be used", "The CFO's statement is the interpretation, and the tense feeling is the fact"], "correctIndex": 0, "explain": "A specific statement from the decision maker is solid, loggable fact. A general feeling about the room's mood is the RM's own read, worth noting, but in a different category.", "wrongNote": "Treating both as equally solid, equally speculative, or reversing which is which all miss the actual distinction, a direct statement is fact, a general feeling is a read."}, {"prompt": "Raw notes read: <div class='quote'>\u201cRM believes the client is close to switching banks entirely. Client confirmed they've met with two other banks this month.\u201d</div>Which is the interpretation, and which is the fact?", "options": ["The RM's belief about switching is the interpretation; the client's confirmation of meeting two other banks is the fact", "Both statements are equally solid facts", "The client's confirmation is the interpretation, and the RM's belief is the fact", "Neither statement belongs in a call memo"], "correctIndex": 0, "explain": "The RM's own conclusion about what's likely to happen is a read, however reasonable. The client's own confirmed admission is a genuine, loggable fact.", "wrongNote": "Treating both as equally solid, reversing which is which, or dismissing both entirely all miss that the client's own confirmed statement is the actual fact here."}, {"prompt": "Raw notes read: <div class='quote'>\u201cClient's tone suggested frustration. Client explicitly said, \u2018We're frustrated with the turnaround times.\u2019\u201d</div>Are these two lines really different?", "options": ["No, both are just the RM's read on the client's mood", "Yes, the first is the RM's inferred read on tone; the second is the client explicitly stating their own feeling, which makes it a quotable fact about what was said", "No, since both describe the same emotion, they should be merged into one line", "Yes, but only because the second line uses quotation marks"], "correctIndex": 1, "explain": "When a client explicitly states their own feeling, that statement itself becomes a fact about what was said, which is different from the RM inferring the same feeling from tone or body language alone.", "wrongNote": "Treating both as the same read, merging them, or crediting only the punctuation all miss the real distinction, one is inferred, the other is an explicit, quotable statement."}]}};
-const SECTIONS = [
-  {title:"Cover & terms", blurb:"Every account plan starts with a few labels on the cover page. They look trivial, but get one wrong and everything downstream is built on a shaky foundation. Two quick ones to warm up."},
-  {title:"Company facts", blurb:"Before you can plan anything, you need to actually know the client. Two questions on separating what's known from what's assumed."},
-  {title:"Financials", blurb:"This is where account planning either works or falls apart. Four questions, all built around one client's real numbers."},
-  {title:"Relationships", blurb:"Time to meet someone difficult. One contact, three questions — get to know him properly before you decide anything."},
-  {title:"Strategic priorities", blurb:"A client tells you what's bothering them. Your job is hearing the actual ask underneath it — and knowing what's safe to act on."},
-  {title:"Opportunity pipeline", blurb:"The numbers that turn a relationship into revenue. Four questions — and one ties straight back to the person you just met."},
-  {title:"Engagement log", blurb:"The simplest tab in the whole plan. Also the easiest one to do badly."},
-  {title:"Competition", blurb:"Know who else is in the room, and exactly what to do about it."},
-  {title:"Think, Plan, Engage", blurb:"Zoom out for a moment. This is the rhythm behind everything you've just walked through — three questions on the framework itself."},
-  {title:"Using AI well", blurb:"GenAI can genuinely speed you up. Five questions on knowing exactly where it helps, where it doesn't, and how to prompt it properly."},
-  {title:"Call memos & client insights", blurb:"The layer that feeds everything else. Two questions on turning a real conversation into something the whole team can use."}
-];
+const MODULE_TITLES = ['Why this matters now', 'Think, Plan, Engage', 'What an account plan actually is', 'Wallet share in practice', 'Mapping relationships', 'The opportunity pipeline', 'Using GenAI well', 'Call memos & client insights'];
 
-const PASS_MARK = 70;
-
-function shuffledIndices(n){
-  const arr = [...Array(n).keys()];
-  for(let i=arr.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
+async function completeTrainingAndGo(){
+  try {
+    await fetch('/api/training/complete', { method: 'POST' });
+  } catch (e) {
+    console.warn('Could not save training completion, proceeding anyway', e);
   }
-  return arr;
+  window.location.href = '/assessment';
 }
 
-// ---- Resolve one randomized attempt from the QUESTION_BANK ----
-function resolveAttempt(){
-  const resolved = [];
-  for(let bid=1; bid<=30; bid++){
-    const qdef = QUESTION_BANK[String(bid)];
-    const variantIdx = Math.floor(Math.random()*qdef.variants.length);
-    const v = qdef.variants[variantIdx];
-    const type = qdef.type;
-    const sec = qdef.sec;
-    let rq = {id:bid, sec, type, variantUsed:variantIdx+1};
+function advanceModule(fromNum){
+  document.getElementById('mod' + fromNum).style.display = 'none';
+  const nextNum = fromNum + 1;
+  if(nextNum <= 8){
+    document.getElementById('mod' + nextNum).style.display = 'block';
+    document.getElementById('modStatus').textContent = 'Module ' + nextNum + ' of 8 \u00b7 ' + MODULE_TITLES[nextNum-1];
+    document.getElementById('overallFill').style.width = (nextNum/8*100) + '%';
+    saveTrainingProgress(nextNum);
+  } else {
+    document.getElementById('mod-final').style.display = 'block';
+    document.getElementById('modStatus').textContent = 'All modules complete';
+    document.getElementById('overallFill').style.width = '100%';
+  }
+  window.scrollTo(0,0);
+}
 
-    if(type==="mcq"){
-      const order = shuffledIndices(v.options.length);
-      rq.prompt = v.prompt;
-      rq.options = order.map(i=>v.options[i]);
-      rq.correct = order.indexOf(v.correctIndex);
-      rq.explain = v.explain;
-      rq.wrongNote = v.wrongNote;
-    } else if(type==="multi"){
-      const order = shuffledIndices(v.options.length);
-      rq.prompt = v.prompt;
-      rq.options = order.map(i=>v.options[i]);
-      rq.correct = v.correctSet.map(ci=>order.indexOf(ci));
-      rq.explain = v.explain;
-      rq.overallNote = v.overallNote;
-    } else if(type==="numeric"){
-      rq.prompt = v.prompt;
-      rq.correct = v.correct;
-      rq.unit = v.unit;
-      rq.tolerance = v.tolerance;
-      rq.explain = v.explain;
-      rq.wrongNote = v.wrongNote;
-    } else if(type==="text"){
-      rq.prompt = v.prompt;
-      rq.keywords = v.keywords;
-      rq.model = v.model;
-      rq.explain = v.explain;
-      rq.wrongNote = v.wrongNote;
-    } else if(type==="duo"){
-      const orderA = shuffledIndices(v.groupA.options.length);
-      const orderB = shuffledIndices(v.groupB.options.length);
-      rq.prompt = v.prompt;
-      rq.groupA = {
-        label: v.groupA.label,
-        options: orderA.map(i=>v.groupA.options[i]),
-        correct: orderA.indexOf(v.groupA.correctIndex),
-        wrongNote: orderA.map(i=>v.groupA.wrongNote[i])
-      };
-      rq.groupB = {
-        label: v.groupB.label,
-        options: orderB.map(i=>v.groupB.options[i]),
-        correct: orderB.indexOf(v.groupB.correctIndex),
-        wrongNote: orderB.map(i=>v.groupB.wrongNote[i])
-      };
-      rq.explain = v.explain;
-    } else if(type==="bucket"){
-      const order = shuffledIndices(v.zones.length);
-      rq.tile = v.tile;
-      rq.zones = order.map(i=>v.zones[i]);
-      rq.correctZone = order.indexOf(v.correctZone);
-      rq.wrongNoteZone = order.map(i=>v.wrongNote[i]);
-      rq.explain = v.explain;
-    } else if(type==="slider2"){
-      rq.prompt = v.prompt;
-      rq.leftLabel = v.leftLabel;
-      rq.rightLabel = v.rightLabel;
-      rq.correctSide = v.correctSide;
-      rq.explain = v.explain;
-      rq.wrongNote = v.wrongNote;
+function saveTrainingProgress(moduleNum){
+  fetch('/api/training/progress', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ moduleNum })
+  }).catch(e => console.warn('Could not save training progress', e));
+}
+
+function jumpToModule(n){
+  for(let i=1;i<=8;i++){
+    const el = document.getElementById('mod'+i);
+    if(el) el.style.display = (i===n) ? 'block' : 'none';
+  }
+  const finalEl = document.getElementById('mod-final');
+  if(finalEl) finalEl.style.display = 'none';
+  document.getElementById('modStatus').textContent = 'Module ' + n + ' of 8 \u00b7 ' + MODULE_TITLES[n-1];
+  document.getElementById('overallFill').style.width = (n/8*100) + '%';
+}
+
+async function bootstrapTrainingProgress(){
+  try {
+    const res = await fetch('/api/training/progress');
+    if(!res.ok) return;
+    const data = await res.json();
+    if(data.moduleNum && data.moduleNum > 1 && data.moduleNum <= 8){
+      jumpToModule(data.moduleNum);
     }
-    resolved.push(rq);
+  } catch(e){
+    console.warn('Could not load saved training progress, starting from Module 1', e);
   }
-  return resolved;
 }
 
-function serializeState(){
-  const out = {};
-  for(const id in state){
-    const s = state[id];
-    if(s && s.selected instanceof Set){ out[id] = Object.assign({}, s, {selected: Array.from(s.selected)}); }
-    else out[id] = s;
-  }
-  return out;
+bootstrapTrainingProgress();
+
+
+
+(function(){
+// ===== Module 1 =====
+
+const CORRECT = {t1:"z1", t2:"z2", t3:"z3", t4:"z4"};
+let placements = {};
+document.querySelectorAll("#mod1 .tile").forEach(t => {
+  t.addEventListener("dragstart", e => { e.dataTransfer.setData("text", t.dataset.id); });
+});
+function dropTile_m1(e, zone){
+  e.preventDefault();
+  e.currentTarget.classList.remove("over");
+  const id = e.dataTransfer.getData("text");
+  const tile = document.querySelector('#mod1 [data-id="'+id+'"]');
+  if(!tile) return;
+  Object.keys(placements).forEach(z => { if(placements[z]===id) delete placements[z]; });
+  placements[zone] = id;
+  renderZones_m1();
 }
-function deserializeState(saved){
-  const out = {};
-  for(const id in saved){
-    const s = saved[id];
-    if(s && Array.isArray(s.selected)){ out[id] = Object.assign({}, s, {selected: new Set(s.selected)}); }
-    else out[id] = s;
+function renderZones_m1(){
+  document.querySelectorAll("#mod1 .zone").forEach(z => {
+    const zoneName = z.dataset.zone;
+    const label = z.dataset.label || z.textContent.split("\n")[0];
+    z.classList.remove("correct","incorrect");
+    const id = placements[zoneName];
+    const baseLabel = ZONELABELS[zoneName];
+    if(id){
+      const tile = document.querySelector('#mod1 [data-id="'+id+'"]');
+      z.innerHTML = baseLabel + '<div class="placedtile">'+tile.textContent+'</div>';
+    } else {
+      z.innerHTML = baseLabel;
+    }
+  });
+  document.querySelectorAll("#mod1 .tile").forEach(t => {
+    const placed = Object.values(placements).includes(t.dataset.id);
+    t.classList.toggle("placed", placed);
+  });
+}
+const ZONELABELS = {z1:"High value per client", z2:"Wallet is invisible", z3:"Decisions sit high up", z4:"Deals are episodic"};
+function checkSort_m1(){
+  const fb = document.getElementById("sortfeedback_m1");
+  const continueBtn = document.getElementById("continueBtn_m1");
+  let allCorrect = true;
+  document.querySelectorAll("#mod1 .zone").forEach(z => {
+    const zoneName = z.dataset.zone;
+    const id = placements[zoneName];
+    if(!id){ allCorrect = false; return; }
+    const isCorrect = CORRECT[id] === zoneName;
+    z.classList.add(isCorrect ? "correct" : "incorrect");
+    if(!isCorrect) allCorrect = false;
+  });
+  let revealHtml = "";
+  if(!allCorrect){
+    revealHtml = "<div style='margin-top:8px;'><b>Correct pairing:</b><br>" + Object.keys(CORRECT).map(tid => {
+      const tile = document.querySelector('#mod1 [data-id="'+tid+'"]');
+      return ZONELABELS[CORRECT[tid]] + " → " + tile.textContent;
+    }).join("<br>") + "</div>";
   }
-  return out;
+  fb.className = "sortfeedback show " + (allCorrect ? "good" : "bad");
+  fb.innerHTML = (allCorrect
+    ? "Exactly right — each reason has a distinct implication for how an RM should operate."
+    : "Not quite — here's how they actually match up:") + revealHtml;
+  continueBtn.disabled = false;
+  continueBtn.textContent = "Continue to practice questions →";
+}
+function resetSort_m1(){
+  placements = {};
+  renderZones_m1();
+  document.getElementById("sortfeedback_m1").className = "sortfeedback_m1";
+}
+let answeredPQ = {};
+function answerPQ_m1(btn, isCorrect, qid){
+  const group = btn.parentElement.querySelectorAll(".pqopt");
+  group.forEach(b => b.disabled = true);
+  btn.classList.add(isCorrect ? "correct" : "incorrect");
+  btn.closest('.pq').querySelector('.pqexplain').classList.add('show');
+  answeredPQ[qid] = true;
+  if(answeredPQ.q1 && answeredPQ.q2){
+    document.getElementById("finishBtn_m1").disabled = false;
+  }
+}
+function goTo_m1(screen){
+  document.getElementById("screen-learn_m1").classList.toggle("active", screen==="learn");
+  document.getElementById("screen-check_m1").classList.toggle("active", screen==="check");
+  document.getElementById("screen-done_m1").classList.toggle("active", screen==="done");
+  window.scrollTo(0,0);
+}
+renderZones_m1();
+
+  window.dropTile_m1 = dropTile_m1;
+  window.checkSort_m1 = checkSort_m1;
+  window.resetSort_m1 = resetSort_m1;
+  window.answerPQ_m1 = answerPQ_m1;
+  window.goTo_m1 = goTo_m1;
+})();
+
+
+
+(function(){
+// ===== Module 2 =====
+
+const CORRECT = {t1:"Think", t2:"Plan", t3:"Engage"};
+let placements = {};
+
+document.querySelectorAll("#mod2 .tile").forEach(t => {
+  t.addEventListener("dragstart", e => { e.dataTransfer.setData("text", t.dataset.id); });
+});
+
+function dropTile_m2(e, zone){
+  e.preventDefault();
+  e.currentTarget.classList.remove("over");
+  const id = e.dataTransfer.getData("text");
+  const tile = document.querySelector('#mod2 [data-id="'+id+'"]');
+  if(!tile) return;
+  Object.keys(placements).forEach(z => { if(placements[z]===id) delete placements[z]; });
+  placements[zone] = id;
+  renderZones_m2();
 }
 
-async function saveProgress(){
+function renderZones_m2(){
+  document.querySelectorAll("#mod2 .zone").forEach(z => {
+    const zoneName = z.dataset.zone;
+    z.classList.remove("correct","incorrect");
+    const id = placements[zoneName];
+    if(id){
+      const tile = document.querySelector('#mod2 [data-id="'+id+'"]');
+      z.innerHTML = zoneName + '<div class="placedtile">'+tile.textContent+'</div>';
+    } else {
+      z.innerHTML = zoneName;
+    }
+  });
+  document.querySelectorAll("#mod2 .tile").forEach(t => {
+    const placed = Object.values(placements).includes(t.dataset.id);
+    t.classList.toggle("placed", placed);
+  });
+}
+
+function checkSort_m2(){
+  const fb = document.getElementById("sortfeedback_m2");
+  const continueBtn = document.getElementById("continueBtn_m2");
+  let allCorrect = true;
+  document.querySelectorAll("#mod2 .zone").forEach(z => {
+    const zoneName = z.dataset.zone;
+    const id = placements[zoneName];
+    if(!id){ allCorrect = false; return; }
+    const isCorrect = CORRECT[id] === zoneName;
+    z.classList.add(isCorrect ? "correct" : "incorrect");
+    if(!isCorrect) allCorrect = false;
+  });
+  let revealHtml = "";
+  if(!allCorrect){
+    revealHtml = "<div style='margin-top:8px;'><b>Correct pairing:</b><br>" + Object.keys(CORRECT).map(tid => {
+      const tile = document.querySelector('#mod2 [data-id="'+tid+'"]');
+      return CORRECT[tid] + " → " + tile.textContent;
+    }).join("<br>") + "</div>";
+  }
+  fb.className = "sortfeedback show " + (allCorrect ? "good" : "bad");
+  fb.innerHTML = (allCorrect
+    ? "That's it exactly — diagnosis, then organizing, then the client-facing moment."
+    : "Not quite — here's how they actually sort:") + revealHtml;
+  continueBtn.disabled = false;
+  continueBtn.textContent = "Continue to practice questions →";
+}
+
+function resetSort_m2(){
+  placements = {};
+  renderZones_m2();
+  document.getElementById("sortfeedback_m2").className = "sortfeedback_m2";
+}
+
+let answeredPQ = {};
+function answerPQ_m2(btn, isCorrect, qid){
+  const group = btn.parentElement.querySelectorAll(".pqopt");
+  group.forEach(b => b.disabled = true);
+  btn.classList.add(isCorrect ? "correct" : "incorrect");
+  btn.closest('.pq').querySelector('.pqexplain').classList.add('show');
+  answeredPQ[qid] = true;
+  if(answeredPQ.q1 && answeredPQ.q2){
+    document.getElementById("finishBtn_m2").disabled = false;
+  }
+}
+
+function goTo_m2(screen){
+  document.getElementById("screen-learn_m2").classList.toggle("active", screen==="learn");
+  document.getElementById("screen-check_m2").classList.toggle("active", screen==="check");
+  document.getElementById("screen-done_m2").classList.toggle("active", screen==="done");
+  window.scrollTo(0,0);
+}
+
+  window.dropTile_m2 = dropTile_m2;
+  window.checkSort_m2 = checkSort_m2;
+  window.resetSort_m2 = resetSort_m2;
+  window.answerPQ_m2 = answerPQ_m2;
+  window.goTo_m2 = goTo_m2;
+})();
+
+
+
+(function(){
+// ===== Module 3 =====
+
+let answeredPQ = {};
+function answerPQ_m3(btn, isCorrect, qid){
+  const group = btn.parentElement.querySelectorAll(".pqopt");
+  group.forEach(b => b.disabled = true);
+  btn.classList.add(isCorrect ? "correct" : "incorrect");
+  btn.closest('.pq').querySelector('.pqexplain').classList.add('show');
+  answeredPQ[qid] = true;
+  if(answeredPQ.q1 && answeredPQ.q2){
+    document.getElementById("finishBtn_m3").disabled = false;
+  }
+}
+function goTo_m3(screen){
+  document.getElementById("screen-learn_m3").classList.toggle("active", screen==="learn");
+  document.getElementById("screen-check_m3").classList.toggle("active", screen==="check");
+  document.getElementById("screen-done_m3").classList.toggle("active", screen==="done");
+  window.scrollTo(0,0);
+}
+
+const CORRECT = {t1:"z1", t2:"z2", t3:"z3", t4:"z4"};
+const ZONELABELS = {z1:"Company overview", z2:"Financial performance", z3:"Relationship mapping", z4:"Opportunity pipeline"};
+let placements = {};
+document.querySelectorAll("#mod3 .tile").forEach(t => {
+  t.addEventListener("dragstart", e => { e.dataTransfer.setData("text", t.dataset.id); });
+});
+function dropTile_m3(e, zone){
+  e.preventDefault();
+  e.currentTarget.classList.remove("over");
+  const id = e.dataTransfer.getData("text");
+  const tile = document.querySelector('#mod3 [data-id="'+id+'"]');
+  if(!tile) return;
+  Object.keys(placements).forEach(z => { if(placements[z]===id) delete placements[z]; });
+  placements[zone] = id;
+  renderZones_m3();
+}
+function renderZones_m3(){
+  document.querySelectorAll("#mod3 .zone").forEach(z => {
+    const zoneName = z.dataset.zone;
+    z.classList.remove("correct","incorrect");
+    const id = placements[zoneName];
+    const baseLabel = ZONELABELS[zoneName];
+    if(id){
+      const tile = document.querySelector('#mod3 [data-id="'+id+'"]');
+      z.innerHTML = baseLabel + '<div class="placedtile">'+tile.textContent+'</div>';
+    } else { z.innerHTML = baseLabel; }
+  });
+  document.querySelectorAll("#mod3 .tile").forEach(t => {
+    t.classList.toggle("placed", Object.values(placements).includes(t.dataset.id));
+  });
+}
+function checkSort_m3(){
+  const fb = document.getElementById("sortfeedback_m3");
+  const continueBtn = document.getElementById("continueBtn_m3");
+  let allCorrect = true;
+  document.querySelectorAll("#mod3 .zone").forEach(z => {
+    const id = placements[z.dataset.zone];
+    if(!id){ allCorrect = false; return; }
+    const ok = CORRECT[id] === z.dataset.zone;
+    z.classList.add(ok ? "correct" : "incorrect");
+    if(!ok) allCorrect = false;
+  });
+  let revealHtml = "";
+  if(!allCorrect){
+    revealHtml = "<div style='margin-top:8px;'><b>Correct pairing:</b><br>" + Object.keys(CORRECT).map(tid => {
+      const tile = document.querySelector('#mod3 [data-id="'+tid+'"]');
+      return ZONELABELS[CORRECT[tid]] + " \u2192 " + tile.textContent;
+    }).join("<br>") + "</div>";
+  }
+  fb.className = "sortfeedback show " + (allCorrect ? "good" : "bad");
+  fb.innerHTML = (allCorrect ? "Exactly right." : "Not quite \u2014 here's how they actually match up:") + revealHtml;
+  continueBtn.disabled = false;
+  continueBtn.textContent = "Continue to practice questions \u2192";
+}
+function resetSort_m3(){ placements = {}; renderZones_m3(); document.getElementById("sortfeedback_m3").className = "sortfeedback_m3"; }
+renderZones_m3();
+
+
+  window.dropTile_m3 = dropTile_m3;
+  window.checkSort_m3 = checkSort_m3;
+  window.resetSort_m3 = resetSort_m3;
+  window.answerPQ_m3 = answerPQ_m3;
+  window.goTo_m3 = goTo_m3;
+})();
+
+
+
+(function(){
+// ===== Module 4 =====
+
+let answeredPQ = {};
+function answerPQ_m4(btn, isCorrect, qid){
+  const group = btn.parentElement.querySelectorAll(".pqopt");
+  group.forEach(b => b.disabled = true);
+  btn.classList.add(isCorrect ? "correct" : "incorrect");
+  btn.closest('.pq').querySelector('.pqexplain').classList.add('show');
+  answeredPQ[qid] = true;
+  if(answeredPQ.q1 && answeredPQ.q2){
+    document.getElementById("finishBtn_m4").disabled = false;
+  }
+}
+function goTo_m4(screen){
+  document.getElementById("screen-learn_m4").classList.toggle("active", screen==="learn");
+  document.getElementById("screen-check_m4").classList.toggle("active", screen==="check");
+  document.getElementById("screen-done_m4").classList.toggle("active", screen==="done");
+  window.scrollTo(0,0);
+}
+
+const CORRECT_ANSWER = "t1";
+let placements = {};
+document.querySelectorAll("#mod4 .tile").forEach(t => {
+  t.addEventListener("dragstart", e => { e.dataTransfer.setData("text", t.dataset.id); });
+});
+function dropTile_m4(e, zone){
+  e.preventDefault();
+  e.currentTarget.classList.remove("over");
+  const id = e.dataTransfer.getData("text");
+  placements[zone] = id;
+  renderZones_m4();
+}
+function renderZones_m4(){
+  document.querySelectorAll("#mod4 .zone").forEach(z => {
+    z.classList.remove("correct","incorrect");
+    const id = placements[z.dataset.zone];
+    if(id){
+      const tile = document.querySelector('#mod4 [data-id="'+id+'"]');
+      z.innerHTML = 'Your answer<div class="placedtile">'+tile.textContent+'</div>';
+    } else { z.innerHTML = "Your answer"; }
+  });
+  document.querySelectorAll("#mod4 .tile").forEach(t => {
+    t.classList.toggle("placed", Object.values(placements).includes(t.dataset.id));
+  });
+}
+function checkSort_m4(){
+  const fb = document.getElementById("sortfeedback_m4");
+  const continueBtn = document.getElementById("continueBtn_m4");
+  const id = placements["z1"];
+  const ok = id === CORRECT_ANSWER;
+  document.querySelector('#mod4 .zone[data-zone="z1"]').classList.add(ok ? "correct" : "incorrect");
+  const correctTile = document.querySelector('#mod4 [data-id="'+CORRECT_ANSWER+'"]');
+  fb.className = "sortfeedback show " + (ok ? "good" : "bad");
+  fb.innerHTML = ok
+    ? "Right \u2014 revenue pool = 3% of 400,000,000 = 12,000,000. Wallet share = 2,400,000 / 12,000,000 = 20%."
+    : "Not quite \u2014 the correct answer is <b>" + correctTile.textContent + "</b>. Revenue pool = 3% of 400,000,000 = 12,000,000. Wallet share = 2,400,000 / 12,000,000 = 20%. Remember, wallet share is revenue divided by the pool, not by total revenue itself.";
+  continueBtn.disabled = false;
+  continueBtn.textContent = "Continue to practice questions \u2192";
+}
+function resetSort_m4(){ placements = {}; renderZones_m4(); document.getElementById("sortfeedback_m4").className = "sortfeedback_m4"; }
+renderZones_m4();
+
+
+  window.dropTile_m4 = dropTile_m4;
+  window.checkSort_m4 = checkSort_m4;
+  window.resetSort_m4 = resetSort_m4;
+  window.answerPQ_m4 = answerPQ_m4;
+  window.goTo_m4 = goTo_m4;
+})();
+
+
+
+(function(){
+// ===== Module 5 =====
+
+let answeredPQ = {};
+function answerPQ_m5(btn, isCorrect, qid){
+  const group = btn.parentElement.querySelectorAll(".pqopt");
+  group.forEach(b => b.disabled = true);
+  btn.classList.add(isCorrect ? "correct" : "incorrect");
+  btn.closest('.pq').querySelector('.pqexplain').classList.add('show');
+  answeredPQ[qid] = true;
+  if(answeredPQ.q1 && answeredPQ.q2){
+    document.getElementById("finishBtn_m5").disabled = false;
+  }
+}
+function goTo_m5(screen){
+  document.getElementById("screen-learn_m5").classList.toggle("active", screen==="learn");
+  document.getElementById("screen-check_m5").classList.toggle("active", screen==="check");
+  document.getElementById("screen-done_m5").classList.toggle("active", screen==="done");
+  window.scrollTo(0,0);
+}
+
+const CORRECT = {t1:"z1", t2:"z1", t3:"z2", t4:"z2"};
+const RIGHT_ANSWER = {z1:"t2", z2:"t4"};
+let placements = {};
+document.querySelectorAll("#mod5 .tile").forEach(t => {
+  t.addEventListener("dragstart", e => { e.dataTransfer.setData("text", t.dataset.id); });
+});
+function dropTile_m5(e, zone){
+  e.preventDefault();
+  e.currentTarget.classList.remove("over");
+  const id = e.dataTransfer.getData("text");
+  placements[zone] = id;
+  renderZones_m5();
+}
+const ZONELABELS = {z1:"Influence level", z2:"Sentiment"};
+function renderZones_m5(){
+  document.querySelectorAll("#mod5 .zone").forEach(z => {
+    z.classList.remove("correct","incorrect");
+    const id = placements[z.dataset.zone];
+    const base = ZONELABELS[z.dataset.zone];
+    if(id){
+      const tile = document.querySelector('#mod5 [data-id="'+id+'"]');
+      z.innerHTML = base + '<div class="placedtile">'+tile.textContent+'</div>';
+    } else { z.innerHTML = base; }
+  });
+  document.querySelectorAll("#mod5 .tile").forEach(t => {
+    t.classList.toggle("placed", Object.values(placements).includes(t.dataset.id));
+  });
+}
+function checkSort_m5(){
+  const fb = document.getElementById("sortfeedback_m5");
+  const continueBtn = document.getElementById("continueBtn_m5");
+  let allCorrect = true;
+  Object.keys(RIGHT_ANSWER).forEach(zone => {
+    const id = placements[zone];
+    const ok = id === RIGHT_ANSWER[zone];
+    document.querySelector('#mod5 .zone[data-zone="'+zone+'"]').classList.add(ok ? "correct" : "incorrect");
+    if(!ok) allCorrect = false;
+  });
+  let revealHtml = "";
+  if(!allCorrect){
+    revealHtml = "<div style='margin-top:8px;'><b>Correct:</b><br>" + Object.keys(RIGHT_ANSWER).map(zone => {
+      const tile = document.querySelector('#mod5 [data-id="'+RIGHT_ANSWER[zone]+'"]');
+      return ZONELABELS[zone] + ": " + tile.textContent;
+    }).join("<br>") + "</div>";
+  }
+  fb.className = "sortfeedback show " + (allCorrect ? "good" : "bad");
+  fb.innerHTML = (allCorrect
+    ? "Right \u2014 Gatekeeper, since he executes without deciding, and Neutral, since there's no stated preference either way."
+    : "Not quite \u2014 here's the correct read:") + revealHtml;
+  continueBtn.disabled = false;
+  continueBtn.textContent = "Continue to practice questions \u2192";
+}
+function resetSort_m5(){ placements = {}; renderZones_m5(); document.getElementById("sortfeedback_m5").className = "sortfeedback_m5"; }
+renderZones_m5();
+
+
+  window.dropTile_m5 = dropTile_m5;
+  window.checkSort_m5 = checkSort_m5;
+  window.resetSort_m5 = resetSort_m5;
+  window.answerPQ_m5 = answerPQ_m5;
+  window.goTo_m5 = goTo_m5;
+})();
+
+
+
+(function(){
+// ===== Module 6 =====
+
+let answeredPQ = {};
+function answerPQ_m6(btn, isCorrect, qid){
+  const group = btn.parentElement.querySelectorAll(".pqopt");
+  group.forEach(b => b.disabled = true);
+  btn.classList.add(isCorrect ? "correct" : "incorrect");
+  btn.closest('.pq').querySelector('.pqexplain').classList.add('show');
+  answeredPQ[qid] = true;
+  if(answeredPQ.q1 && answeredPQ.q2){
+    document.getElementById("finishBtn_m6").disabled = false;
+  }
+}
+function goTo_m6(screen){
+  document.getElementById("screen-learn_m6").classList.toggle("active", screen==="learn");
+  document.getElementById("screen-check_m6").classList.toggle("active", screen==="check");
+  document.getElementById("screen-done_m6").classList.toggle("active", screen==="done");
+  window.scrollTo(0,0);
+}
+
+const CORRECT_ANSWER = "t1";
+let placements = {};
+document.querySelectorAll("#mod6 .tile").forEach(t => {
+  t.addEventListener("dragstart", e => { e.dataTransfer.setData("text", t.dataset.id); });
+});
+function dropTile_m6(e, zone){
+  e.preventDefault();
+  e.currentTarget.classList.remove("over");
+  const id = e.dataTransfer.getData("text");
+  placements[zone] = id;
+  renderZones_m6();
+}
+function renderZones_m6(){
+  document.querySelectorAll("#mod6 .zone").forEach(z => {
+    z.classList.remove("correct","incorrect");
+    const id = placements[z.dataset.zone];
+    if(id){
+      const tile = document.querySelector('#mod6 [data-id="'+id+'"]');
+      z.innerHTML = 'Your answer<div class="placedtile">'+tile.textContent+'</div>';
+    } else { z.innerHTML = "Your answer"; }
+  });
+  document.querySelectorAll("#mod6 .tile").forEach(t => {
+    t.classList.toggle("placed", Object.values(placements).includes(t.dataset.id));
+  });
+}
+function checkSort_m6(){
+  const fb = document.getElementById("sortfeedback_m6");
+  const continueBtn = document.getElementById("continueBtn_m6");
+  const id = placements["z1"];
+  const ok = id === CORRECT_ANSWER;
+  document.querySelector('#mod6 .zone[data-zone="z1"]').classList.add(ok ? "correct" : "incorrect");
+  const correctTile = document.querySelector('#mod6 [data-id="'+CORRECT_ANSWER+'"]');
+  fb.className = "sortfeedback show " + (ok ? "good" : "bad");
+  fb.innerHTML = ok
+    ? "Right \u2014 60,000,000 \u00d7 1.5% \u00d7 50% = GHS 450,000."
+    : "Not quite \u2014 the correct answer is <b>" + correctTile.textContent + "</b>. It's volume \u00d7 spread \u00d7 probability, all three multiplied together: 60,000,000 \u00d7 1.5% \u00d7 50% = GHS 450,000.";
+  continueBtn.disabled = false;
+  continueBtn.textContent = "Continue to practice questions \u2192";
+}
+function resetSort_m6(){ placements = {}; renderZones_m6(); document.getElementById("sortfeedback_m6").className = "sortfeedback_m6"; }
+renderZones_m6();
+
+
+  window.dropTile_m6 = dropTile_m6;
+  window.checkSort_m6 = checkSort_m6;
+  window.resetSort_m6 = resetSort_m6;
+  window.answerPQ_m6 = answerPQ_m6;
+  window.goTo_m6 = goTo_m6;
+})();
+
+
+
+(function(){
+// ===== Module 7 =====
+
+function goTo_m7(id){
+  const screenIds = {s1:'screen-s1_m7', s2:'screen-s2_m7', s3:'screen-s3_m7', s4:'screen-s4_m7', done:'screen-done_m7'};
+  Object.keys(screenIds).forEach(k => document.getElementById(screenIds[k]).classList.toggle('active', k===id));
+  window.scrollTo(0,0);
+}
+
+// ---- Stage 1 ----
+let place1 = null;
+document.querySelectorAll('#tilepool1_m7 .tile').forEach(t => t.addEventListener('dragstart', e => e.dataTransfer.setData('text', t.dataset.id)));
+function dropTile1_m7(e){
+  e.preventDefault(); e.currentTarget.classList.remove('over');
+  place1 = e.dataTransfer.getData('text');
+  const tile = document.querySelector('#tilepool1_m7 [data-id="'+place1+'"]');
+  e.currentTarget.innerHTML = 'Your answer<div class="placedtile">'+tile.textContent+'</div>';
+  document.querySelectorAll('#tilepool1_m7 .tile').forEach(t => t.classList.toggle('placed', t.dataset.id===place1));
+}
+function checkStage1_m7(){
+  const fb = document.getElementById('feedback1_m7');
+  const ok = place1 === 'a4';
+  document.querySelector('#screen-s1_m7 .zone').classList.add(ok?'correct':'incorrect');
+  fb.className = 'sortfeedback show ' + (ok?'good':'bad');
+  fb.innerHTML = ok ? 'Right \u2014 local decisions, but real sign-off sits with the parent abroad. That is Global/group.' : 'Not quite \u2014 the correct answer is <b>Global / group</b>. Local decisions are made day to day, but real sign-off authority sits with the parent abroad above a threshold.';
+  document.getElementById('btn1_m7').disabled = false;
+  document.getElementById('btn1_m7').textContent = 'Continue \u2192';
+}
+function resetStage1_m7(){ place1=null; document.querySelector('#screen-s1_m7 .zone').innerHTML='Your answer'; document.querySelector('#screen-s1_m7 .zone').classList.remove('correct','incorrect'); document.getElementById('feedback1_m7').className='sortfeedback'; document.querySelectorAll('#tilepool1_m7 .tile').forEach(t=>t.classList.remove('placed')); }
+
+// ---- Stage 2 ----
+const CORRECT2 = {t1:'S',t2:'C',t3:'O',t4:'P',t5:'E'};
+let placements2 = {};
+document.querySelectorAll('#tilepool2_m7 .tile').forEach(t => t.addEventListener('dragstart', e => e.dataTransfer.setData('text', t.dataset.id)));
+function dropTile2_m7(e, zone){
+  e.preventDefault(); e.currentTarget.classList.remove('over');
+  const id = e.dataTransfer.getData('text');
+  Object.keys(placements2).forEach(z => { if(placements2[z]===id) delete placements2[z]; });
+  placements2[zone] = id;
+  renderZones2_m7();
+}
+function renderZones2_m7(){
+  document.querySelectorAll('#screen-s2_m7 .zone').forEach(z => {
+    const zn = z.dataset.zone; z.classList.remove('correct','incorrect');
+    const id = placements2[zn];
+    if(id){ const tile = document.querySelector('#tilepool2_m7 [data-id="'+id+'"]'); z.innerHTML = zn + '<div class="placedtile">'+tile.textContent+'</div>'; }
+    else { z.innerHTML = zn; }
+  });
+  document.querySelectorAll('#tilepool2_m7 .tile').forEach(t => t.classList.toggle('placed', Object.values(placements2).includes(t.dataset.id)));
+}
+function checkStage2_m7(){
+  const fb = document.getElementById('feedback2_m7'); let allOk = true;
+  document.querySelectorAll('#screen-s2_m7 .zone').forEach(z => {
+    const id = placements2[z.dataset.zone];
+    if(!id){ allOk=false; return; }
+    const ok = CORRECT2[id]===z.dataset.zone;
+    z.classList.add(ok?'correct':'incorrect');
+    if(!ok) allOk=false;
+  });
+  let revealHtml = '';
+  if(!allOk){
+    revealHtml = "<div style='margin-top:8px;'><b>Correct:</b><br>" + Object.keys(CORRECT2).map(tid => {
+      const tile = document.querySelector('#tilepool2_m7 [data-id="'+tid+'"]');
+      return CORRECT2[tid] + ' = ' + tile.textContent;
+    }).join("<br>") + "</div>";
+  }
+  fb.className = 'sortfeedback show ' + (allOk?'good':'bad');
+  fb.innerHTML = (allOk ? 'Exactly right.' : "Not quite \u2014 here's the correct mapping:") + revealHtml;
+  document.getElementById('btn2_m7').disabled = false;
+  document.getElementById('btn2_m7').textContent = 'Continue \u2192';
+}
+function resetStage2_m7(){ placements2={}; renderZones2_m7(); document.getElementById('feedback2_m7').className='sortfeedback'; }
+renderZones2_m7();
+
+// ---- Stage 3 ----
+let selected3 = false;
+function selectPrompt_m7(which){
+  if(selected3) return;
+  selected3 = true;
+  document.getElementById('pcard-good_m7').classList.add('reveal', which==='good' ? 'good' : 'good');
+  document.getElementById('pcard-vague_m7').classList.add('reveal','bad');
+  document.getElementById('pcard-risky_m7').classList.add('reveal','bad');
+  document.getElementById('btn3_m7').disabled = false;
+  document.getElementById('btn3_m7').textContent = 'Continue \u2192';
+}
+
+// ---- Stage 4 ----
+async function evaluatePrompt_m7(){
+  const promptText = document.getElementById('promptInput_m7').value.trim();
+  if(!promptText) return;
+  const btn = document.getElementById('evalBtn_m7');
+  const loading = document.getElementById('loadingMsg_m7');
+  btn.disabled = true; loading.style.display = 'block';
+  document.getElementById('evalResult_m7').classList.remove('show');
+
+  let evaluation = null;
+  let demo = false;
   try{
-    await fetch("/api/progress", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({progress: { questions: QUESTIONS, current, state: serializeState() }})
+    const res = await fetch('/api/training/evaluate-prompt', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({prompt: promptText})
     });
-  }catch(e){ console.warn("Could not save progress", e); }
+    if(!res.ok) throw new Error('not ok');
+    const data = await res.json();
+    evaluation = data.evaluation;
+  } catch(e){
+    demo = true;
+    // Simulated response so this preview is viewable without a live backend.
+    const hasArchetype = /private|local|public|listed|global|group|sector|soe/i.test(promptText);
+    const hasSource = /financial|call memo|rm notes|source|document|holdings/i.test(promptText);
+    const hasFormat = /section|format|confidence|table|length/i.test(promptText);
+    const hasProof = /invent|evidence|flag|gap|unsupported/i.test(promptText);
+    const hasEscalate = /validation|next step|next action|follow.?up|owner/i.test(promptText);
+    const hasCompany = /overview|business model|ownership/i.test(promptText);
+    const hasFinancial = /financ|revenue|wallet/i.test(promptText);
+    const hasRel = /relationship|stakeholder|decision maker/i.test(promptText);
+    const hasPriorities = /priorit/i.test(promptText);
+    const hasPipeline = /pipeline|opportunit/i.test(promptText);
+    evaluation = {
+      scope: {source_pack:hasSource, client_archetype:hasArchetype, output_format:hasFormat, proof_and_gaps:hasProof, escalate_to_action:hasEscalate},
+      sections: {company_overview:hasCompany, financial_performance:hasFinancial, relationships_and_risks:hasRel, strategic_priorities:hasPriorities, opportunity_pipeline:hasPipeline},
+      strengths: ["(demo mode \u2014 simulated, not a real AI evaluation)"],
+      gaps: ["Connect this to the live backend to get a real evaluation instead of this keyword-based simulation."],
+      overall_verdict: "This is a simulated result for preview purposes \u2014 the real version calls an actual AI model."
+    };
+  }
+
+  loading.style.display = 'none';
+  renderEvaluation_m7(evaluation, demo);
+  document.getElementById('btn4_m7').disabled = false;
+  document.getElementById('btn4_m7').textContent = 'Continue \u2192';
+  btn.disabled = false;
 }
 
-async function clearServerProgress(){
-  try{ await fetch("/api/progress", {method:"DELETE"}); }catch(e){ /* non-fatal */ }
-}
+function renderEvaluation_m7(ev, demo){
+  const scopeLabels = {source_pack:'Source pack', client_archetype:'Client archetype', output_format:'Output format', proof_and_gaps:'Proof and gaps', escalate_to_action:'Escalate to action'};
+  const sectionLabels = {company_overview:'Company overview', financial_performance:'Financial performance', relationships_and_risks:'Relationships and risks', strategic_priorities:'Strategic priorities', opportunity_pipeline:'Opportunity pipeline'};
 
-let resultsSubmittedForThisAttempt = false;
-
-async function submitResultsToServer(){
-  let total=0, max=QUESTIONS.length;
-  const bySection={};
-  QUESTIONS.forEach(q=>{
-    const s=state[q.id]; const f=fracCorrect(q,s); total+=f;
-    const secTitle=SECTIONS[q.sec].title;
-    if(!bySection[secTitle]) bySection[secTitle]={got:0,max:0};
-    bySection[secTitle].got+=f; bySection[secTitle].max+=1;
+  let scopeHtml = '';
+  Object.keys(scopeLabels).forEach(k => {
+    const yes = ev.scope[k];
+    scopeHtml += '<div class="checkitem '+(yes?'yes':'no')+'"><span class="ico">'+(yes?'\u2713':'\u2715')+'</span>'+scopeLabels[k]+'</div>';
   });
-  const pct=Math.round((total/max)*100);
-  const passed = pct>=PASS_MARK;
-  try{
-    await fetch("/api/results", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({pct, total, max, bySection, passed})
-    });
-  }catch(e){ console.warn("Could not submit results", e); }
-}
+  document.getElementById('scopeChecklist_m7').innerHTML = scopeHtml;
 
-let QUESTIONS = [];
-let flow = [];
-function buildFlow(){
-  flow = [];
-  SECTIONS.forEach((s,i)=>{
-    flow.push({kind:"intro", sec:i});
-    QUESTIONS.filter(q=>q.sec===i).forEach(q=>flow.push({kind:"q", q}));
+  let sectionsHtml = '';
+  Object.keys(sectionLabels).forEach(k => {
+    const yes = ev.sections[k];
+    sectionsHtml += '<div class="checkitem '+(yes?'yes':'no')+'"><span class="ico">'+(yes?'\u2713':'\u2715')+'</span>'+sectionLabels[k]+'</div>';
   });
+  document.getElementById('sectionsChecklist_m7').innerHTML = sectionsHtml;
+
+  const strengthsHtml = (ev.strengths||[]).map(s=>'<div>+ '+s+'</div>').join('');
+  const gapsHtml = (ev.gaps||[]).map(s=>'<div>&minus; '+s+'</div>').join('');
+  document.getElementById('verdictBox_m7').innerHTML =
+    '<b>Verdict'+(demo?' <span class="demolabel">Demo mode</span>':'')+':</b> ' + ev.overall_verdict +
+    '<div style="margin-top:8px;">' + strengthsHtml + gapsHtml + '</div>';
+
+  document.getElementById('evalResult_m7').classList.add('show');
 }
 
-let current = 0;
-const state = {};
-function initState(){
-  QUESTIONS.forEach(q=>{
-    if(q.type==="duo") state[q.id]={a:null,b:null,checked:false};
-    else if(q.type==="bucket") state[q.id]={zone:null,checked:false};
-    else if(q.type==="slider2") state[q.id]={val:0.5,checked:false};
-    else if(q.type==="multi") state[q.id]={selected:new Set(),checked:false};
-    else state[q.id]={answer:null,checked:false};
+  window.dropTile1_m7 = dropTile1_m7;
+  window.checkStage1_m7 = checkStage1_m7;
+  window.resetStage1_m7 = resetStage1_m7;
+  window.dropTile2_m7 = dropTile2_m7;
+  window.checkStage2_m7 = checkStage2_m7;
+  window.resetStage2_m7 = resetStage2_m7;
+  window.selectPrompt_m7 = selectPrompt_m7;
+  window.evaluatePrompt_m7 = evaluatePrompt_m7;
+  window.goTo_m7 = goTo_m7;
+})();
+
+
+
+(function(){
+// ===== Module 8 =====
+
+let answeredPQ = {};
+function answerPQ_m8(btn, isCorrect, qid){
+  const group = btn.parentElement.querySelectorAll(".pqopt");
+  group.forEach(b => b.disabled = true);
+  btn.classList.add(isCorrect ? "correct" : "incorrect");
+  btn.closest('.pq').querySelector('.pqexplain').classList.add('show');
+  answeredPQ[qid] = true;
+  if(answeredPQ.q1 && answeredPQ.q2){
+    document.getElementById("finishBtn_m8").disabled = false;
+  }
+}
+function goTo_m8(screen){
+  document.getElementById("screen-learn_m8").classList.toggle("active", screen==="learn");
+  document.getElementById("screen-check_m8").classList.toggle("active", screen==="check");
+  document.getElementById("screen-done_m8").classList.toggle("active", screen==="done");
+  window.scrollTo(0,0);
+}
+
+const CORRECT = {t1:"missing", t2:"missing", t3:"missing", t4:"present"};
+let placements = {};
+document.querySelectorAll("#mod8 .tile").forEach(t => {
+  t.addEventListener("dragstart", e => { e.dataTransfer.setData("text", t.dataset.id); });
+});
+function dropTile_m8(e, zone){
+  e.preventDefault();
+  e.currentTarget.classList.remove("over");
+  const id = e.dataTransfer.getData("text");
+  Object.keys(placements).forEach(k => { if(placements[k]===id) delete placements[k]; });
+  if(!placements[zone]) placements[zone] = [];
+  placements[zone].push(id);
+  renderZones_m8();
+}
+function renderZones_m8(){
+  document.querySelectorAll("#mod8 .zone").forEach(z => {
+    const zoneName = z.dataset.zone;
+    z.classList.remove("correct","incorrect");
+    const ids = placements[zoneName] || [];
+    let html = zoneName === "missing" ? "Missing" : "Already present";
+    ids.forEach(id => {
+      const tile = document.querySelector('#mod8 [data-id="'+id+'"]');
+      html += '<div class="placedtile">'+tile.textContent+'</div>';
+    });
+    z.innerHTML = html;
   });
-}
-
-async function newAttempt(){
-  await clearServerProgress();
-  resultsSubmittedForThisAttempt = false;
-  QUESTIONS = resolveAttempt();
-  buildFlow();
-  current = 0;
-  initState();
-  render();
-}
-
-async function bootstrap(){
-  try{
-    const res = await fetch("/api/progress");
-    if(res.ok){
-      const data = await res.json();
-      if(data.progress && Array.isArray(data.progress.questions) && data.progress.questions.length===30 && data.progress.state){
-        QUESTIONS = data.progress.questions;
-        buildFlow();
-        const restored = deserializeState(data.progress.state);
-        Object.keys(restored).forEach(id=>{ state[id]=restored[id]; });
-        current = typeof data.progress.current === "number" ? data.progress.current : 0;
-        resultsSubmittedForThisAttempt = current >= flow.length;
-        render();
-        return;
-      }
-    }
-  }catch(e){ console.warn("Could not load saved progress, starting fresh", e); }
-  QUESTIONS = resolveAttempt();
-  buildFlow();
-  initState();
-  current = 0;
-  render();
-}
-
-function totalQCount(){return QUESTIONS.length;}
-function qIndexInFlow(){ let c=0; for(let i=0;i<current;i++){ if(flow[i].kind==="q") c++; } return c; }
-function render(){
-  const app = document.getElementById("app");
-  if(current>=flow.length){
-    app.innerHTML=renderResults();
-    attachResultsEvents();
-    if(!resultsSubmittedForThisAttempt){
-      resultsSubmittedForThisAttempt = true;
-      submitResultsToServer();
-    }
-    return;
-  }
-  const item = flow[current];
-
-  if(item.kind==="intro"){
-    const s = SECTIONS[item.sec];
-    app.innerHTML = `
-      <div class="masthead"><h1>Account Planning Assessment</h1><div class="stamp">${qIndexInFlow()}/${totalQCount()}</div></div>
-      <div class="intro-card">
-        <div class="section-num">Section ${item.sec+1} of ${SECTIONS.length}</div>
-        <h2>${s.title}</h2>
-        <p>${s.blurb}</p>
-        <button class="btn btn-primary" id="beginBtn">Begin \u2192</button>
-      </div>`;
-    document.getElementById("beginBtn").onclick=()=>{current++;render();};
-    return;
-  }
-
-  const q = item.q; const s = state[q.id]; const sec = SECTIONS[q.sec];
-  app.innerHTML = `
-    <div class="masthead"><h1>Account Planning Assessment</h1><div class="stamp">${qIndexInFlow()+1}/${totalQCount()}</div></div>
-    <p class="subhead">${sec.title}</p>
-    <div class="ledger">${QUESTIONS.map((qq,i)=>`<div class="tick ${qIndexInFlow()>i?'done':''} ${qIndexInFlow()===i?'current':''}"></div>`).join("")}</div>
-    <div class="progress-label"><span>Question ${qIndexInFlow()+1} of ${totalQCount()}</span><span>${sec.title}</span></div>
-    <div class="card">
-      <span class="tag">${sec.title}</span><span class="qtype">${typeLabel(q.type)}</span>
-      <div class="prompt">${q.prompt || (q.type==='bucket' ? q.tile : '')}</div>
-      <div id="qbody" class="${s.checked?'locked':''}"></div>
-      <div class="feedback" id="feedback"></div>
-      <div class="nav-row">
-        <button class="btn btn-ghost" id="prevBtn" ${current===0?'disabled':''}>\u2190 Back</button>
-        <div><button class="btn btn-primary" id="submitBtn" ${s.checked||!hasAnswer(q,s)?'disabled':''}>${s.checked?'Answer submitted':'Submit answer'}</button>
-        <button class="btn btn-primary" id="nextBtn" ${s.checked?'':'disabled'}>${current===flow.length-1?'See results':'Next \u2192'}</button></div>
-      </div>
-    </div>`;
-  document.getElementById("qbody").innerHTML = renderBody(q,s);
-  wireBody(q,s);
-  document.getElementById("prevBtn").onclick=()=>{current--;render();saveProgress();};
-  document.getElementById("nextBtn").onclick=()=>{current++;render();saveProgress();};
-  document.getElementById("submitBtn").onclick=()=>{
-    if(!hasAnswer(q,s)) return;
-    s.checked=true; render();
-    saveProgress();
-  };
-  if(s.checked) showFeedback(q,s);
-}
-
-function hasAnswer(q,s){
-  switch(q.type){
-    case "mcq": return s.answer!==null;
-    case "numeric": return s.answer!==null && s.answer!==undefined && !isNaN(s.answer);
-    case "text": return (s.answer||"").trim().length>0;
-    case "duo": return s.a!==null && s.b!==null;
-    case "bucket": return s.zone!==null;
-    case "slider2": return true;
-    case "multi": return s.selected.size>0;
-  }
-}
-
-function typeLabel(t){return {mcq:"Multiple choice",numeric:"Type a number",text:"Free response",duo:"Two-part classify",bucket:"Drag to classify",slider2:"Slide to choose",multi:"Select all that apply"}[t]||t;}
-
-function renderBody(q,s){
-  switch(q.type){
-    case "mcq":
-      return `<div class="options">${q.options.map((o,i)=>`<div class="opt" data-i="${i}"><div class="bullet"></div><div>${o}</div></div>`).join("")}</div>`;
-    case "multi":
-      return `<div class="options">${q.options.map((o,i)=>`<div class="opt square" data-i="${i}"><div class="bullet"></div><div>${o}</div></div>`).join("")}</div>`;
-    case "numeric":
-      return `<div class="numwrap"><span class="prefix">${q.unit==='%'?'':q.unit}</span><input type="number" class="numinput" id="numInput" placeholder="Type your answer" value="${s.answer??''}">${q.unit==='%'?'<span class="prefix">%</span>':''}</div>`;
-    case "text":
-      return `<textarea class="textinput" id="txtInput" placeholder="Type your answer\u2026">${s.answer||''}</textarea>`;
-    case "duo":
-      return `<div class="duo-block"><div class="duo-label">${q.groupA.label}</div><div class="pillrow" data-grp="a">${q.groupA.options.map((o,i)=>`<div class="pill" data-i="${i}">${o}</div>`).join("")}</div></div>
-        <div class="duo-block"><div class="duo-label">${q.groupB.label}</div><div class="pillrow" data-grp="b">${q.groupB.options.map((o,i)=>`<div class="pill" data-i="${i}">${o}</div>`).join("")}</div></div>`;
-    case "bucket":
-      return `<div class="bucket-tile" id="bucketTile" draggable="true">${q.tile}</div>
-        <div class="bucket-row" id="bucketRow">${q.zones.map((z,i)=>`<div class="bucket-zone" data-zone="${i}">${z}</div>`).join("")}</div>`;
-    case "slider2":
-      return `<div class="slider2-wrap"><div class="slider2-labels"><span class="end" id="leftLbl">${q.leftLabel}</span><span class="end" id="rightLbl">${q.rightLabel}</span></div>
-        <input type="range" id="sl2" min="0" max="1" step="1" value="${s.val>0.5?1:0}"></div>`;
-  }
-}
-
-function wireBody(q,s){
-  if(q.type==="mcq"){
-    document.querySelectorAll(".opt").forEach(el=>{
-      if(s.answer!==null && Number(el.dataset.i)===s.answer) el.classList.add("selected");
-      el.onclick=()=>{
-        if(s.checked) return;
-        document.querySelectorAll(".opt").forEach(e=>e.classList.remove("selected"));
-        el.classList.add("selected");s.answer=Number(el.dataset.i);
-        syncSubmitState();
-      };
-    });
-  }
-  if(q.type==="multi"){
-    document.querySelectorAll(".opt.square").forEach(el=>{
-      const i=Number(el.dataset.i);
-      if(s.selected.has(i)) el.classList.add("selected");
-      el.onclick=()=>{
-        if(s.checked) return;
-        if(s.selected.has(i)){s.selected.delete(i);el.classList.remove("selected");}
-        else {s.selected.add(i);el.classList.add("selected");}
-        syncSubmitState();
-      };
-    });
-  }
-  if(q.type==="numeric"){
-    const inp=document.getElementById("numInput");
-    if(s.checked) inp.disabled=true;
-    inp.oninput=()=>{s.answer=inp.value===""?null:Number(inp.value);syncSubmitState();};
-  }
-  if(q.type==="text"){
-    const ta=document.getElementById("txtInput");
-    if(s.checked) ta.disabled=true;
-    ta.oninput=()=>{s.answer=ta.value;syncSubmitState();};
-  }
-  if(q.type==="duo"){
-    document.querySelectorAll('.pillrow[data-grp="a"] .pill').forEach(el=>{
-      if(s.a!==null && Number(el.dataset.i)===s.a) el.classList.add("selected");
-      el.onclick=()=>{
-        if(s.checked) return;
-        document.querySelectorAll('.pillrow[data-grp="a"] .pill').forEach(e=>e.classList.remove("selected"));
-        el.classList.add("selected");s.a=Number(el.dataset.i);syncSubmitState();
-      };
-    });
-    document.querySelectorAll('.pillrow[data-grp="b"] .pill').forEach(el=>{
-      if(s.b!==null && Number(el.dataset.i)===s.b) el.classList.add("selected");
-      el.onclick=()=>{
-        if(s.checked) return;
-        document.querySelectorAll('.pillrow[data-grp="b"] .pill').forEach(e=>e.classList.remove("selected"));
-        el.classList.add("selected");s.b=Number(el.dataset.i);syncSubmitState();
-      };
-    });
-  }
-  if(q.type==="bucket"){
-    const tile=document.getElementById("bucketTile");
-    tile.addEventListener("dragstart",e=>{e.dataTransfer.setData("text","tile");});
-    document.querySelectorAll(".bucket-zone").forEach(z=>{
-      z.addEventListener("dragover",e=>{e.preventDefault();if(!s.checked)z.classList.add("over");});
-      z.addEventListener("dragleave",()=>z.classList.remove("over"));
-      z.addEventListener("drop",e=>{
-        e.preventDefault();z.classList.remove("over");
-        if(s.checked) return;
-        s.zone=Number(z.dataset.zone);
-        refreshBucket(q,s);
-        syncSubmitState();
-      });
-    });
-    if(s.zone!==null) refreshBucket(q,s);
-  }
-  if(q.type==="slider2"){
-    const sl=document.getElementById("sl2");
-    if(s.checked) sl.disabled=true;
-    updateSliderLabels(q,s);
-    sl.oninput=()=>{s.val=Number(sl.value);updateSliderLabels(q,s);syncSubmitState();};
-  }
-}
-
-function syncSubmitState(){
-  const btn=document.getElementById("submitBtn");
-  if(!btn) return;
-  const item=flow[current];
-  if(item.kind!=="q") return;
-  btn.disabled = !hasAnswer(item.q, state[item.q.id]);
-}
-
-function updateSliderLabels(q,s){
-  document.getElementById("leftLbl").classList.toggle("active", s.val<0.5);
-  document.getElementById("rightLbl").classList.toggle("active", s.val>=0.5);
-  if(document.getElementById("sl2")) document.getElementById("sl2").value = s.val>=0.5?1:0;
-}
-
-function refreshBucket(q,s){
-  document.querySelectorAll(".bucket-zone").forEach(z=>{
-    const zi=Number(z.dataset.zone);
-    z.classList.toggle("filled", s.zone===zi);
-    z.innerHTML = q.zones[zi] + (s.zone===zi ? `<div style="font-size:0.72rem;color:var(--indigo-deep);font-weight:700;">\u2713 placed here</div>` : "");
+  const allPlaced = [].concat(placements.missing||[], placements.present||[]);
+  document.querySelectorAll("#mod8 .tile").forEach(t => {
+    t.classList.toggle("placed", allPlaced.includes(t.dataset.id));
   });
 }
-
-function fracCorrect(q,s){
-  switch(q.type){
-    case "mcq": return s.answer===q.correct?1:0;
-    case "numeric": {
-      if(s.answer===null||s.answer===undefined||isNaN(s.answer)) return 0;
-      return Math.abs(s.answer-q.correct)<=q.tolerance ? 1 : 0;
-    }
-    case "text": {
-      const ans=(s.answer||"").toLowerCase();
-      return q.keywords.some(k=>ans.includes(k)) ? 1 : (ans.trim().length>0?0.3:0);
-    }
-    case "duo": {
-      let f=0; if(s.a===q.groupA.correct) f+=0.5; if(s.b===q.groupB.correct) f+=0.5; return f;
-    }
-    case "bucket": return s.zone===q.correctZone?1:0;
-    case "slider2": {
-      const chosen = s.val>=0.5 ? 1 : 0;
-      return chosen===q.correctSide ? 1 : 0;
-    }
-    case "multi": {
-      const correctSet=new Set(q.correct);
-      if(correctSet.size===s.selected.size){
-        let allMatch=true;
-        for(const c of correctSet) if(!s.selected.has(c)) allMatch=false;
-        if(allMatch) return 1;
-      }
-      let right=0;
-      s.selected.forEach(v=>{ if(correctSet.has(v)) right++; else right-=1; });
-      return Math.max(0, right/correctSet.size);
-    }
-  }
-}
-
-function correctAnswerText(q){
-  switch(q.type){
-    case "mcq": return q.options[q.correct];
-    case "numeric": return q.correct.toLocaleString()+(q.unit==='%'?'%':' '+q.unit);
-    case "text": return q.model;
-    case "duo": return `${q.groupA.label}: ${q.groupA.options[q.groupA.correct]} \u00b7 ${q.groupB.label}: ${q.groupB.options[q.groupB.correct]}`;
-    case "bucket": return q.zones[q.correctZone];
-    case "slider2": return q.correctSide===0?q.leftLabel:q.rightLabel;
-    case "multi": return q.correct.map(i=>q.options[i]).join(", ");
-  }
-}
-
-function yourAnswerText(q,s){
-  switch(q.type){
-    case "mcq": return q.options[s.answer];
-    case "numeric": return (s.answer===null?"\u2014":s.answer.toLocaleString())+(q.unit==='%'?'%':' '+q.unit);
-    case "text": return s.answer||"(no answer typed)";
-    case "duo": return `${q.groupA.label}: ${q.groupA.options[s.a]} \u00b7 ${q.groupB.label}: ${q.groupB.options[s.b]}`;
-    case "bucket": return q.zones[s.zone];
-    case "slider2": return s.val>=0.5?q.rightLabel:q.leftLabel;
-  }
-}
-
-function wrongNoteFor(q,s){
-  switch(q.type){
-    case "mcq": return q.wrongNote;
-    case "numeric": return q.wrongNote;
-    case "text": return q.wrongNote;
-    case "bucket": return q.wrongNoteZone ? q.wrongNoteZone[s.zone] : null;
-    case "slider2": return q.wrongNote;
-    case "duo": {
-      const notes=[];
-      if(s.a!==q.groupA.correct && q.groupA.wrongNote[s.a]) notes.push(q.groupA.wrongNote[s.a]);
-      if(s.b!==q.groupB.correct && q.groupB.wrongNote[s.b]) notes.push(q.groupB.wrongNote[s.b]);
-      return notes.filter(Boolean).join(" ");
-    }
-    default: return null;
-  }
-}
-
-function multiFeedbackHTML(q,s){
-  const correctSet=new Set(q.correct);
-  const rows = q.options.map((opt,i)=>{
-    const was=s.selected.has(i), should=correctSet.has(i);
-    let tag,cls;
-    if(should&&was){tag="Correctly included";cls="mi-ok";}
-    else if(!should&&!was){tag="Correctly left out";cls="mi-ok";}
-    else if(should&&!was){tag="Missed \u2014 should be included";cls="mi-no";}
-    else {tag="Shouldn't be here";cls="mi-no";}
-    return `<div class="multi-item ${cls}"><span>${opt}</span><span class="mi-tag">${tag}</span></div>`;
-  }).join("");
-  return rows;
-}
-
-function showFeedback(q,s){
-  const box=document.getElementById("feedback");
-  const f=fracCorrect(q,s);
-  const good=f>=0.999;
-  const headline = good?"Correct":(f>0?"Partly there":"Not quite");
-  box.className="feedback show "+(good?"correct":"incorrect");
-
-  if(q.type==="multi"){
-    box.innerHTML = `<b class="headline">${headline}</b>
-      ${multiFeedbackHTML(q,s)}
-      ${q.overallNote?`<div class="fb-explain"><span class="why-label">Why this matters</span>${q.overallNote}</div>`:""}
-      <div class="fb-explain"><span class="why-label">The bigger point</span>${q.explain}</div>`;
-    return;
-  }
-
-  const yourText = q.type==="text" ? "" : `<div class="fb-row"><b>You answered:</b> ${yourAnswerText(q,s)}</div>`;
-  const correctRow = `<div class="fb-row"><b>Correct answer:</b> ${correctAnswerText(q)}</div>`;
-  let wrongBlock = "";
-  if(!good){
-    const note = wrongNoteFor(q,s);
-    if(note) wrongBlock = `<div class="fb-why"><span class="why-label">Why that's not it</span>${note}</div>`;
-  }
-  const modelBlock = (q.type==="text" && !good) ? `<div class="fb-row"><b>What you wrote:</b> ${yourAnswerText(q,s)}</div>` : "";
-
-  box.innerHTML = `<b class="headline">${headline}</b>
-    ${modelBlock}
-    ${yourText}
-    ${correctRow}
-    ${wrongBlock}
-    <div class="fb-explain"><span class="why-label">Why this is the answer</span>${q.explain}</div>`;
-}
-
-function renderResults(){
-  let total=0, max=QUESTIONS.length;
-  const bySection={};
-  QUESTIONS.forEach(q=>{
-    const s=state[q.id]; const f=fracCorrect(q,s); total+=f;
-    const secTitle=SECTIONS[q.sec].title;
-    if(!bySection[secTitle]) bySection[secTitle]={got:0,max:0};
-    bySection[secTitle].got+=f; bySection[secTitle].max+=1;
+function checkSort_m8(){
+  const fb = document.getElementById("sortfeedback_m8");
+  const continueBtn = document.getElementById("continueBtn_m8");
+  let allCorrect = true;
+  ["missing","present"].forEach(zone => {
+    const ids = placements[zone] || [];
+    const ok = ids.length>0 && ids.every(id => CORRECT[id]===zone) && Object.keys(CORRECT).filter(k=>CORRECT[k]===zone).length===ids.length;
+    document.querySelector('#mod8 .zone[data-zone="'+zone+'"]').classList.add(ok ? "correct" : "incorrect");
+    if(!ok) allCorrect = false;
   });
-  const pct=Math.round((total/max)*100);
-  const passed = pct>=PASS_MARK;
-  const reviewHtml=QUESTIONS.map(q=>{
-    const s=state[q.id]; const f=fracCorrect(q,s); const ok=f>=0.999;
-    return `<div class="review-item"><div class="rq">Q${q.id}. ${SECTIONS[q.sec].title} <span class="status ${ok?'ok':'no'}">${ok?'Correct':(f>0?'Partial':'Review')}</span></div>
-      <div class="ra">Correct answer: ${correctAnswerText(q)}</div>
-      <div class="ra">${q.explain||''}</div></div>`;
-  }).join("");
-  return `
-    <div class="masthead"><h1>Account Planning Assessment</h1><div class="stamp">Results</div></div>
-    <div class="card">
-      <div class="results-score">
-        <div class="big">${pct}%</div>
-        <div class="of">${Math.round(total)} / ${max} points</div>
-        <div class="pass-badge ${passed?'pass':'fail'}">${passed?'Pass — 70% or higher':'Below pass mark of 70%'}</div>
-      </div>
-      <div class="section-bars">${Object.entries(bySection).map(([sec,v])=>`
-        <div class="sbar-row"><div class="sbar-label"><span>${sec}</span><span>${Math.round(v.got)}/${v.max}</span></div>
-        <div class="sbar-track"><div class="sbar-fill" style="width:${(v.got/v.max)*100}%"></div></div></div>`).join("")}</div>
-      <div class="nav-row" style="margin-top:8px;">
-        <button class="btn btn-ghost" id="restartBtn">\u21ba New randomized attempt</button>
-        <button class="btn btn-primary" id="reviewBtn">Review all answers \u2193</button>
-      </div>
-      <div id="reviewBlock" style="display:none;margin-top:12px;">${reviewHtml}</div>
-    </div>`;
+  let revealHtml = "";
+  if(!allCorrect){
+    const missingList = Object.keys(CORRECT).filter(k=>CORRECT[k]==="missing").map(id=>document.querySelector('#mod8 [data-id="'+id+'"]').textContent);
+    const presentList = Object.keys(CORRECT).filter(k=>CORRECT[k]==="present").map(id=>document.querySelector('#mod8 [data-id="'+id+'"]').textContent);
+    revealHtml = "<div style='margin-top:8px;'><b>Correct:</b><br>Missing: " + missingList.join(", ") + "<br>Already present: " + presentList.join(", ") + "</div>";
+  }
+  fb.className = "sortfeedback show " + (allCorrect ? "good" : "bad");
+  fb.innerHTML = (allCorrect ? "Right \u2014 an owner, date, and validation question are all missing; a vague next action is at least present." : "Not quite \u2014 here's how it actually breaks down:") + revealHtml;
+  continueBtn.disabled = false;
+  continueBtn.textContent = "Continue to practice questions \u2192";
 }
+function resetSort_m8(){ placements = {}; renderZones_m8(); document.getElementById("sortfeedback_m8").className = "sortfeedback_m8"; }
+renderZones_m8();
 
-function attachResultsEvents(){
-  document.getElementById("restartBtn").onclick=()=>{ newAttempt(); };
-  document.getElementById("reviewBtn").onclick=(e)=>{
-    const block=document.getElementById("reviewBlock");
-    const showing=block.style.display!=="none";
-    block.style.display=showing?"none":"block";
-    e.target.textContent=showing?"Review all answers \u2193":"Hide review \u2191";
-  };
-}
 
-bootstrap();
+  window.dropTile_m8 = dropTile_m8;
+  window.checkSort_m8 = checkSort_m8;
+  window.resetSort_m8 = resetSort_m8;
+  window.answerPQ_m8 = answerPQ_m8;
+  window.goTo_m8 = goTo_m8;
+})();
