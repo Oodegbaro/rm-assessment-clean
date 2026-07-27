@@ -52,7 +52,7 @@
   input.numinput:focus{outline:none;border-color:var(--indigo);}
   .bucket-tile{padding:14px 16px;background:var(--indigo-tint);border:1.5px dashed var(--indigo);border-radius:12px;margin-bottom:16px;cursor:grab;font-size:0.95rem;color:var(--indigo-deep);font-weight:600;}
   .bucket-row{display:flex;flex-wrap:wrap;gap:10px;}
-  .bucket-zone{flex:1;min-width:120px;border:1.5px dashed var(--line);border-radius:12px;padding:14px 10px;text-align:center;font-size:0.85rem;color:var(--muted);font-weight:600;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+  .bucket-zone{flex:1;min-width:120px;border:1.5px dashed var(--line);border-radius:12px;padding:14px 10px;text-align:center;font-size:0.85rem;color:var(--muted);font-weight:600;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;}
   .bucket-zone.over{border-color:var(--indigo);background:var(--indigo-tint);}
   .bucket-zone.filled{border-style:solid;border-color:var(--indigo);}
   .slider2-wrap{padding:6px 4px 0;}
@@ -95,6 +95,19 @@
   .pass-badge{display:inline-block;margin-top:10px;padding:7px 18px;border-radius:20px;font-family:'Manrope';font-weight:700;font-size:0.85rem;letter-spacing:0.03em;}
   .pass-badge.pass{background:var(--teal-tint);color:#0B5F4F;}
   .pass-badge.fail{background:var(--rust-tint);color:#8F2E26;}
+  .outcome-block{margin:20px 0;padding:20px 22px;border-radius:14px;}
+  .outcome-block.outcome-pass{background:var(--teal-tint);}
+  .outcome-block.outcome-fail{background:var(--rust-tint);}
+  .outcome-title{font-family:'Manrope';font-weight:800;font-size:1.1rem;margin-bottom:6px;}
+  .outcome-pass .outcome-title{color:#0B5F4F;}
+  .outcome-fail .outcome-title{color:#8F2E26;}
+  .outcome-text{font-family:'Inter';font-size:0.92rem;line-height:1.55;}
+  .outcome-pass .outcome-text{color:#0B5F4F;}
+  .outcome-fail .outcome-text{color:#8F2E26;}
+  .outcome-modules-label{font-family:'Manrope';font-weight:700;font-size:0.85rem;margin:14px 0 6px;color:#8F2E26;}
+  .outcome-modules-list{margin:0 0 6px;padding-left:20px;color:#8F2E26;font-size:0.9rem;line-height:1.6;}
+  .outcome-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  .outcome-actions .btn{text-decoration:none;display:inline-flex;align-items:center;}
   .section-bars{margin:24px 0;}
   .sbar-row{margin-bottom:13px;}
   .sbar-label{display:flex;justify-content:space-between;font-size:0.82rem;color:var(--muted);margin-bottom:5px;}
