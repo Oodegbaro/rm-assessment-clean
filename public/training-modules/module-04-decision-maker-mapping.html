@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>Module 4: Map Who Actually Decides</title>
+<style>
+  :root{
+    --navy:#1F4173;
+    --accent:#3168B9;
+    --light:#B0C7EA;
+    --neutral:#7F7F7F;
+    --bg:#F2F2F2;
+    --white:#FFFFFF;
+    --correct:#1E7A46;
+    --correct-bg:#E4F3EA;
+    --correct-border:#1E7A46;
+    --incorrect:#B3261E;
+    --incorrect-bg:#FBEAE8;
+    --incorrect-border:#B3261E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--navy);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+    font-size:16px;
+    -webkit-text-size-adjust:100%;
+  }
+  .app{max-width:600px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;}
+  header.topbar{
+    background:var(--navy);color:var(--white);padding:14px 16px 10px;
+    position:sticky;top:0;z-index:10;
+  }
+  header.topbar h1{font-size:15px;margin:0 0 8px;font-weight:600;letter-spacing:.2px;}
+  .progress-track{background:rgba(255,255,255,0.25);height:6px;border-radius:4px;overflow:hidden;}
+  .progress-fill{background:var(--white);height:100%;width:0%;transition:width .3s ease;}
+  .progress-label{font-size:11px;color:rgba(255,255,255,0.9);margin-top:6px;}
+
+  main{flex:1;padding:20px 18px 100px;}
+  .screen{display:none;}
+  .screen.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  h2.title{font-size:22px;margin:0 0 12px;color:var(--navy);font-weight:700;}
+  h3.subtitle{font-size:16px;margin:22px 0 8px;color:var(--navy);font-weight:700;}
+  p{margin:0 0 14px;font-size:16px;}
+  .big-number{font-size:44px;font-weight:800;color:var(--navy);line-height:1;margin:6px 0;}
+  .muted{color:var(--navy);font-size:14px;}
+  .card{
+    background:var(--white);border-radius:10px;padding:16px;margin:0 0 16px;
+    box-shadow:0 1px 3px rgba(31,65,115,0.12);
+  }
+  .card.tint{background:var(--light);color:var(--navy);}
+  .card.tint p, .card.tint li{color:var(--navy);}
+  .callout{
+    border-left:4px solid var(--accent);background:var(--white);
+    padding:12px 14px;border-radius:6px;margin:0 0 16px;font-size:15px;
+  }
+  .step-badge{
+    display:inline-block;background:var(--navy);color:var(--white);
+    font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;margin-bottom:10px;
+    letter-spacing:.3px;
+  }
+  ul.plain{padding-left:20px;margin:0 0 14px;}
+  ul.plain li{margin-bottom:8px;}
+  table.wallet{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:14px;}
+  table.wallet th{background:var(--navy);color:var(--white);text-align:left;padding:8px;font-size:12px;}
+  table.wallet td{padding:8px;border-bottom:1px solid var(--light);vertical-align:top;}
+  table.wallet tr:last-child td{border-bottom:none;}
+
+  .btn{
+    display:block;width:100%;text-align:center;padding:14px 18px;border-radius:10px;
+    font-size:16px;font-weight:700;border:none;cursor:pointer;min-height:48px;
+    font-family:inherit;
+  }
+  .btn-primary{background:var(--navy);color:var(--white);}
+  .btn-primary:active{background:var(--accent);}
+  .btn-secondary{background:var(--white);color:var(--navy);border:2px solid var(--navy);}
+  .btn-secondary:active{background:var(--light);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn-row{display:flex;gap:10px;margin-top:18px;}
+  .btn-row .btn{flex:1;}
+
+  footer.nav{
+    position:fixed;bottom:0;left:0;right:0;background:var(--bg);
+    border-top:1px solid var(--light);padding:12px 18px;
+    max-width:600px;margin:0 auto;
+  }
+  footer.nav .btn{margin:0;}
+
+  .option-list{margin:0 0 16px;}
+  .option{
+    display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;background:var(--white);
+    border:2px solid var(--light);border-radius:10px;padding:14px 16px;margin-bottom:10px;
+    font-size:15px;color:var(--navy);cursor:pointer;font-family:inherit;min-height:48px;
+  }
+  .option:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  .option:disabled{cursor:default;}
+  .option .letter{
+    display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;
+    background:var(--navy);color:var(--white);border-radius:50%;font-size:12px;font-weight:700;
+    flex-shrink:0;
+  }
+  .option .icon{flex-shrink:0;width:20px;display:none;margin-top:1px;}
+  .option .opt-text{flex:1;}
+  /* result state after an answer is submitted */
+  .option.is-correct{border-color:var(--correct-border);background:var(--correct-bg);font-weight:700;}
+  .option.is-correct .letter{background:var(--correct);}
+  .option.is-correct .icon.icon-check{display:inline-block;color:var(--correct);}
+  .option.is-incorrect{border-color:var(--incorrect-border);background:var(--incorrect-bg);}
+  .option.is-incorrect .letter{background:var(--incorrect);}
+  .option.is-incorrect .icon.icon-x{display:inline-block;color:var(--incorrect);}
+
+  .feedback{
+    background:var(--white);border:2px solid var(--navy);border-radius:10px;
+    padding:14px 16px;margin:6px 0 16px;font-size:15px;
+  }
+  .feedback .tag{font-weight:800;font-size:13px;color:var(--navy);display:flex;align-items:center;gap:6px;margin-bottom:8px;letter-spacing:.3px;text-transform:uppercase;}
+  .feedback.state-correct{border-color:var(--correct-border);}
+  .feedback.state-correct .tag{color:var(--correct);}
+  .feedback.state-incorrect{border-color:var(--incorrect-border);}
+  .feedback.state-incorrect .tag{color:var(--incorrect);}
+  .feedback .why-block{margin-top:10px;padding-top:10px;border-top:1px solid var(--light);}
+  .feedback .why-block strong{color:var(--navy);}
+
+  svg{display:block;max-width:100%;}
+  .icon-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--light);}
+  .icon-row:last-child{border-bottom:none;}
+  .icon-row .icon-box{
+    flex-shrink:0;width:40px;height:40px;background:var(--light);border-radius:8px;
+    display:flex;align-items:center;justify-content:center;margin-top:2px;
+  }
+  .icon-row .icon-text{flex:1;font-size:14px;}
+  .icon-row .status{font-size:11px;font-weight:700;color:var(--navy);white-space:nowrap;text-align:right;max-width:110px;line-height:1.3;}
+
+  .dots{display:flex;gap:6px;justify-content:center;margin:16px 0;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--light);}
+  .dot.done{background:var(--navy);}
+
+  .jobaid{background:var(--white);border-radius:10px;padding:18px;border:2px solid var(--navy);}
+  .jobaid h3{margin-top:0;color:var(--navy);font-size:17px;}
+  .jobaid .field-row{display:flex;gap:10px;margin-bottom:8px;font-size:13px;}
+  .jobaid .field-row span{flex:1;border-bottom:1px solid var(--neutral);padding-bottom:4px;}
+  .jobaid .field-row label{font-weight:700;color:var(--navy);min-width:90px;}
+  .placeholder-flag{
+    background:var(--bg);border:1px dashed var(--neutral);border-radius:6px;
+    padding:8px 10px;font-size:12px;color:var(--navy);margin:10px 0;
+  }
+  .print-btn-wrap{margin-top:18px;}
+
+
+  @media (max-width:359px){
+    main{padding:16px 12px 100px;}
+    .big-number{font-size:36px;}
+  }
+
+  @media print{
+    header.topbar, footer.nav, .no-print{display:none !important;}
+    body{background:#fff;}
+    .app{max-width:100%;}
+    main{padding:0;}
+    .screen{display:none !important;}
+    #screen-jobaid.print-active{display:block !important;}
+    .jobaid{border:1px solid #000;box-shadow:none;}
+    .jobaid .field-row span{border-bottom:1px solid #000;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar" id="topbar">
+    <h1 id="stage-label">Module 4 · Map Who Actually Decides</h1>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label">Step 1 of 6 · Hook</div>
+  </header>
+
+  <main>
+
+    <!-- 1. HOOK -->
+    <section class="screen active" id="screen-hook" aria-labelledby="hook-h">
+      <span class="step-badge">HOOK</span>
+      <h2 class="title" id="hook-h">A facility sat in committee for four months — and nobody knew why.</h2>
+      <p>A colleague's team had been chasing a mid-sized facility for a client for months. Every conversation with the finance contact went well. Then it stalled — not with a "no", just silence. When someone finally asked, plainly, "who actually has to say yes to this?", it turned out to be someone in the client's regional office the account team had never once spoken to.</p>
+      <div class="card tint" role="img" aria-label="Diagram showing Efua talks to Linda every week, while the person who actually signs off, Kojo, she has never met.">
+        <svg viewBox="0 0 260 120" width="100%" height="120" focusable="false" aria-hidden="true">
+          <rect x="6" y="18" width="110" height="60" rx="8" fill="#FFFFFF" stroke="#1F4173" stroke-width="2"/>
+          <text x="61" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#1F4173">Linda</text>
+          <text x="61" y="55" text-anchor="middle" font-size="9" fill="#1F4173">Talks every week</text>
+          <text x="61" y="68" text-anchor="middle" font-size="9" fill="#1F4173">Warm, easy contact</text>
+          <rect x="144" y="18" width="110" height="60" rx="8" fill="none" stroke="#1F4173" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="199" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#1F4173">Kojo</text>
+          <text x="199" y="55" text-anchor="middle" font-size="9" fill="#1F4173">Actually signs off</text>
+          <text x="199" y="68" text-anchor="middle" font-size="9" fill="#1F4173">Never met</text>
+          <line x1="118" y1="48" x2="142" y2="48" stroke="#1F4173" stroke-width="2" stroke-dasharray="3 3"/>
+          <text x="130" y="98" text-anchor="middle" font-size="10" fill="#1F4173">? no route between them</text>
+        </svg>
+      </div>
+      <p>Efua's own warmest relationship at Solera is with Linda Owusu-Ansah, the Ghana Finance Manager. Linda replies within the hour and always makes time for a call. It feels like a strong relationship — partly because it's such an easy one. But Efua has never met Solera's Group CFO or Group Treasury: the people who actually hold sign-off on anything beyond day-to-day banking.</p>
+      <p class="muted">Comfort isn't the same as influence. A warm contact and the person who actually decides can be two completely different people.</p>
+    </section>
+
+    <!-- 2. BEHAVIOUR NAMED -->
+    <section class="screen" id="screen-behaviour" aria-labelledby="beh-h">
+      <span class="step-badge">THE BEHAVIOUR</span>
+      <h2 class="title" id="beh-h">Before you ask a senior sponsor for help, map who actually decides — not just who you already know.</h2>
+      <p>That's the whole module: sort everyone connected to a decision into decision-maker, influencer, or gatekeeper; note how each of them feels about Access; and name whoever's missing from the picture entirely — before deciding whether the gap is big enough to bring in help.</p>
+      <div class="callout"><strong>Why this matters, in one line:</strong> the person who answers your calls fastest is not automatically the person who signs the facility.</div>
+      <p class="muted">This sits right next to wallet-share mapping: one shows what's missing, this shows who actually has to agree before you can close it.</p>
+    </section>
+
+    <!-- 3. WORKED EXAMPLE (sub-paginated) -->
+    <section class="screen" id="screen-example" aria-labelledby="ex-h">
+      <span class="step-badge">WORKED EXAMPLE</span>
+      <h2 class="title" id="ex-h">Solera Foods Ghana Ltd, revisited</h2>
+      <div class="dots" id="example-dots"></div>
+
+      <div class="example-step" data-step="1">
+        <p><strong>Efua already knows the wallet gaps.</strong> Lending, FX, trade finance, salary mandate — all missing. Before she pursues any of them, she needs to know who actually has to agree, starting with the four people she has some contact with today: Linda Owusu-Ansah, Kojo Antwi-Danso, Abena Sarfo, and Kwame Boateng.</p>
+        <p>Her first move isn't to guess who matters most. It's to sort each of them, plainly, by what they actually control — and how they seem to feel about Access.</p>
+      </div>
+
+      <div class="example-step" data-step="2">
+        <p><strong>Step 1 — sort each contact by category and sentiment.</strong></p>
+        <div class="icon-row"><div class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="18" rx="1" fill="none" stroke="#1F4173" stroke-width="2"/><line x1="12" y1="4" x2="12" y2="22" stroke="#1F4173" stroke-width="2"/></svg>
+          </div><div class="icon-text"><strong>Linda Owusu-Ansah</strong> — Ghana Finance Manager. Warm, always responsive — but no sign-off authority beyond routine banking.</div><div class="status">GATEKEEPER<br>Positive</div></div>
+        <div class="icon-row"><div class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="#1F4173" stroke-width="2"/><path d="M8 12.5 L11 15.5 L16 9" fill="none" stroke="#1F4173" stroke-width="2"/></svg>
+          </div><div class="icon-text"><strong>Kojo Antwi-Danso</strong> — Group CFO, regional office. Holds real sign-off on any facility of size — Efua has never met him.</div><div class="status">DECISION-MAKER<br>Unknown</div></div>
+        <div class="icon-row"><div class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="12" r="6" fill="none" stroke="#1F4173" stroke-width="2"/><circle cx="15" cy="12" r="6" fill="none" stroke="#1F4173" stroke-width="2"/></svg>
+          </div><div class="icon-text"><strong>Abena Sarfo</strong> — newly appointed Ghana MD. Could champion Access locally, but she's new and still building her own standing.</div><div class="status">INFLUENCER<br>Positive, cautious</div></div>
+        <div class="icon-row"><div class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="12" r="6" fill="none" stroke="#1F4173" stroke-width="2"/><circle cx="15" cy="12" r="6" fill="none" stroke="#1F4173" stroke-width="2"/></svg>
+          </div><div class="icon-text"><strong>Kwame Boateng</strong> — Group Treasury, parent-liaison. Owns FX and cash-pooling policy for the group — protective of existing arrangements.</div><div class="status">INFLUENCER<br>Resistant</div></div>
+      </div>
+
+      <div class="example-step" data-step="3">
+        <p><strong>Step 2 — check the numbers, lightly.</strong> Most accounts this size have somewhere around three to five people who actually matter to a decision. Efua has four names on her list — and only one of them, Kojo, holds real sign-off. She's never met him.</p>
+        <p class="muted">Four contacts isn't a weak map. But if the one confirmed decision-maker is a stranger, the map still has a hole in the middle of it.</p>
+      </div>
+
+      <div class="example-step" data-step="4">
+        <p><strong>Step 3 — look for who's missing.</strong> At a multinational subsidiary like Solera, facilities above a certain size often also need sign-off from a procurement function or a board finance committee — general corporate-structure realism, not a specific figure. Neither appears anywhere on Efua's list. That's not a small gap: it's an entire layer of the decision she has no visibility into at all.</p>
+      </div>
+
+      <div class="example-step" data-step="5">
+        <p><strong>Step 4 — decide whether to escalate.</strong> Efua's only confirmed decision-maker is someone she's never met, and there's a layer above her existing contacts she hasn't even identified yet. That combination — real authority sitting outside every relationship she has — is exactly when it's worth asking her own relationship-level leadership at Access whether they already have a way in, rather than trying to talk her way past Linda alone.</p>
+        <div class="callout">A gap is worth escalating when the person who decides is someone you have no route to on your own.</div>
+      </div>
+
+      <div class="btn-row no-print">
+        <button class="btn btn-secondary" id="ex-back" type="button">Back</button>
+        <button class="btn btn-primary" id="ex-next" type="button">Continue</button>
+      </div>
+    </section>
+
+    <!-- 4. PRACTICE -->
+    <section class="screen" id="screen-practice" aria-labelledby="pr-h">
+      <span class="step-badge">PRACTICE</span>
+      <h2 class="title" id="pr-h">Your turn — map alongside Efua</h2>
+      <div class="dots" id="practice-dots"></div>
+      <div id="practice-body"></div>
+    </section>
+
+    <!-- 5. JOB AID -->
+    <section class="screen" id="screen-jobaid" aria-labelledby="ja-h">
+      <span class="step-badge">JOB AID</span>
+      <h2 class="title" id="ja-h">Relationship map — keep this</h2>
+      <p class="muted">Fill this in for any client where a facility or major ask needs someone above your usual contact to say yes.</p>
+      <div class="jobaid">
+        <h3>Decision-Maker Map</h3>
+        <div class="field-row"><label>Client</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Date</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>RM</label><span>&nbsp;</span></div>
+        <table class="wallet">
+          <tr><th>Name</th><th>Role / title</th><th>Category</th><th>Sentiment</th><th>Notes</th></tr>
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        </table>
+        <div class="field-row"><label>Categories</label><span>decision-maker / influencer / gatekeeper</span></div>
+        <div class="field-row"><label>Sentiment</label><span>positive / neutral / resistant</span></div>
+        <div class="field-row"><label>Who's missing?</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Escalate?</label><span>yes / no — why</span></div>
+        <div class="placeholder-flag">⚑ CONFIRM WITH ABG: check this matches the current live relationship-mapping template/system before relying on it for a real submission.</div>
+      </div>
+      <div class="print-btn-wrap no-print">
+        <button class="btn btn-secondary" id="print-btn" type="button">Print or save this page</button>
+      </div>
+      <div class="btn-row no-print">
+        <button class="btn btn-primary" id="ja-next" type="button">Continue to the check</button>
+      </div>
+    </section>
+
+    <!-- 6. CHECK (one quick scenario, not scored — full certification happens in the separate assessment) -->
+    <section class="screen" id="screen-check" aria-labelledby="ck-h">
+      <span class="step-badge">CHECK</span>
+      <h2 class="title" id="ck-h">One quick scenario before you go</h2>
+      <p class="muted">This isn't scored — you still need to answer it to continue. The real test is in the separate certification assessment.</p>
+      <div id="check-body"></div>
+    </section>
+
+    <!-- 7. COMPLETE -->
+    <section class="screen" id="screen-complete" aria-labelledby="comp-h">
+      <span class="step-badge">DONE</span>
+      <h2 class="title" id="comp-h">Module complete</h2>
+      <p>Decision-maker mapping, in one line: sort your contacts by what they actually control, track how they feel about Access, and name who's missing before you ask for help closing the gap.</p>
+      <p>Your job aid is saved on the previous screen — print it, or come back to this page any time before you map your next account.</p>
+      <div class="btn-row no-print">
+        <button class="btn btn-secondary" id="back-to-jobaid" type="button">Back to job aid</button>
+        <button class="btn btn-primary" id="restart-btn" type="button">Restart module</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="nav no-print" id="footer-nav" style="display:none;">
+    <button class="btn btn-primary" id="footer-continue" type="button">Continue</button>
+  </footer>
+</div>
+
+<div aria-live="polite" class="visually-hidden" id="live-region" style="position:absolute;left:-9999px;"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- storage with graceful fallback ---------- */
+  var memoryStore = {};
+  var storageAvailable = (function(){
+    try{
+      var k = "__abg_test__";
+      window.localStorage.setItem(k,"1");
+      window.localStorage.removeItem(k);
+      return true;
+    }catch(e){ return false; }
+  })();
+  function saveState(state){
+    try{
+      if(storageAvailable){ window.localStorage.setItem("abg_m4_state", JSON.stringify(state)); }
+      else { memoryStore.state = state; }
+    }catch(e){ memoryStore.state = state; }
+  }
+  function loadState(){
+    try{
+      if(storageAvailable){
+        var raw = window.localStorage.getItem("abg_m4_state");
+        return raw ? JSON.parse(raw) : null;
+      }
+      return memoryStore.state || null;
+    }catch(e){ return memoryStore.state || null; }
+  }
+
+  var state = loadState() || { screen:"hook", checkAttempt:0 };
+
+  /* ---------- screen order + progress ---------- */
+  var STAGES = [
+    {id:"hook", label:"Hook"},
+    {id:"behaviour", label:"The behaviour"},
+    {id:"example", label:"Worked example"},
+    {id:"practice", label:"Practice"},
+    {id:"jobaid", label:"Job aid"},
+    {id:"check", label:"Check"}
+  ];
+
+  var screens = document.querySelectorAll(".screen");
+  var progressFill = document.getElementById("progress-fill");
+  var progressLabel = document.getElementById("progress-label");
+  var footerNav = document.getElementById("footer-nav");
+  var footerContinue = document.getElementById("footer-continue");
+  var liveRegion = document.getElementById("live-region");
+
+  function announce(msg){ liveRegion.textContent = msg; }
+
+  function stageIndexFor(screenId){
+    var map = {hook:0,behaviour:1,example:2,practice:3,jobaid:4,check:5,results:5,complete:5};
+    return map[screenId] !== undefined ? map[screenId] : 0;
+  }
+
+  function showScreen(id, opts){
+    opts = opts || {};
+    for(var i=0;i<screens.length;i++){ screens[i].classList.remove("active"); }
+    var target = document.getElementById("screen-"+id);
+    if(target){ target.classList.add("active"); }
+    window.scrollTo(0,0);
+    var idx = stageIndexFor(id);
+    var pct = Math.round(((idx+1)/STAGES.length)*100);
+    progressFill.style.width = pct+"%";
+    var lbl = STAGES[idx] ? STAGES[idx].label : "";
+    progressLabel.textContent = "Step "+(idx+1)+" of "+STAGES.length+" · "+lbl;
+    footerNav.style.display = "none";
+    state.screen = id;
+    saveState(state);
+    announce(lbl+" screen");
+  }
+
+  /* resume, but always start fresh at hook on first load of a session for simplicity of QA;
+     still restore if mid-module */
+  showScreen(state.screen || "hook");
+
+  /* ---------- simple screen-to-screen buttons ---------- */
+  document.getElementById("ja-next").addEventListener("click", function(){ showScreen("check"); startCheck(); });
+  document.getElementById("back-to-jobaid").addEventListener("click", function(){ showScreen("jobaid"); });
+  document.getElementById("restart-btn").addEventListener("click", function(){
+    state = {screen:"hook"};
+    saveState(state);
+    showScreen("hook");
+  });
+  document.getElementById("print-btn").addEventListener("click", function(){
+    document.getElementById("screen-jobaid").classList.add("print-active");
+    window.print();
+  });
+
+  /* Hook -> Behaviour -> Example handled via footer or dedicated buttons */
+  document.getElementById("screen-hook").insertAdjacentHTML("beforeend",
+    '<div class="btn-row no-print"><span></span><button class="btn btn-primary" id="hook-next" type="button">Continue</button></div>');
+  document.getElementById("hook-next").addEventListener("click", function(){ showScreen("behaviour"); });
+
+  document.getElementById("screen-behaviour").insertAdjacentHTML("beforeend",
+    '<div class="btn-row no-print"><button class="btn btn-secondary" id="beh-back" type="button">Back</button><button class="btn btn-primary" id="beh-next" type="button">See it worked through</button></div>');
+  document.getElementById("beh-back").addEventListener("click", function(){ showScreen("hook"); });
+  document.getElementById("beh-next").addEventListener("click", function(){ showScreen("example"); });
+
+  /* ---------- worked example pagination ---------- */
+  var exSteps = Array.prototype.slice.call(document.querySelectorAll(".example-step"));
+  var exIndex = 0;
+  var exDots = document.getElementById("example-dots");
+  function renderExDots(){
+    exDots.innerHTML = "";
+    exSteps.forEach(function(_, i){
+      var d = document.createElement("span");
+      d.className = "dot"+(i<=exIndex?" done":"");
+      exDots.appendChild(d);
+    });
+  }
+  function renderExStep(){
+    exSteps.forEach(function(s,i){ s.style.display = (i===exIndex)?"block":"none"; });
+    renderExDots();
+    document.getElementById("ex-next").textContent = (exIndex===exSteps.length-1) ? "Continue to practice" : "Next";
+  }
+  document.getElementById("ex-back").addEventListener("click", function(){
+    if(exIndex>0){ exIndex--; renderExStep(); }
+    else { showScreen("behaviour"); }
+  });
+  document.getElementById("ex-next").addEventListener("click", function(){
+    if(exIndex<exSteps.length-1){ exIndex++; renderExStep(); }
+    else { showScreen("practice"); startPractice(); }
+  });
+  renderExStep();
+
+  /* ================= PRACTICE ================= */
+  var practiceData = [
+    {
+      scenario:"Linda replies within the hour and has never once turned down a meeting. Kojo, the Group CFO, signs off on any facility over a certain size — Efua has never spoken to him. How should Efua classify Linda?",
+      options:[
+        {text:"Decision-maker — she's the most responsive contact, so she must have the authority", correct:false,
+         feedback:"Efua treats fast replies as sign-off power. When the facility actually goes up for approval, Linda says the same thing she always says — “let me check with head office” — because the decision was never hers to make."},
+        {text:"Gatekeeper — she controls access and information, but real sign-off for a facility this size sits above her", correct:true,
+         feedback:"This is the accurate read. Linda is genuinely useful — she opens doors and carries messages — but she isn't the one who can say yes to anything beyond routine banking."},
+        {text:"Influencer — she probably has some quiet sway over Kojo's decision", correct:false,
+         feedback:"Maybe, eventually — but there's no evidence of that yet. Assuming influence she hasn't demonstrated is a guess, not a map."},
+        {text:"Not worth mapping — she's just the day-to-day contact", correct:false,
+         feedback:"Dismissing gatekeepers is its own mistake. Linda controls what information and access Efua gets day to day — that's worth tracking, even though it isn't sign-off authority."}
+      ]
+    },
+    {
+      scenario:"A colleague on another sector team says of their own top client's finance contact, “We talk every week — she's basically the reason this account runs so well.” What's the risk in that statement?",
+      options:[
+        {text:"There's no risk — frequent contact is itself a sign of a strong relationship", correct:false,
+         feedback:"Frequent contact feels like progress, which is exactly why it's easy to mistake for influence. The colleague may be crediting a gatekeeper with authority she doesn't actually hold."},
+        {text:"The colleague may be mistaking easy access for real influence over the decisions that matter", correct:true,
+         feedback:"This is the trap the whole module is built around. An accessible, friendly contact can feel like the relationship is strong — while the actual decision sits somewhere the colleague has never checked."},
+        {text:"The risk only matters if the contact ever becomes unhelpful", correct:false,
+         feedback:"The risk is there regardless of how helpful the contact is. A helpful gatekeeper is still not a decision-maker."},
+        {text:"This is fine, as long as the relationship stays friendly", correct:false,
+         feedback:"Friendliness doesn't change who actually signs off. The gap stays exactly as invisible as it was before."}
+      ]
+    },
+    {
+      scenario:"Efua's map: Linda (gatekeeper, positive), Kojo (decision-maker, never met), Abena (influencer, positive but new), Kwame (influencer, resistant on FX policy). No one is mapped for procurement or board sign-off. Is this gap big enough to ask her senior sponsor for help?",
+      options:[
+        {text:"Yes — the only confirmed decision-maker is someone she has no route to, and there's a whole layer she hasn't even identified", correct:true,
+         feedback:"This is exactly the combination that justifies escalating: real authority sitting outside every relationship Efua has, plus a layer of the decision she can't even see yet."},
+        {text:"No — Linda's relationship is strong enough to carry the ask on her own", correct:false,
+         feedback:"Linda is a gatekeeper, not a decision-maker. Leaning on her alone leaves the actual sign-off exactly as unreachable as before."},
+        {text:"No — better to wait until Kojo reaches out directly", correct:false,
+         feedback:"There's no reason for Kojo to reach out; he doesn't know there's anything to discuss. Waiting just adds more months to the same stall from the hook."},
+        {text:"Yes, but only after Efua has spent a few more months trying to reach him on her own first", correct:false,
+         feedback:"That's the same four-month stall the module opened with. Once the gap is this clear, escalating sooner is the point — not a last resort."}
+      ]
+    },
+    {
+      scenario:"Efua decides the gap around Kojo is worth closing. What's the strongest next step?",
+      options:[
+        {text:"Ask her relationship-level leadership at Access whether they already have a peer-level relationship with Kojo or his office, and request an introduction", correct:true,
+         feedback:"This is the realistic route in. Senior leaders often already have peer relationships an RM doesn't — asking is faster and more credible than trying to manufacture contact from scratch."},
+        {text:"Email Kojo directly, out of the blue, introducing herself and raising the facility", correct:false,
+         feedback:"A cold email with no shared context, from someone he's never heard of, is easy to ignore — and it can also look like Efua is going around Solera's own internal reporting lines."},
+        {text:"Ask Linda to pass a message along to Kojo", correct:false,
+         feedback:"Linda is a gatekeeper without sign-off authority — she may not have real access to Kojo either, and messages passed sideways like this rarely reach the top with any weight behind them."},
+        {text:"Wait for the next scheduled review and hope Kojo happens to attend", correct:false,
+         feedback:"There's no reason to expect Kojo at a routine Ghana-level review. Hoping isn't a plan — it's the same silence from the hook, just dressed up as patience."}
+      ]
+    }
+  ];
+  var practiceIndex = 0;
+  var practiceAnswered = false;
+  var practiceDots = document.getElementById("practice-dots");
+  var practiceBody = document.getElementById("practice-body");
+
+  function renderPracticeDots(){
+    practiceDots.innerHTML = "";
+    practiceData.forEach(function(_,i){
+      var d = document.createElement("span");
+      d.className = "dot"+(i<practiceIndex?" done":"");
+      practiceDots.appendChild(d);
+    });
+  }
+
+  function startPractice(){ practiceIndex = 0; practiceAnswered=false; renderPractice(); }
+
+  var CHECK_ICON = '<svg class="icon icon-check" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7.6 13.6 4.4 10.4l-1.4 1.4L7.6 16.4l9.4-9.4-1.4-1.4z"/></svg>';
+  var X_ICON = '<svg class="icon icon-x" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4.9 3.5 3.5 4.9 8.6 10l-5.1 5.1 1.4 1.4L10 11.4l5.1 5.1 1.4-1.4L11.4 10l5.1-5.1-1.4-1.4L10 8.6z"/></svg>';
+
+  function renderOptionButtons(options, letters){
+    var html = '';
+    options.forEach(function(opt,i){
+      html += '<button type="button" class="option" data-i="'+i+'">'
+            + '<span class="letter">'+letters[i]+'</span>'
+            + CHECK_ICON + X_ICON
+            + '<span class="opt-text">'+opt.text+'</span>'
+            + '</button>';
+    });
+    return html;
+  }
+
+  function wireOptions(container, options, correctIndex, feedbackTargetId, onDone){
+    var answered = false;
+    var optionButtons = container.querySelectorAll(".option");
+    optionButtons.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        if(answered) return;
+        answered = true;
+        var i = parseInt(btn.getAttribute("data-i"),10);
+        optionButtons.forEach(function(b){ b.disabled = true; });
+        optionButtons[correctIndex].classList.add("is-correct");
+        if(i !== correctIndex){ btn.classList.add("is-incorrect"); }
+        var opt = options[i];
+        var fb = document.getElementById(feedbackTargetId);
+        if(opt.correct){
+          fb.innerHTML = '<div class="feedback state-correct"><span class="tag">'+CHECK_ICON+' Correct — that\'s the best move</span>'+opt.feedback+'</div>';
+        } else {
+          fb.innerHTML = '<div class="feedback state-incorrect"><span class="tag">'+X_ICON+' Not quite</span>'
+                        + '<div>'+opt.feedback+'</div>'
+                        + '<div class="why-block"><strong>The best move: &ldquo;'+options[correctIndex].text+'.&rdquo;</strong><br>'+options[correctIndex].feedback+'</div>'
+                        + '</div>';
+        }
+        announce(opt.correct ? "Correct, best move selected" : "Not the best move — explanation shown");
+        onDone();
+      });
+    });
+  }
+
+  function renderPractice(){
+    renderPracticeDots();
+    var item = practiceData[practiceIndex];
+    var letters = ["A","B","C","D"];
+    var correctIndex = item.options.findIndex(function(o){ return o.correct; });
+    var html = '<p><strong>Decision '+(practiceIndex+1)+' of '+practiceData.length+'.</strong> '+item.scenario+'</p>';
+    html += '<div class="option-list" role="group" aria-label="Choose one">'+renderOptionButtons(item.options, letters)+'</div>';
+    html += '<div id="practice-feedback"></div>';
+    html += '<div class="btn-row no-print"><button class="btn btn-secondary" id="practice-back" type="button">Back</button><button class="btn btn-primary" id="practice-next" type="button" disabled>Next</button></div>';
+    practiceBody.innerHTML = html;
+    practiceAnswered = false;
+
+    wireOptions(practiceBody, item.options, correctIndex, "practice-feedback", function(){
+      document.getElementById("practice-next").disabled = false;
+    });
+    document.getElementById("practice-back").addEventListener("click", function(){
+      if(practiceIndex>0){ practiceIndex--; renderPractice(); }
+      else { showScreen("example"); }
+    });
+    document.getElementById("practice-next").addEventListener("click", function(){
+      if(practiceIndex < practiceData.length-1){ practiceIndex++; renderPractice(); }
+      else { showScreen("jobaid"); }
+    });
+  }
+
+  /* ================= CHECK =================
+     One quick, non-scored scenario. Must be answered to progress, but does not
+     gate completion on correctness — full certification lives in the separate
+     30-question assessment tool, not in-module. A small pool gives variety across
+     opens/restarts without turning this into a graded retry loop. */
+  var checkPool = [
+    {
+      client:"Kessben Logistics Gh Ltd",
+      scenario:"At Kessben Logistics Gh Ltd, the operations manager is friendly and always takes Efua's calls, but every major cross-border financing decision in the last two years has actually been signed off by the Managing Director, whom Efua has never met. Efua wants to pursue a large financing facility. What should she do first?",
+      options:[
+        {text:"Map Kessben's contacts by category and sentiment, confirm the MD is the real decision-maker, and ask her own line manager whether Access already has a way in", correct:true,
+         feedback:"This puts the map before the pitch. Confirming who actually decides — and checking whether senior colleagues already have a route to that person — is the realistic way to avoid another stalled facility."},
+        {text:"Ask the operations manager to convince the MD on her behalf", correct:false,
+         feedback:"The operations manager may not have any real standing with the MD either. Handing the ask to a gatekeeper doesn't close the gap — it just adds a layer of uncertainty to it."},
+        {text:"Proceed with the facility pitch straight to the operations manager, since he's supportive", correct:false,
+         feedback:"Support from someone without sign-off authority doesn't move the decision forward. The facility can sit exactly where the hook's example did — stalled, with everyone assuming progress."},
+        {text:"Wait for the MD to reach out once he hears there's a facility on the table", correct:false,
+         feedback:"There's no reason to expect that call. The MD doesn't know Efua exists yet — waiting only delays finding that out."}
+      ]
+    },
+    {
+      client:"Ayeyie Textiles Gh Ltd",
+      scenario:"Ayeyie Textiles Gh Ltd's finance manager has always been warm toward Access, but Efua learns that any facility above a certain size needs sign-off from Ayeyie's board finance committee — a group she's never engaged. What's the strongest next move?",
+      options:[
+        {text:"Add the board finance committee to her relationship map as the real decision-maker, note the gap clearly, and raise it with her senior sponsor for a possible introduction", correct:true,
+         feedback:"This names the gap honestly instead of hoping the warm relationship will carry it, and routes the actual problem — no access to the committee — to someone who may be able to help close it."},
+        {text:"Skip the board committee, since the finance manager can probably get it approved informally", correct:false,
+         feedback:"A finance manager's goodwill doesn't substitute for a board committee's sign-off. This assumption is exactly how a facility ends up stalled for months with no one sure why."},
+        {text:"Submit the facility request and hope it clears the committee on its own merits", correct:false,
+         feedback:"A facility with no one championing it inside the room it's being decided in has a much harder path — merits alone rarely carry a committee vote."},
+        {text:"Ask the finance manager to represent Access's case to the board without any Access presence at all", correct:false,
+         feedback:"That leaves the case entirely in the hands of someone who isn't in the room to answer for it, and has no real standing with the committee herself."}
+      ]
+    }
+  ];
+
+  var checkBody = document.getElementById("check-body");
+
+  function startCheck(){
+    var item = checkPool[Math.floor(Math.random()*checkPool.length)];
+    renderCheckQuestion(item);
+  }
+
+  function renderCheckQuestion(item){
+    var letters = ["A","B","C","D"];
+    var correctIndex = item.options.findIndex(function(o){ return o.correct; });
+    var html = '<p class="muted">Scenario: '+item.client+'</p>';
+    html += '<p><strong>'+item.scenario+'</strong></p>';
+    html += '<div class="option-list" role="group" aria-label="Choose one">'+renderOptionButtons(item.options, letters)+'</div>';
+    html += '<div id="check-feedback"></div>';
+    html += '<div class="btn-row no-print"><span></span><button class="btn btn-primary" id="check-next" type="button" disabled>Finish module</button></div>';
+    checkBody.innerHTML = html;
+
+    wireOptions(checkBody, item.options, correctIndex, "check-feedback", function(){
+      document.getElementById("check-next").disabled = false;
+    });
+    document.getElementById("check-next").addEventListener("click", function(){
+      state.completed = true;
+      saveState(state);
+      fetch('/api/training/module-complete', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ module: 4 })
+      }).catch(function(e){ console.warn('Could not report module completion to server', e); });
+      showScreen("complete");
+    });
+  }
+
+})();
+</script>
+</body>
+</html>

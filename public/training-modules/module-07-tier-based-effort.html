@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>Module 7: Spend Your Week Where the Value Is</title>
+<style>
+  :root{
+    --navy:#1F4173;
+    --accent:#3168B9;
+    --light:#B0C7EA;
+    --neutral:#7F7F7F;
+    --bg:#F2F2F2;
+    --white:#FFFFFF;
+    --correct:#1E7A46;
+    --correct-bg:#E4F3EA;
+    --correct-border:#1E7A46;
+    --incorrect:#B3261E;
+    --incorrect-bg:#FBEAE8;
+    --incorrect-border:#B3261E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--navy);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+    font-size:16px;
+    -webkit-text-size-adjust:100%;
+  }
+  .app{max-width:600px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;}
+  header.topbar{
+    background:var(--navy);color:var(--white);padding:14px 16px 10px;
+    position:sticky;top:0;z-index:10;
+  }
+  header.topbar h1{font-size:15px;margin:0 0 8px;font-weight:600;letter-spacing:.2px;}
+  .progress-track{background:rgba(255,255,255,0.25);height:6px;border-radius:4px;overflow:hidden;}
+  .progress-fill{background:var(--white);height:100%;width:0%;transition:width .3s ease;}
+  .progress-label{font-size:11px;color:rgba(255,255,255,0.9);margin-top:6px;}
+
+  main{flex:1;padding:20px 18px 100px;}
+  .screen{display:none;}
+  .screen.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  h2.title{font-size:22px;margin:0 0 12px;color:var(--navy);font-weight:700;}
+  h3.subtitle{font-size:16px;margin:22px 0 8px;color:var(--navy);font-weight:700;}
+  p{margin:0 0 14px;font-size:16px;}
+  .big-number{font-size:44px;font-weight:800;color:var(--navy);line-height:1;margin:6px 0;}
+  .muted{color:var(--navy);font-size:14px;}
+  .card{
+    background:var(--white);border-radius:10px;padding:16px;margin:0 0 16px;
+    box-shadow:0 1px 3px rgba(31,65,115,0.12);
+  }
+  .card.tint{background:var(--light);color:var(--navy);}
+  .card.tint p, .card.tint li{color:var(--navy);}
+  .callout{
+    border-left:4px solid var(--accent);background:var(--white);
+    padding:12px 14px;border-radius:6px;margin:0 0 16px;font-size:15px;
+  }
+  .step-badge{
+    display:inline-block;background:var(--navy);color:var(--white);
+    font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;margin-bottom:10px;
+    letter-spacing:.3px;
+  }
+  ul.plain{padding-left:20px;margin:0 0 14px;}
+  ul.plain li{margin-bottom:8px;}
+  table.wallet{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:14px;}
+  table.wallet th{background:var(--navy);color:var(--white);text-align:left;padding:8px;font-size:12px;}
+  table.wallet td{padding:8px;border-bottom:1px solid var(--light);vertical-align:top;}
+  table.wallet tr:last-child td{border-bottom:none;}
+
+  .btn{
+    display:block;width:100%;text-align:center;padding:14px 18px;border-radius:10px;
+    font-size:16px;font-weight:700;border:none;cursor:pointer;min-height:48px;
+    font-family:inherit;
+  }
+  .btn-primary{background:var(--navy);color:var(--white);}
+  .btn-primary:active{background:var(--accent);}
+  .btn-secondary{background:var(--white);color:var(--navy);border:2px solid var(--navy);}
+  .btn-secondary:active{background:var(--light);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn-row{display:flex;gap:10px;margin-top:18px;}
+  .btn-row .btn{flex:1;}
+
+  footer.nav{
+    position:fixed;bottom:0;left:0;right:0;background:var(--bg);
+    border-top:1px solid var(--light);padding:12px 18px;
+    max-width:600px;margin:0 auto;
+  }
+  footer.nav .btn{margin:0;}
+
+  .option-list{margin:0 0 16px;}
+  .option{
+    display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;background:var(--white);
+    border:2px solid var(--light);border-radius:10px;padding:14px 16px;margin-bottom:10px;
+    font-size:15px;color:var(--navy);cursor:pointer;font-family:inherit;min-height:48px;
+  }
+  .option:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  .option:disabled{cursor:default;}
+  .option .letter{
+    display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;
+    background:var(--navy);color:var(--white);border-radius:50%;font-size:12px;font-weight:700;
+    flex-shrink:0;
+  }
+  .option .icon{flex-shrink:0;width:20px;display:none;margin-top:1px;}
+  .option .opt-text{flex:1;}
+  /* result state after an answer is submitted */
+  .option.is-correct{border-color:var(--correct-border);background:var(--correct-bg);font-weight:700;}
+  .option.is-correct .letter{background:var(--correct);}
+  .option.is-correct .icon.icon-check{display:inline-block;color:var(--correct);}
+  .option.is-incorrect{border-color:var(--incorrect-border);background:var(--incorrect-bg);}
+  .option.is-incorrect .letter{background:var(--incorrect);}
+  .option.is-incorrect .icon.icon-x{display:inline-block;color:var(--incorrect);}
+
+  .feedback{
+    background:var(--white);border:2px solid var(--navy);border-radius:10px;
+    padding:14px 16px;margin:6px 0 16px;font-size:15px;
+  }
+  .feedback .tag{font-weight:800;font-size:13px;color:var(--navy);display:flex;align-items:center;gap:6px;margin-bottom:8px;letter-spacing:.3px;text-transform:uppercase;}
+  .feedback.state-correct{border-color:var(--correct-border);}
+  .feedback.state-correct .tag{color:var(--correct);}
+  .feedback.state-incorrect{border-color:var(--incorrect-border);}
+  .feedback.state-incorrect .tag{color:var(--incorrect);}
+  .feedback .why-block{margin-top:10px;padding-top:10px;border-top:1px solid var(--light);}
+  .feedback .why-block strong{color:var(--navy);}
+
+  svg{display:block;max-width:100%;}
+  .icon-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--light);}
+  .icon-row:last-child{border-bottom:none;}
+  .icon-row .icon-box{
+    flex-shrink:0;width:40px;height:40px;background:var(--light);border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-row .icon-text{flex:1;font-size:14px;}
+  .icon-row .status{font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap;}
+
+  .dots{display:flex;gap:6px;justify-content:center;margin:16px 0;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--light);}
+  .dot.done{background:var(--navy);}
+
+  .jobaid{background:var(--white);border-radius:10px;padding:18px;border:2px solid var(--navy);}
+  .jobaid h3{margin-top:0;color:var(--navy);font-size:17px;}
+  .jobaid .field-row{display:flex;gap:10px;margin-bottom:8px;font-size:13px;}
+  .jobaid .field-row span{flex:1;border-bottom:1px solid var(--neutral);padding-bottom:4px;}
+  .jobaid .field-row label{font-weight:700;color:var(--navy);min-width:90px;}
+  .placeholder-flag{
+    background:var(--bg);border:1px dashed var(--neutral);border-radius:6px;
+    padding:8px 10px;font-size:12px;color:var(--navy);margin:10px 0;
+  }
+  .print-btn-wrap{margin-top:18px;}
+
+
+  @media (max-width:359px){
+    main{padding:16px 12px 100px;}
+    .big-number{font-size:36px;}
+  }
+
+  @media print{
+    header.topbar, footer.nav, .no-print{display:none !important;}
+    body{background:#fff;}
+    .app{max-width:100%;}
+    main{padding:0;}
+    .screen{display:none !important;}
+    #screen-jobaid.print-active{display:block !important;}
+    .jobaid{border:1px solid #000;box-shadow:none;}
+    .jobaid .field-row span{border-bottom:1px solid #000;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar" id="topbar">
+    <h1 id="stage-label">Module 7 · Spend Your Week Where the Value Is</h1>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label">Step 1 of 6 · Hook</div>
+  </header>
+
+  <main>
+
+    <!-- 1. HOOK -->
+    <section class="screen active" id="screen-hook" aria-labelledby="hook-h">
+      <span class="step-badge">HOOK</span>
+      <h2 class="title" id="hook-h">A week of quick replies to the wrong client.</h2>
+      <p>By Friday, Efua realised most of her week had gone to Kessben Logistics Gh Ltd — quick replies to small requests that landed easily by phone and WhatsApp. Meanwhile, Solera Foods Ghana Ltd's finance manager, Linda Owusu-Ansah, had sent a time-sensitive request on Monday about an upcoming facility renewal. It sat unanswered until Thursday, simply because it needed more digging and hadn't arrived with three follow-up calls.</p>
+      <div class="card tint" role="img" aria-label="A larger card representing a time-sensitive Solera request, marked with an unanswered flag, next to a smaller card representing a Kessben request that was quickly ticked off — showing the easy request getting done first while the more valuable one waited.">
+        <svg viewBox="0 0 200 130" width="100%" height="130" focusable="false" aria-hidden="true">
+          <rect x="15" y="10" width="120" height="95" rx="6" fill="#FFFFFF" stroke="#1F4173" stroke-width="2"/>
+          <line x1="27" y1="28" x2="113" y2="28" stroke="#1F4173" stroke-width="3"/>
+          <line x1="27" y1="42" x2="113" y2="42" stroke="#B0C7EA" stroke-width="3"/>
+          <line x1="27" y1="56" x2="90" y2="56" stroke="#B0C7EA" stroke-width="3"/>
+          <circle cx="112" cy="86" r="17" fill="#FBEAE8" stroke="#B3261E" stroke-width="3"/>
+          <text x="112" y="92" text-anchor="middle" font-size="18" font-weight="700" fill="#B3261E">!</text>
+          <rect x="142" y="55" width="55" height="55" rx="6" fill="#FFFFFF" stroke="#1F4173" stroke-width="2"/>
+          <line x1="150" y1="68" x2="189" y2="68" stroke="#B0C7EA" stroke-width="2"/>
+          <circle cx="169" cy="93" r="13" fill="#E4F3EA" stroke="#1E7A46" stroke-width="2"/>
+          <path d="M163 93 l4 5 l9 -9" stroke="#1E7A46" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="muted">Efua hadn't ignored Solera. Kessben was just easier to answer first — and a full week of "easier first" is how a higher-value client ends up waiting the longest.</p>
+    </section>
+
+    <!-- 2. BEHAVIOUR NAMED -->
+    <section class="screen" id="screen-behaviour" aria-labelledby="beh-h">
+      <span class="step-badge">THE BEHAVIOUR</span>
+      <h2 class="title" id="beh-h">Before you commit time this week, check the tier list — and defer the lower-tier ask, gracefully, when it competes with a higher-tier client's need.</h2>
+      <p>That's the whole module. Efua covers several accounts, not just Solera — Kessben Logistics and Ayeyie Textiles among them — and they aren't all worth the same amount of her time. Someone already did the work of ranking them into tiers as part of the account-planning she covered earlier in this series. The gap isn't that the tier list doesn't exist; it's that it doesn't get consulted in the moment two requests actually compete for the same afternoon. Everything from here is how she closes that gap, and how she says "not yet" to one client without damaging the relationship.</p>
+      <div class="callout"><strong>Why this matters, in one line:</strong> tiering exists to protect scarce time for the accounts where it matters most — it isn't paperwork for its own sake.</div>
+      <p class="muted">The habit itself is small: a fast tier check before you commit an afternoon, not a research project.</p>
+    </section>
+
+    <!-- 3. WORKED EXAMPLE (sub-paginated) -->
+    <section class="screen" id="screen-example" aria-labelledby="ex-h">
+      <span class="step-badge">WORKED EXAMPLE</span>
+      <h2 class="title" id="ex-h">Two Tuesday requests, one afternoon</h2>
+      <div class="dots" id="example-dots"></div>
+
+      <div class="example-step" data-step="1">
+        <p><strong>The situation.</strong> Tuesday morning, two things land close together. Kessben's operations contact sends a WhatsApp asking for a quick letter confirming account status for a routine audit — easy, maybe ten minutes of work. Separately, Linda from Solera has a request that's been open since Monday: a working-capital top-up ahead of Solera's peak seasonal stock buy. It needs a proper credit write-up, not a quick reply.</p>
+      </div>
+
+      <div class="example-step" data-step="2">
+        <p><strong>The tier check.</strong> Efua opens her account-tier list from the earlier account-planning work. It takes about thirty seconds — she isn't re-researching either account, just confirming what she already knows: Solera is Tier 1, her highest-value relationship with real growth potential. Kessben is Tier 3, a smaller, stable book with limited near-term upside.</p>
+      </div>
+
+      <div class="example-step" data-step="3">
+        <p><strong>Convenience isn't value.</strong> Kessben's ask feels urgent because it's easy — one call, one signed letter, done fast. Solera's ask feels harder because it takes real work. Efua reminds herself: how easy something is to answer has nothing to do with how much it's worth to Access. Left unanswered much longer, Solera's request risks the client sourcing the top-up elsewhere, right before a season that matters commercially.</p>
+      </div>
+
+      <div class="example-step" data-step="4">
+        <p><strong>Deferring Kessben, gracefully.</strong> Efua doesn't ignore Kessben. She calls the operations contact, gives a clear day — "I can have this letter to you by Thursday" — and checks whether the audit deadline is actually firmer than that. She doesn't need to name Solera; she just says a time-sensitive matter on another account has to come first this week.</p>
+      </div>
+
+      <div class="example-step" data-step="5">
+        <p><strong>What actually happens.</strong> Efua turns to Linda's request first. By Friday, Solera has an answer it can act on before peak season, and Kessben has its routine letter delivered on the day promised — not urgently, but on schedule and without any bruised feelings.</p>
+        <div class="callout">Tier tells you where the value is. Urgency tells you what's shouting loudest right now. Check both before you decide which one wins the afternoon.</div>
+      </div>
+
+      <div class="btn-row no-print">
+        <button class="btn btn-secondary" id="ex-back" type="button">Back</button>
+        <button class="btn btn-primary" id="ex-next" type="button">Continue</button>
+      </div>
+    </section>
+
+    <!-- 4. PRACTICE -->
+    <section class="screen" id="screen-practice" aria-labelledby="pr-h">
+      <span class="step-badge">PRACTICE</span>
+      <h2 class="title" id="pr-h">Your turn — decide where the afternoon goes</h2>
+      <div class="dots" id="practice-dots"></div>
+      <div id="practice-body"></div>
+    </section>
+
+    <!-- 5. JOB AID -->
+    <section class="screen" id="screen-jobaid" aria-labelledby="ja-h">
+      <span class="step-badge">JOB AID</span>
+      <h2 class="title" id="ja-h">Weekly tier check — keep this</h2>
+      <p class="muted">Run this before you commit real time to any request — about thirty seconds per ask, not thirty minutes.</p>
+      <div class="jobaid">
+        <h3>This week's top asks</h3>
+        <div class="field-row"><label>Ask 1</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Tier</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Decision</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Ask 2</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Tier</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Decision</label><span>&nbsp;</span></div>
+        <h3>If you need to defer, say this</h3>
+        <p>"I want to get this right for you — I can have this back to you by [day]. If anything about the timing changes on your end, tell me and I'll take another look."</p>
+        <h3>Escalate instead of deferring when</h3>
+        <ul class="plain">
+          <li>A lower-tier account has an unusually time-sensitive, high-value moment — for example, a one-off large tender or an opportunity that won't wait.</li>
+          <li>You're genuinely unsure which request should come first — raise it rather than guess.</li>
+        </ul>
+        <p class="muted">The tier check and the deferral script are two separate habits. Use the check to decide who goes first; use the script to make sure the client who waits still feels looked after, not dropped.</p>
+        <div class="placeholder-flag">⚑ CONFIRM WITH ABG: check the current, official account-tier list or system for your book, and use that as the source of truth — this job aid is the habit, not the tier data itself.</div>
+      </div>
+      <div class="print-btn-wrap no-print">
+        <button class="btn btn-secondary" id="print-btn" type="button">Print or save this page</button>
+      </div>
+      <div class="btn-row no-print">
+        <button class="btn btn-primary" id="ja-next" type="button">Continue to the check</button>
+      </div>
+    </section>
+
+    <!-- 6. CHECK (one quick scenario, not scored — full certification happens in the separate assessment) -->
+    <section class="screen" id="screen-check" aria-labelledby="ck-h">
+      <span class="step-badge">CHECK</span>
+      <h2 class="title" id="ck-h">One quick scenario before you go</h2>
+      <p class="muted">This isn't scored — you still need to answer it to continue. The real test is in the separate certification assessment.</p>
+      <div id="check-body"></div>
+    </section>
+
+    <!-- 7. COMPLETE -->
+    <section class="screen" id="screen-complete" aria-labelledby="comp-h">
+      <span class="step-badge">DONE</span>
+      <h2 class="title" id="comp-h">Module complete</h2>
+      <p>Tier-based effort, in one line: check the tier list before you commit time, don't confuse "easy to answer" with "valuable," and defer a lower-tier ask with a clear day and a respectful reason — never a silent drop.</p>
+      <p>Your job aid is saved on the previous screen — print it, or come back to this page whenever two requests land on the same afternoon.</p>
+      <div class="btn-row no-print">
+        <button class="btn btn-secondary" id="back-to-jobaid" type="button">Back to job aid</button>
+        <button class="btn btn-primary" id="restart-btn" type="button">Restart module</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="nav no-print" id="footer-nav" style="display:none;">
+    <button class="btn btn-primary" id="footer-continue" type="button">Continue</button>
+  </footer>
+</div>
+
+<div aria-live="polite" class="visually-hidden" id="live-region" style="position:absolute;left:-9999px;"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- storage with graceful fallback ---------- */
+  var memoryStore = {};
+  var storageAvailable = (function(){
+    try{
+      var k = "__abg_test__";
+      window.localStorage.setItem(k,"1");
+      window.localStorage.removeItem(k);
+      return true;
+    }catch(e){ return false; }
+  })();
+  function saveState(state){
+    try{
+      if(storageAvailable){ window.localStorage.setItem("abg_m7_state", JSON.stringify(state)); }
+      else { memoryStore.state = state; }
+    }catch(e){ memoryStore.state = state; }
+  }
+  function loadState(){
+    try{
+      if(storageAvailable){
+        var raw = window.localStorage.getItem("abg_m7_state");
+        return raw ? JSON.parse(raw) : null;
+      }
+      return memoryStore.state || null;
+    }catch(e){ return memoryStore.state || null; }
+  }
+
+  var state = loadState() || { screen:"hook", checkAttempt:0 };
+
+  /* ---------- screen order + progress ---------- */
+  var STAGES = [
+    {id:"hook", label:"Hook"},
+    {id:"behaviour", label:"The behaviour"},
+    {id:"example", label:"Worked example"},
+    {id:"practice", label:"Practice"},
+    {id:"jobaid", label:"Job aid"},
+    {id:"check", label:"Check"}
+  ];
+
+  var screens = document.querySelectorAll(".screen");
+  var progressFill = document.getElementById("progress-fill");
+  var progressLabel = document.getElementById("progress-label");
+  var footerNav = document.getElementById("footer-nav");
+  var footerContinue = document.getElementById("footer-continue");
+  var liveRegion = document.getElementById("live-region");
+
+  function announce(msg){ liveRegion.textContent = msg; }
+
+  function stageIndexFor(screenId){
+    var map = {hook:0,behaviour:1,example:2,practice:3,jobaid:4,check:5,results:5,complete:5};
+    return map[screenId] !== undefined ? map[screenId] : 0;
+  }
+
+  function showScreen(id, opts){
+    opts = opts || {};
+    for(var i=0;i<screens.length;i++){ screens[i].classList.remove("active"); }
+    var target = document.getElementById("screen-"+id);
+    if(target){ target.classList.add("active"); }
+    window.scrollTo(0,0);
+    var idx = stageIndexFor(id);
+    var pct = Math.round(((idx+1)/STAGES.length)*100);
+    progressFill.style.width = pct+"%";
+    var lbl = STAGES[idx] ? STAGES[idx].label : "";
+    progressLabel.textContent = "Step "+(idx+1)+" of "+STAGES.length+" · "+lbl;
+    footerNav.style.display = "none";
+    state.screen = id;
+    saveState(state);
+    announce(lbl+" screen");
+  }
+
+  /* resume, but always start fresh at hook on first load of a session for simplicity of QA;
+     still restore if mid-module */
+  showScreen(state.screen || "hook");
+
+  /* ---------- simple screen-to-screen buttons ---------- */
+  document.getElementById("ja-next").addEventListener("click", function(){ showScreen("check"); startCheck(); });
+  document.getElementById("back-to-jobaid").addEventListener("click", function(){ showScreen("jobaid"); });
+  document.getElementById("restart-btn").addEventListener("click", function(){
+    state = {screen:"hook"};
+    saveState(state);
+    showScreen("hook");
+  });
+  document.getElementById("print-btn").addEventListener("click", function(){
+    document.getElementById("screen-jobaid").classList.add("print-active");
+    window.print();
+  });
+
+  /* Hook -> Behaviour -> Example handled via footer or dedicated buttons */
+  document.getElementById("screen-hook").insertAdjacentHTML("beforeend",
+    '<div class="btn-row no-print"><span></span><button class="btn btn-primary" id="hook-next" type="button">Continue</button></div>');
+  document.getElementById("hook-next").addEventListener("click", function(){ showScreen("behaviour"); });
+
+  document.getElementById("screen-behaviour").insertAdjacentHTML("beforeend",
+    '<div class="btn-row no-print"><button class="btn btn-secondary" id="beh-back" type="button">Back</button><button class="btn btn-primary" id="beh-next" type="button">See it worked through</button></div>');
+  document.getElementById("beh-back").addEventListener("click", function(){ showScreen("hook"); });
+  document.getElementById("beh-next").addEventListener("click", function(){ showScreen("example"); });
+
+  /* ---------- worked example pagination ---------- */
+  var exSteps = Array.prototype.slice.call(document.querySelectorAll(".example-step"));
+  var exIndex = 0;
+  var exDots = document.getElementById("example-dots");
+  function renderExDots(){
+    exDots.innerHTML = "";
+    exSteps.forEach(function(_, i){
+      var d = document.createElement("span");
+      d.className = "dot"+(i<=exIndex?" done":"");
+      exDots.appendChild(d);
+    });
+  }
+  function renderExStep(){
+    exSteps.forEach(function(s,i){ s.style.display = (i===exIndex)?"block":"none"; });
+    renderExDots();
+    document.getElementById("ex-next").textContent = (exIndex===exSteps.length-1) ? "Continue to practice" : "Next";
+  }
+  document.getElementById("ex-back").addEventListener("click", function(){
+    if(exIndex>0){ exIndex--; renderExStep(); }
+    else { showScreen("behaviour"); }
+  });
+  document.getElementById("ex-next").addEventListener("click", function(){
+    if(exIndex<exSteps.length-1){ exIndex++; renderExStep(); }
+    else { showScreen("practice"); startPractice(); }
+  });
+  renderExStep();
+
+  /* ================= PRACTICE ================= */
+  var practiceData = [
+    {
+      scenario:"Ayeyie Textiles Gh Ltd's export officer sends a WhatsApp asking Efua to confirm a routine reference letter today — five minutes of work. At the same time, Solera's Group CFO, Kojo Antwi-Danso, has an unanswered question from three days ago about a proposed trade facility for Solera's next import cycle. What should Efua do first?",
+      options:[
+        {text:"Answer Ayeyie's WhatsApp first — it's quick and she can clear it in minutes", correct:false,
+         feedback:"Quick to clear isn't the same as more important. Choosing it because it's easy is exactly the convenience trap this habit exists to catch."},
+        {text:"Check her tier list, confirm Solera is the higher-tier priority, and give Ayeyie a clear day for the letter", correct:true,
+         feedback:"Right. Solera's request is worth more and has already waited three days. Ayeyie still gets an answer — just not first."},
+        {text:"Rush a reply to the CFO so she can get to Ayeyie sooner", correct:false,
+         feedback:"A trade facility question deserves a proper answer, not a rushed one squeezed in to free up time for the easier task."},
+        {text:"Tell Ayeyie to wait, with no timeline given", correct:false,
+         feedback:"Deferring without a clear day isn't graceful — it just leaves Ayeyie unsure whether Efua is even planning to respond."}
+      ]
+    },
+    {
+      scenario:"Kessben's finance manager calls: a one-off shipment tender, well above Kessben's usual volume, needs a same-day guarantee before the tender closes tonight. Kessben is Tier 3. What should Efua do?",
+      options:[
+        {text:"Defer it like any other Kessben request, since Kessben is lower tier", correct:false,
+         feedback:"Tier is a starting point, not a rule that overrides every unusual moment. This one has genuine time-sensitive, high-value features worth a second look."},
+        {text:"Recognise this as a genuine judgment call — an unusually time-sensitive, high-value moment on a lower-tier account — and escalate for a same-day decision", correct:true,
+         feedback:"Correct. This is exactly what the escalation path is for: a lower-tier account with a real, unusual opportunity that a simple tier check doesn't settle on its own."},
+        {text:"Drop her Solera priority for the day and handle it herself without telling anyone", correct:false,
+         feedback:"Acting alone, without raising it, skips the very judgment call this situation calls for and risks the wrong trade-off either way."},
+        {text:"Tell Kessben's contact that tiering means this can't be handled quickly", correct:false,
+         feedback:"That's not what the tier list is for, and it damages the relationship over a request that may well deserve fast attention."}
+      ]
+    },
+    {
+      scenario:"Efua needs to defer a routine reconciliation request from Ayeyie because a Solera issue needs her attention this afternoon. What's the best way to defer it?",
+      options:[
+        {text:"Give Ayeyie a specific day she'll respond by, and a short, honest reason without oversharing details of the other account", correct:true,
+         feedback:"This keeps the relationship healthy — Ayeyie knows exactly when to expect an answer and isn't left guessing."},
+        {text:"Leave the message unanswered until she gets to it", correct:false,
+         feedback:"Silence reads as being ignored, not as being deprioritised for a good reason. It costs more trust than a short, clear message would."},
+        {text:"Reply that she's \"too busy\" with no indication of when she'll be free", correct:false,
+         feedback:"Vague and open-ended isn't a deferral — it gives Ayeyie nothing to plan around and can sound dismissive."},
+        {text:"Say the request isn't a priority and she may not get to it this week", correct:false,
+         feedback:"This treats a temporary scheduling choice like a permanent judgment on Ayeyie as a client, which isn't accurate or fair."}
+      ]
+    },
+    {
+      scenario:"Two requests land the same afternoon: Kessben's contact calls three times and sends two follow-up messages about a minor documentation request. Solera's Linda sends one calm email about a bigger, time-sensitive ask. Efua feels pulled toward Kessben simply because of how much contact there's been. What should guide her decision?",
+      options:[
+        {text:"Whoever has reached out the most times should go first", correct:false,
+         feedback:"Volume of contact measures persistence, not value or true urgency. Following it here would reward noise over the account that actually needs her most."},
+        {text:"The tier list and the actual value and urgency of each ask — not how many times someone has reached out", correct:true,
+         feedback:"Correct. Kessben's follow-ups make it feel urgent, but Solera's request is the higher-value, time-sensitive one. Tier and loudest voice are pointing in different directions here, and tier should win."},
+        {text:"Treat the number of messages as a proxy for how urgent the request must be", correct:false,
+         feedback:"Frequent contact often just means someone is easy to reach or anxious for a reply — it doesn't tell Efua anything about actual value or true urgency."},
+        {text:"Respond to Kessben's calls but leave Linda's email completely unacknowledged for now", correct:false,
+         feedback:"Even when Solera goes first, a quick acknowledgement to Kessben costs nothing and keeps that relationship from feeling dropped."}
+      ]
+    }
+  ];
+  var practiceIndex = 0;
+  var practiceAnswered = false;
+  var practiceDots = document.getElementById("practice-dots");
+  var practiceBody = document.getElementById("practice-body");
+
+  function renderPracticeDots(){
+    practiceDots.innerHTML = "";
+    practiceData.forEach(function(_,i){
+      var d = document.createElement("span");
+      d.className = "dot"+(i<practiceIndex?" done":"");
+      practiceDots.appendChild(d);
+    });
+  }
+
+  function startPractice(){ practiceIndex = 0; practiceAnswered=false; renderPractice(); }
+
+  var CHECK_ICON = '<svg class="icon icon-check" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7.6 13.6 4.4 10.4l-1.4 1.4L7.6 16.4l9.4-9.4-1.4-1.4z"/></svg>';
+  var X_ICON = '<svg class="icon icon-x" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4.9 3.5 3.5 4.9 8.6 10l-5.1 5.1 1.4 1.4L10 11.4l5.1 5.1 1.4-1.4L11.4 10l5.1-5.1-1.4-1.4L10 8.6z"/></svg>';
+
+  function renderOptionButtons(options, letters){
+    var html = '';
+    options.forEach(function(opt,i){
+      html += '<button type="button" class="option" data-i="'+i+'">'
+            + '<span class="letter">'+letters[i]+'</span>'
+            + CHECK_ICON + X_ICON
+            + '<span class="opt-text">'+opt.text+'</span>'
+            + '</button>';
+    });
+    return html;
+  }
+
+  function wireOptions(container, options, correctIndex, feedbackTargetId, onDone){
+    var answered = false;
+    var optionButtons = container.querySelectorAll(".option");
+    optionButtons.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        if(answered) return;
+        answered = true;
+        var i = parseInt(btn.getAttribute("data-i"),10);
+        optionButtons.forEach(function(b){ b.disabled = true; });
+        optionButtons[correctIndex].classList.add("is-correct");
+        if(i !== correctIndex){ btn.classList.add("is-incorrect"); }
+        var opt = options[i];
+        var fb = document.getElementById(feedbackTargetId);
+        if(opt.correct){
+          fb.innerHTML = '<div class="feedback state-correct"><span class="tag">'+CHECK_ICON+' Correct — that\'s the best move</span>'+opt.feedback+'</div>';
+        } else {
+          fb.innerHTML = '<div class="feedback state-incorrect"><span class="tag">'+X_ICON+' Not quite</span>'
+                        + '<div>'+opt.feedback+'</div>'
+                        + '<div class="why-block"><strong>The best move: &ldquo;'+options[correctIndex].text+'.&rdquo;</strong><br>'+options[correctIndex].feedback+'</div>'
+                        + '</div>';
+        }
+        announce(opt.correct ? "Correct, best move selected" : "Not the best move — explanation shown");
+        onDone();
+      });
+    });
+  }
+
+  function renderPractice(){
+    renderPracticeDots();
+    var item = practiceData[practiceIndex];
+    var letters = ["A","B","C","D"];
+    var correctIndex = item.options.findIndex(function(o){ return o.correct; });
+    var html = '<p><strong>Decision '+(practiceIndex+1)+' of '+practiceData.length+'.</strong> '+item.scenario+'</p>';
+    html += '<div class="option-list" role="group" aria-label="Choose one">'+renderOptionButtons(item.options, letters)+'</div>';
+    html += '<div id="practice-feedback"></div>';
+    html += '<div class="btn-row no-print"><button class="btn btn-secondary" id="practice-back" type="button">Back</button><button class="btn btn-primary" id="practice-next" type="button" disabled>Next</button></div>';
+    practiceBody.innerHTML = html;
+    practiceAnswered = false;
+
+    wireOptions(practiceBody, item.options, correctIndex, "practice-feedback", function(){
+      document.getElementById("practice-next").disabled = false;
+    });
+    document.getElementById("practice-back").addEventListener("click", function(){
+      if(practiceIndex>0){ practiceIndex--; renderPractice(); }
+      else { showScreen("example"); }
+    });
+    document.getElementById("practice-next").addEventListener("click", function(){
+      if(practiceIndex < practiceData.length-1){ practiceIndex++; renderPractice(); }
+      else { showScreen("jobaid"); }
+    });
+  }
+
+  /* ================= CHECK =================
+     One quick, non-scored scenario. Must be answered to progress, but does not
+     gate completion on correctness — full certification lives in the separate
+     30-question assessment tool, not in-module. A small pool gives variety across
+     opens/restarts without turning this into a graded retry loop. */
+  var checkPool = [
+    { // Kessben Logistics (fictional)
+      client:"Kessben Logistics Gh Ltd",
+      scenario:"Kessben's contact sends three quick follow-up messages asking Efua to prioritise a minor documentation request today. A Solera ask from Linda about a time-sensitive facility matter has been open since yesterday. What should Efua do?",
+      options:[
+        {text:"Reply to Kessben first, since they've followed up several times", correct:false,
+         feedback:"Frequent follow-ups make a request feel urgent, but they don't change its actual tier or value."},
+        {text:"Check the tier list, confirm Solera is the higher-tier, time-sensitive priority, and give Kessben a clear day for a response", correct:true,
+         feedback:"This is the right call. Solera's matter is both higher-tier and time-sensitive, and Kessben still gets a clear, specific answer."},
+        {text:"Tell Kessben she can't help this week, with no timeline given", correct:false,
+         feedback:"A flat no with no timeline isn't a graceful deferral — it risks the relationship for no real reason."},
+        {text:"Split her afternoon evenly between both, regardless of tier", correct:false,
+         feedback:"Splitting time evenly ignores that one request is genuinely worth more of her attention than the other right now."}
+      ]
+    },
+    { // Ayeyie Textiles (fictional)
+      client:"Ayeyie Textiles Gh Ltd",
+      scenario:"Ayeyie's export officer asks for an urgent same-day letter, but tells Efua the real deadline is actually flexible when she checks. Solera's peak-season facility request is still open. What should Efua do?",
+      options:[
+        {text:"Treat \"urgent\" at face value and drop the Solera work anyway", correct:false,
+         feedback:"The word \"urgent\" turned out not to match the real deadline. Acting on the label instead of the facts misses the point of checking."},
+        {text:"Since Ayeyie's actual deadline is flexible, prioritise the Solera work today and give Ayeyie a specific day this week for the letter", correct:true,
+         feedback:"Right. Once the real timing is confirmed, the higher-tier, genuinely time-sensitive request should come first — and Ayeyie still gets a firm date."},
+        {text:"Don't respond to Ayeyie at all this week", correct:false,
+         feedback:"Even with a flexible deadline, Ayeyie deserves an acknowledgement and a day to expect a reply."},
+        {text:"Ask a colleague to handle the Solera request so she can do Ayeyie's letter immediately", correct:false,
+         feedback:"Handing off the higher-value work to fit in the easier task the wrong way round is the same convenience trap, just moved to someone else's desk."}
+      ]
+    }
+  ];
+
+  var checkBody = document.getElementById("check-body");
+
+  function startCheck(){
+    var item = checkPool[Math.floor(Math.random()*checkPool.length)];
+    renderCheckQuestion(item);
+  }
+
+  function renderCheckQuestion(item){
+    var letters = ["A","B","C","D"];
+    var correctIndex = item.options.findIndex(function(o){ return o.correct; });
+    var html = '<p class="muted">Scenario: '+item.client+'</p>';
+    html += '<p><strong>'+item.scenario+'</strong></p>';
+    html += '<div class="option-list" role="group" aria-label="Choose one">'+renderOptionButtons(item.options, letters)+'</div>';
+    html += '<div id="check-feedback"></div>';
+    html += '<div class="btn-row no-print"><span></span><button class="btn btn-primary" id="check-next" type="button" disabled>Finish module</button></div>';
+    checkBody.innerHTML = html;
+
+    wireOptions(checkBody, item.options, correctIndex, "check-feedback", function(){
+      document.getElementById("check-next").disabled = false;
+    });
+    document.getElementById("check-next").addEventListener("click", function(){
+      state.completed = true;
+      saveState(state);
+      fetch('/api/training/module-complete', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ module: 7 })
+      }).catch(function(e){ console.warn('Could not report module completion to server', e); });
+      showScreen("complete");
+    });
+  }
+
+})();
+</script>
+</body>
+</html>

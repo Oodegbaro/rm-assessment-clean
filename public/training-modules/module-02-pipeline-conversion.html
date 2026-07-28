@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>Module 2: Turn What the Client Said Into a Pipeline Entry</title>
+<style>
+  :root{
+    --navy:#1F4173;
+    --accent:#3168B9;
+    --light:#B0C7EA;
+    --neutral:#7F7F7F;
+    --bg:#F2F2F2;
+    --white:#FFFFFF;
+    --correct:#1E7A46;
+    --correct-bg:#E4F3EA;
+    --correct-border:#1E7A46;
+    --incorrect:#B3261E;
+    --incorrect-bg:#FBEAE8;
+    --incorrect-border:#B3261E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--navy);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+    font-size:16px;
+    -webkit-text-size-adjust:100%;
+  }
+  .app{max-width:600px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;}
+  header.topbar{
+    background:var(--navy);color:var(--white);padding:14px 16px 10px;
+    position:sticky;top:0;z-index:10;
+  }
+  header.topbar h1{font-size:15px;margin:0 0 8px;font-weight:600;letter-spacing:.2px;}
+  .progress-track{background:rgba(255,255,255,0.25);height:6px;border-radius:4px;overflow:hidden;}
+  .progress-fill{background:var(--white);height:100%;width:0%;transition:width .3s ease;}
+  .progress-label{font-size:11px;color:rgba(255,255,255,0.9);margin-top:6px;}
+
+  main{flex:1;padding:20px 18px 100px;}
+  .screen{display:none;}
+  .screen.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  h2.title{font-size:22px;margin:0 0 12px;color:var(--navy);font-weight:700;}
+  h3.subtitle{font-size:16px;margin:22px 0 8px;color:var(--navy);font-weight:700;}
+  p{margin:0 0 14px;font-size:16px;}
+  .big-number{font-size:44px;font-weight:800;color:var(--navy);line-height:1;margin:6px 0;}
+  .muted{color:var(--navy);font-size:14px;}
+  .card{
+    background:var(--white);border-radius:10px;padding:16px;margin:0 0 16px;
+    box-shadow:0 1px 3px rgba(31,65,115,0.12);
+  }
+  .card.tint{background:var(--light);color:var(--navy);}
+  .card.tint p, .card.tint li{color:var(--navy);}
+  .callout{
+    border-left:4px solid var(--accent);background:var(--white);
+    padding:12px 14px;border-radius:6px;margin:0 0 16px;font-size:15px;
+  }
+  .step-badge{
+    display:inline-block;background:var(--navy);color:var(--white);
+    font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;margin-bottom:10px;
+    letter-spacing:.3px;
+  }
+  ul.plain{padding-left:20px;margin:0 0 14px;}
+  ul.plain li{margin-bottom:8px;}
+  table.wallet{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:14px;}
+  table.wallet th{background:var(--navy);color:var(--white);text-align:left;padding:8px;font-size:12px;}
+  table.wallet td{padding:8px;border-bottom:1px solid var(--light);vertical-align:top;}
+  table.wallet tr:last-child td{border-bottom:none;}
+
+  .btn{
+    display:block;width:100%;text-align:center;padding:14px 18px;border-radius:10px;
+    font-size:16px;font-weight:700;border:none;cursor:pointer;min-height:48px;
+    font-family:inherit;
+  }
+  .btn-primary{background:var(--navy);color:var(--white);}
+  .btn-primary:active{background:var(--accent);}
+  .btn-secondary{background:var(--white);color:var(--navy);border:2px solid var(--navy);}
+  .btn-secondary:active{background:var(--light);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn-row{display:flex;gap:10px;margin-top:18px;}
+  .btn-row .btn{flex:1;}
+
+  footer.nav{
+    position:fixed;bottom:0;left:0;right:0;background:var(--bg);
+    border-top:1px solid var(--light);padding:12px 18px;
+    max-width:600px;margin:0 auto;
+  }
+  footer.nav .btn{margin:0;}
+
+  .option-list{margin:0 0 16px;}
+  .option{
+    display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;background:var(--white);
+    border:2px solid var(--light);border-radius:10px;padding:14px 16px;margin-bottom:10px;
+    font-size:15px;color:var(--navy);cursor:pointer;font-family:inherit;min-height:48px;
+  }
+  .option:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  .option:disabled{cursor:default;}
+  .option .letter{
+    display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;
+    background:var(--navy);color:var(--white);border-radius:50%;font-size:12px;font-weight:700;
+    flex-shrink:0;
+  }
+  .option .icon{flex-shrink:0;width:20px;display:none;margin-top:1px;}
+  .option .opt-text{flex:1;}
+  /* result state after an answer is submitted */
+  .option.is-correct{border-color:var(--correct-border);background:var(--correct-bg);font-weight:700;}
+  .option.is-correct .letter{background:var(--correct);}
+  .option.is-correct .icon.icon-check{display:inline-block;color:var(--correct);}
+  .option.is-incorrect{border-color:var(--incorrect-border);background:var(--incorrect-bg);}
+  .option.is-incorrect .letter{background:var(--incorrect);}
+  .option.is-incorrect .icon.icon-x{display:inline-block;color:var(--incorrect);}
+
+  .feedback{
+    background:var(--white);border:2px solid var(--navy);border-radius:10px;
+    padding:14px 16px;margin:6px 0 16px;font-size:15px;
+  }
+  .feedback .tag{font-weight:800;font-size:13px;color:var(--navy);display:flex;align-items:center;gap:6px;margin-bottom:8px;letter-spacing:.3px;text-transform:uppercase;}
+  .feedback.state-correct{border-color:var(--correct-border);}
+  .feedback.state-correct .tag{color:var(--correct);}
+  .feedback.state-incorrect{border-color:var(--incorrect-border);}
+  .feedback.state-incorrect .tag{color:var(--incorrect);}
+  .feedback .why-block{margin-top:10px;padding-top:10px;border-top:1px solid var(--light);}
+  .feedback .why-block strong{color:var(--navy);}
+
+  svg{display:block;max-width:100%;}
+  .icon-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--light);}
+  .icon-row:last-child{border-bottom:none;}
+  .icon-row .icon-box{
+    flex-shrink:0;width:40px;height:40px;background:var(--light);border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-row .icon-text{flex:1;font-size:14px;}
+  .icon-row .status{font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap;}
+
+  .dots{display:flex;gap:6px;justify-content:center;margin:16px 0;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--light);}
+  .dot.done{background:var(--navy);}
+
+  .jobaid{background:var(--white);border-radius:10px;padding:18px;border:2px solid var(--navy);}
+  .jobaid h3{margin-top:0;color:var(--navy);font-size:17px;}
+  .jobaid .field-row{display:flex;gap:10px;margin-bottom:8px;font-size:13px;}
+  .jobaid .field-row span{flex:1;border-bottom:1px solid var(--neutral);padding-bottom:4px;}
+  .jobaid .field-row label{font-weight:700;color:var(--navy);min-width:90px;}
+  .placeholder-flag{
+    background:var(--bg);border:1px dashed var(--neutral);border-radius:6px;
+    padding:8px 10px;font-size:12px;color:var(--navy);margin:10px 0;
+  }
+  .print-btn-wrap{margin-top:18px;}
+
+
+  @media (max-width:359px){
+    main{padding:16px 12px 100px;}
+    .big-number{font-size:36px;}
+  }
+
+  @media print{
+    header.topbar, footer.nav, .no-print{display:none !important;}
+    body{background:#fff;}
+    .app{max-width:100%;}
+    main{padding:0;}
+    .screen{display:none !important;}
+    #screen-jobaid.print-active{display:block !important;}
+    .jobaid{border:1px solid #000;box-shadow:none;}
+    .jobaid .field-row span{border-bottom:1px solid #000;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar" id="topbar">
+    <h1 id="stage-label">Module 2 · Turn What the Client Said Into a Pipeline Entry</h1>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label">Step 1 of 6 · Hook</div>
+  </header>
+
+  <main>
+
+    <!-- 1. HOOK -->
+    <section class="screen active" id="screen-hook" aria-labelledby="hook-h">
+      <span class="step-badge">HOOK</span>
+      <h2 class="title" id="hook-h">The client mentioned the same need twice. Nobody wrote it down as an opportunity.</h2>
+      <p>In two separate calls, three months apart, Solera's Finance Manager mentioned that Solera was "looking at a new supplier finance arrangement" for their import lines. Efua noted it both times — as colour for her call memo, not as something to size and log. By the third call, Solera already had the facility. With another bank.</p>
+      <div class="card tint" role="img" aria-label="Timeline showing the same need mentioned in call one and call two, then booked with a competitor bank by call three, with zero pipeline entries logged in between.">
+        <svg viewBox="0 0 200 110" width="100%" height="110" focusable="false" aria-hidden="true">
+          <line x1="25" y1="55" x2="175" y2="55" stroke="#1F4173" stroke-width="2"/>
+          <circle cx="30" cy="55" r="8" fill="#1F4173"/>
+          <circle cx="100" cy="55" r="8" fill="#1F4173"/>
+          <circle cx="170" cy="55" r="8" fill="#1F4173"/>
+          <text x="30" y="80" text-anchor="middle" font-size="11" fill="#1F4173" font-weight="700">Call 1</text>
+          <text x="30" y="94" text-anchor="middle" font-size="10" fill="#1F4173">mentioned</text>
+          <text x="100" y="80" text-anchor="middle" font-size="11" fill="#1F4173" font-weight="700">Call 2</text>
+          <text x="100" y="94" text-anchor="middle" font-size="10" fill="#1F4173">mentioned again</text>
+          <text x="170" y="80" text-anchor="middle" font-size="11" fill="#1F4173" font-weight="700">Call 3</text>
+          <text x="170" y="94" text-anchor="middle" font-size="10" fill="#1F4173">booked elsewhere</text>
+        </svg>
+      </div>
+      <div class="big-number">0</div>
+      <p class="muted">Pipeline entries logged from two mentions of the same stated need, across three months.</p>
+      <p>Nothing about the calls was mishandled. The need was heard, both times. It just never became a sized, owned entry — so nothing forced anyone to act on it before someone else did.</p>
+    </section>
+
+    <!-- 2. BEHAVIOUR NAMED -->
+    <section class="screen" id="screen-behaviour" aria-labelledby="beh-h">
+      <span class="step-badge">THE BEHAVIOUR</span>
+      <h2 class="title" id="beh-h">Every time a client states a need — a number, a date, a plan — convert it into a pipeline entry before you leave the call: sized, probability-banded, with an owner and a date.</h2>
+      <p>That's the whole module. Everything from here on is how to do exactly that, using a real call as the walk-through.</p>
+      <div class="callout"><strong>Why this matters, in one line:</strong> a signal you don't log is a signal you're trusting yourself to remember — and a competitor to forget.</div>
+      <p class="muted">This follows on from wallet-share mapping: once you know where the gaps are, this is how you catch the moment one of them starts to move — instead of finding out after it's closed.</p>
+    </section>
+
+    <!-- 3. WORKED EXAMPLE (sub-paginated) -->
+    <section class="screen" id="screen-example" aria-labelledby="ex-h">
+      <span class="step-badge">WORKED EXAMPLE</span>
+      <h2 class="title" id="ex-h">Solera Foods Ghana Ltd — a routine call</h2>
+      <div class="dots" id="example-dots"></div>
+
+      <div class="example-step" data-step="1">
+        <p><strong>The call, in brief.</strong> Efua's monthly catch-up with Linda Owusu-Ansah, Solera's Ghana Finance Manager. Nothing unusual on the agenda. Fifteen minutes in, Linda mentions that Solera Group AG has approved a new processing line for the Ghana plant, expected to roughly double output within the next year — equipment will need to be imported. She also mentions, almost as an aside, that Solera's existing import facility for spare parts, held at another bank, comes up for renewal in the first quarter.</p>
+        <p>Two sentences, said in passing. Neither sounded like a pitch. That's exactly why they're easy to let pass as background.</p>
+      </div>
+
+      <div class="example-step" data-step="2">
+        <p><strong>Step 1 — recognise the signal.</strong> Efua doesn't wait to see if Linda repeats herself. She writes down both statements the moment the call ends — dated, attributed, specific — instead of trusting herself to remember the detail by Friday.</p>
+        <div class="icon-row"><div class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="#1F4173" stroke-width="2"/><line x1="8" y1="8" x2="16" y2="8" stroke="#1F4173" stroke-width="2"/><line x1="8" y1="13" x2="16" y2="13" stroke="#1F4173" stroke-width="2"/></svg>
+          </div><div class="icon-text">Capacity-doubling capex, equipment to be imported</div><div class="status">LOG NOW</div></div>
+        <div class="icon-row"><div class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="#1F4173" stroke-width="2"/><line x1="4" y1="10" x2="20" y2="10" stroke="#1F4173" stroke-width="2"/><line x1="8" y1="3" x2="8" y2="7" stroke="#1F4173" stroke-width="2"/><line x1="16" y1="3" x2="16" y2="7" stroke="#1F4173" stroke-width="2"/></svg>
+          </div><div class="icon-text">Competitor-held facility, renewal date already known</div><div class="status">WATCH</div></div>
+      </div>
+
+      <div class="example-step" data-step="3">
+        <p><strong>Step 2 — match the need to a product.</strong> Equipment being imported and paid for in foreign currency is a trade-finance and FX conversation — an import facility tied to the capex plan, not a vague "maybe some lending." Efua writes the match down specifically, in words Access actually sells.</p>
+      </div>
+
+      <div class="example-step" data-step="4">
+        <p><strong>Step 3 — size it, conceptually.</strong> No exact figure has been shared yet. Sizing is a way of thinking — volume × spread × probability — not a formula to memorise. Efua works from what she has: the scale of Solera's current facility, the "roughly doubling" comment, and typical costs for a comparable processing line, to build an illustrative range — say, GHS 40m–60m in equipment import value. She marks it clearly as an estimate to refine once real numbers exist, not a final figure.</p>
+      </div>
+
+      <div class="example-step" data-step="5">
+        <p><strong>Step 4 — set a probability band, then an owner and a date.</strong> Nothing is approved. No budget is confirmed, and Efua has never met Kojo Antwi-Danso, the Group CFO who actually holds the capex decision. That puts this at roughly <strong>25%</strong> — a real, live signal, but early. She logs the entry with an owner (herself) and a next action with a date: confirm the capex timeline and budget range with Kojo within two weeks, using Linda for the introduction. The entry goes into the pipeline the same day — not after the memo is typed up, not "when she gets to it."</p>
+        <div class="callout">A pipeline entry without an owner and a date isn't an entry — it's a note to self, and notes to self get lost.</div>
+      </div>
+
+      <div class="btn-row no-print">
+        <button class="btn btn-secondary" id="ex-back" type="button">Back</button>
+        <button class="btn btn-primary" id="ex-next" type="button">Continue</button>
+      </div>
+    </section>
+
+    <!-- 4. PRACTICE -->
+    <section class="screen" id="screen-practice" aria-labelledby="pr-h">
+      <span class="step-badge">PRACTICE</span>
+      <h2 class="title" id="pr-h">Your turn — convert the signal with Efua</h2>
+      <div class="dots" id="practice-dots"></div>
+      <div id="practice-body"></div>
+    </section>
+
+    <!-- 5. JOB AID -->
+    <section class="screen" id="screen-jobaid" aria-labelledby="ja-h">
+      <span class="step-badge">JOB AID</span>
+      <h2 class="title" id="ja-h">Pipeline-entry template — keep this</h2>
+      <p class="muted">Fill this in before you leave the call, or the same day at the latest. Takes a few minutes once the habit is set.</p>
+      <div class="jobaid">
+        <h3>Pipeline Entry</h3>
+        <div class="field-row"><label>Client</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Date logged</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Need / signal</label><span>what was actually said, as close to verbatim as you can</span></div>
+        <div class="field-row"><label>Matched product</label><span>what Access actually sells that fits</span></div>
+        <div class="field-row"><label>Volume estimate</label><span>illustrative range + the basis for it</span></div>
+        <div class="field-row"><label>Probability band</label><span>~25% / ~50% / ~75% — an honest range, not a guessed number</span></div>
+        <div class="field-row"><label>Next action</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Owner</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Date</label><span>&nbsp;</span></div>
+        <div class="placeholder-flag">⚑ CONFIRM WITH ABG: check this matches the current live pipeline system/template before relying on it for a real submission.</div>
+      </div>
+      <div class="print-btn-wrap no-print">
+        <button class="btn btn-secondary" id="print-btn" type="button">Print or save this page</button>
+      </div>
+      <div class="btn-row no-print">
+        <button class="btn btn-primary" id="ja-next" type="button">Continue to the check</button>
+      </div>
+    </section>
+
+    <!-- 6. CHECK (one quick scenario, not scored — full certification happens in the separate assessment) -->
+    <section class="screen" id="screen-check" aria-labelledby="ck-h">
+      <span class="step-badge">CHECK</span>
+      <h2 class="title" id="ck-h">One quick scenario before you go</h2>
+      <p class="muted">This isn't scored — you still need to answer it to continue. The real test is in the separate certification assessment.</p>
+      <div id="check-body"></div>
+    </section>
+
+    <!-- 7. COMPLETE -->
+    <section class="screen" id="screen-complete" aria-labelledby="comp-h">
+      <span class="step-badge">DONE</span>
+      <h2 class="title" id="comp-h">Module complete</h2>
+      <p>Pipeline conversion, in one line: match the need to a product, size it honestly, band the probability, and give it an owner and a date — the moment you hear it, not later.</p>
+      <p>Your template is saved on the previous screen — print it, or come back to this page any time before your next client call.</p>
+      <div class="btn-row no-print">
+        <button class="btn btn-secondary" id="back-to-jobaid" type="button">Back to job aid</button>
+        <button class="btn btn-primary" id="restart-btn" type="button">Restart module</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="nav no-print" id="footer-nav" style="display:none;">
+    <button class="btn btn-primary" id="footer-continue" type="button">Continue</button>
+  </footer>
+</div>
+
+<div aria-live="polite" class="visually-hidden" id="live-region" style="position:absolute;left:-9999px;"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- storage with graceful fallback ---------- */
+  var memoryStore = {};
+  var storageAvailable = (function(){
+    try{
+      var k = "__abg_test__";
+      window.localStorage.setItem(k,"1");
+      window.localStorage.removeItem(k);
+      return true;
+    }catch(e){ return false; }
+  })();
+  function saveState(state){
+    try{
+      if(storageAvailable){ window.localStorage.setItem("abg_m2_state", JSON.stringify(state)); }
+      else { memoryStore.state = state; }
+    }catch(e){ memoryStore.state = state; }
+  }
+  function loadState(){
+    try{
+      if(storageAvailable){
+        var raw = window.localStorage.getItem("abg_m2_state");
+        return raw ? JSON.parse(raw) : null;
+      }
+      return memoryStore.state || null;
+    }catch(e){ return memoryStore.state || null; }
+  }
+
+  var state = loadState() || { screen:"hook", checkAttempt:0 };
+
+  /* ---------- screen order + progress ---------- */
+  var STAGES = [
+    {id:"hook", label:"Hook"},
+    {id:"behaviour", label:"The behaviour"},
+    {id:"example", label:"Worked example"},
+    {id:"practice", label:"Practice"},
+    {id:"jobaid", label:"Job aid"},
+    {id:"check", label:"Check"}
+  ];
+
+  var screens = document.querySelectorAll(".screen");
+  var progressFill = document.getElementById("progress-fill");
+  var progressLabel = document.getElementById("progress-label");
+  var footerNav = document.getElementById("footer-nav");
+  var footerContinue = document.getElementById("footer-continue");
+  var liveRegion = document.getElementById("live-region");
+
+  function announce(msg){ liveRegion.textContent = msg; }
+
+  function stageIndexFor(screenId){
+    var map = {hook:0,behaviour:1,example:2,practice:3,jobaid:4,check:5,results:5,complete:5};
+    return map[screenId] !== undefined ? map[screenId] : 0;
+  }
+
+  function showScreen(id, opts){
+    opts = opts || {};
+    for(var i=0;i<screens.length;i++){ screens[i].classList.remove("active"); }
+    var target = document.getElementById("screen-"+id);
+    if(target){ target.classList.add("active"); }
+    window.scrollTo(0,0);
+    var idx = stageIndexFor(id);
+    var pct = Math.round(((idx+1)/STAGES.length)*100);
+    progressFill.style.width = pct+"%";
+    var lbl = STAGES[idx] ? STAGES[idx].label : "";
+    progressLabel.textContent = "Step "+(idx+1)+" of "+STAGES.length+" · "+lbl;
+    footerNav.style.display = "none";
+    state.screen = id;
+    saveState(state);
+    announce(lbl+" screen");
+  }
+
+  /* resume, but always start fresh at hook on first load of a session for simplicity of QA;
+     still restore if mid-module */
+  showScreen(state.screen || "hook");
+
+  /* ---------- simple screen-to-screen buttons ---------- */
+  document.getElementById("ja-next").addEventListener("click", function(){ showScreen("check"); startCheck(); });
+  document.getElementById("back-to-jobaid").addEventListener("click", function(){ showScreen("jobaid"); });
+  document.getElementById("restart-btn").addEventListener("click", function(){
+    state = {screen:"hook"};
+    saveState(state);
+    showScreen("hook");
+  });
+  document.getElementById("print-btn").addEventListener("click", function(){
+    document.getElementById("screen-jobaid").classList.add("print-active");
+    window.print();
+  });
+
+  /* Hook -> Behaviour -> Example handled via footer or dedicated buttons */
+  document.getElementById("screen-hook").insertAdjacentHTML("beforeend",
+    '<div class="btn-row no-print"><span></span><button class="btn btn-primary" id="hook-next" type="button">Continue</button></div>');
+  document.getElementById("hook-next").addEventListener("click", function(){ showScreen("behaviour"); });
+
+  document.getElementById("screen-behaviour").insertAdjacentHTML("beforeend",
+    '<div class="btn-row no-print"><button class="btn btn-secondary" id="beh-back" type="button">Back</button><button class="btn btn-primary" id="beh-next" type="button">See it worked through</button></div>');
+  document.getElementById("beh-back").addEventListener("click", function(){ showScreen("hook"); });
+  document.getElementById("beh-next").addEventListener("click", function(){ showScreen("example"); });
+
+  /* ---------- worked example pagination ---------- */
+  var exSteps = Array.prototype.slice.call(document.querySelectorAll(".example-step"));
+  var exIndex = 0;
+  var exDots = document.getElementById("example-dots");
+  function renderExDots(){
+    exDots.innerHTML = "";
+    exSteps.forEach(function(_, i){
+      var d = document.createElement("span");
+      d.className = "dot"+(i<=exIndex?" done":"");
+      exDots.appendChild(d);
+    });
+  }
+  function renderExStep(){
+    exSteps.forEach(function(s,i){ s.style.display = (i===exIndex)?"block":"none"; });
+    renderExDots();
+    document.getElementById("ex-next").textContent = (exIndex===exSteps.length-1) ? "Continue to practice" : "Next";
+  }
+  document.getElementById("ex-back").addEventListener("click", function(){
+    if(exIndex>0){ exIndex--; renderExStep(); }
+    else { showScreen("behaviour"); }
+  });
+  document.getElementById("ex-next").addEventListener("click", function(){
+    if(exIndex<exSteps.length-1){ exIndex++; renderExStep(); }
+    else { showScreen("practice"); startPractice(); }
+  });
+  renderExStep();
+
+  /* ================= PRACTICE ================= */
+  var practiceData = [
+    {
+      scenario:"In the same call, Linda also mentions, almost as an aside, that “Solera Group AG is having a broader look at banking relationships across the region.” Efua also has the specific detail: a capacity-doubling capex plan needing imported equipment. What should she log?",
+      options:[
+        {text:"Log both immediately, at the same weight — both sound important", correct:false,
+         feedback:"The regional review has no product, no timeframe and no named decision point yet. Logging it as an equal entry gives it false weight it hasn't earned."},
+        {text:"Log the equipment-import need as a real pipeline entry; note the regional review as background intelligence to watch", correct:true,
+         feedback:"The capex comment is specific enough to size and own. The regional review isn't loggable yet — but it's worth flagging as something to revisit as it develops, not something to forget."},
+        {text:"Log neither — wait until Solera puts a number on either one", correct:false,
+         feedback:"Waiting loses exactly the signal this module exists to catch. The capex comment already has enough in it to log today."},
+        {text:"Log only the regional review, because it sounds like the bigger opportunity", correct:false,
+         feedback:"“Bigger” isn't the same as “loggable.” There's no product, no owner target, and nothing concrete enough yet to size or act on."}
+      ]
+    },
+    {
+      scenario:"Efua doesn't have Solera's capex budget confirmed — only Linda's comment that the plant is “roughly doubling” capacity. How should she size the opportunity for the entry?",
+      options:[
+        {text:"Leave the volume blank until Solera provides an exact figure", correct:false,
+         feedback:"A real entry needs a size now, even a rough one, so it can be prioritised against other entries. “Blank” makes it invisible in a pipeline review, same as never logging it."},
+        {text:"Build an illustrative range from what's known — current facility scale, the “doubling” comment, comparable equipment costs — and flag it clearly as an estimate", correct:true,
+         feedback:"This gives a defensible working figure Efua can refine once real numbers exist, instead of either a blank field or a number she can't explain."},
+        {text:"Use the size of Kessben's most recent facility, since it's the most recent number to hand", correct:false,
+         feedback:"Kessben is a different client with a different business. Borrowing an unrelated number isn't an estimate — it's a coincidence with no basis behind it."},
+        {text:"Skip sizing and just note “large opportunity”", correct:false,
+         feedback:"Without a size, this entry can't be compared against any other entry in the pipeline — there's no way to tell if it deserves attention this week or this quarter."}
+      ]
+    },
+    {
+      scenario:"No budget is approved, and Efua hasn't met Kojo Antwi-Danso, the Group CFO who holds the actual capex decision — though Linda sounds genuinely enthusiastic about the plan. What probability band fits?",
+      options:[
+        {text:"~75% — Linda sounds confident about it", correct:false,
+         feedback:"Linda is a warm, engaged contact, but she's a gatekeeper, not the decision-maker. Her enthusiasm doesn't move the actual approval any closer."},
+        {text:"~50% — splitting the difference feels like the safe choice", correct:false,
+         feedback:"There's no real halfway signal here to justify a 50% band. Picking the middle number to feel balanced is exactly the false precision this habit is meant to avoid."},
+        {text:"~25% — there's a real, specific signal, but no approved budget and no engagement yet with the actual decision-maker", correct:true,
+         feedback:"This is an honest early-stage read: real enough to log and act on, early enough not to overstate. That's what the band is for."},
+        {text:"Don't assign one yet — wait until it's more certain", correct:false,
+         feedback:"A probability band is exactly what makes an early-stage entry usable. Skipping it doesn't make the entry more honest — it just makes it incomplete."}
+      ]
+    },
+    {
+      scenario:"Which of these is a properly formed pipeline entry from this call?",
+      options:[
+        {text:"“Solera — capex expansion — big opportunity — watch this space”", correct:false,
+         feedback:"No matched product, no size, no probability, no owner, no date. This is a note, not an entry — it will be just as easy to forget as saying nothing at all."},
+        {text:"“Solera — equipment import financing tied to processing-line expansion — approx. GHS 40m–60m illustrative — ~25% — Efua to confirm capex timeline with the Group CFO by [date, two weeks out]”", correct:true,
+         feedback:"Matched product, sized range with its basis, an honest probability band, a named owner, and a dated next action. This is the entry that actually gets acted on."},
+        {text:"“Solera — equipment import financing — approx. GHS 40m–60m — ~25% — someone from the team will follow up eventually”", correct:false,
+         feedback:"Everything except the owner and date is solid — but “someone, eventually” isn't an owner or a date. Without both, this still doesn't count as a real entry."},
+        {text:"“Solera — equipment import financing — approx. GHS 40m–60m — ~90% — Efua to follow up”", correct:false,
+         feedback:"90% overstates a plan with no approved budget and no decision-maker engaged yet — false precision in the wrong direction. It also has no date attached."}
+      ]
+    }
+  ];
+  var practiceIndex = 0;
+  var practiceAnswered = false;
+  var practiceDots = document.getElementById("practice-dots");
+  var practiceBody = document.getElementById("practice-body");
+
+  function renderPracticeDots(){
+    practiceDots.innerHTML = "";
+    practiceData.forEach(function(_,i){
+      var d = document.createElement("span");
+      d.className = "dot"+(i<practiceIndex?" done":"");
+      practiceDots.appendChild(d);
+    });
+  }
+
+  function startPractice(){ practiceIndex = 0; practiceAnswered=false; renderPractice(); }
+
+  var CHECK_ICON = '<svg class="icon icon-check" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7.6 13.6 4.4 10.4l-1.4 1.4L7.6 16.4l9.4-9.4-1.4-1.4z"/></svg>';
+  var X_ICON = '<svg class="icon icon-x" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4.9 3.5 3.5 4.9 8.6 10l-5.1 5.1 1.4 1.4L10 11.4l5.1 5.1 1.4-1.4L11.4 10l5.1-5.1-1.4-1.4L10 8.6z"/></svg>';
+
+  function renderOptionButtons(options, letters){
+    var html = '';
+    options.forEach(function(opt,i){
+      html += '<button type="button" class="option" data-i="'+i+'">'
+            + '<span class="letter">'+letters[i]+'</span>'
+            + CHECK_ICON + X_ICON
+            + '<span class="opt-text">'+opt.text+'</span>'
+            + '</button>';
+    });
+    return html;
+  }
+
+  function wireOptions(container, options, correctIndex, feedbackTargetId, onDone){
+    var answered = false;
+    var optionButtons = container.querySelectorAll(".option");
+    optionButtons.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        if(answered) return;
+        answered = true;
+        var i = parseInt(btn.getAttribute("data-i"),10);
+        optionButtons.forEach(function(b){ b.disabled = true; });
+        optionButtons[correctIndex].classList.add("is-correct");
+        if(i !== correctIndex){ btn.classList.add("is-incorrect"); }
+        var opt = options[i];
+        var fb = document.getElementById(feedbackTargetId);
+        if(opt.correct){
+          fb.innerHTML = '<div class="feedback state-correct"><span class="tag">'+CHECK_ICON+' Correct — that\'s the best move</span>'+opt.feedback+'</div>';
+        } else {
+          fb.innerHTML = '<div class="feedback state-incorrect"><span class="tag">'+X_ICON+' Not quite</span>'
+                        + '<div>'+opt.feedback+'</div>'
+                        + '<div class="why-block"><strong>The best move: &ldquo;'+options[correctIndex].text+'.&rdquo;</strong><br>'+options[correctIndex].feedback+'</div>'
+                        + '</div>';
+        }
+        announce(opt.correct ? "Correct, best move selected" : "Not the best move — explanation shown");
+        onDone();
+      });
+    });
+  }
+
+  function renderPractice(){
+    renderPracticeDots();
+    var item = practiceData[practiceIndex];
+    var letters = ["A","B","C","D"];
+    var correctIndex = item.options.findIndex(function(o){ return o.correct; });
+    var html = '<p><strong>Decision '+(practiceIndex+1)+' of '+practiceData.length+'.</strong> '+item.scenario+'</p>';
+    html += '<div class="option-list" role="group" aria-label="Choose one">'+renderOptionButtons(item.options, letters)+'</div>';
+    html += '<div id="practice-feedback"></div>';
+    html += '<div class="btn-row no-print"><button class="btn btn-secondary" id="practice-back" type="button">Back</button><button class="btn btn-primary" id="practice-next" type="button" disabled>Next</button></div>';
+    practiceBody.innerHTML = html;
+    practiceAnswered = false;
+
+    wireOptions(practiceBody, item.options, correctIndex, "practice-feedback", function(){
+      document.getElementById("practice-next").disabled = false;
+    });
+    document.getElementById("practice-back").addEventListener("click", function(){
+      if(practiceIndex>0){ practiceIndex--; renderPractice(); }
+      else { showScreen("example"); }
+    });
+    document.getElementById("practice-next").addEventListener("click", function(){
+      if(practiceIndex < practiceData.length-1){ practiceIndex++; renderPractice(); }
+      else { showScreen("jobaid"); }
+    });
+  }
+
+  /* ================= CHECK =================
+     One quick, non-scored scenario. Must be answered to progress, but does not
+     gate completion on correctness — full certification lives in the separate
+     30-question assessment tool, not in-module. A small pool gives variety across
+     opens/restarts without turning this into a graded retry loop. */
+  var checkPool = [
+    { // Set A - Kessben Logistics (fictional)
+      client:"Kessben Logistics Gh Ltd",
+      scenario:"In a routine call, Kessben's operations manager mentions their fleet-financing facility is up for renewal in Q1, and also mentions, in passing, that they're “looking at options” for a new cross-border trade lane. What should the RM do before the call notes get filed away?",
+      options:[
+        {text:"Note both in the call memo and move on — the memo is the record", correct:false,
+         feedback:"A memo isn't a pipeline entry. Without a size, a probability band, an owner and a date, both points can sit unread until the renewal window has already closed."},
+        {text:"Log the fleet-financing renewal as a dated pipeline entry with an owner and a next action now; note the cross-border comment as intelligence to watch and revisit next call", correct:true,
+         feedback:"The renewal date is specific and time-bound — exactly what needs an owner and a date today. The cross-border comment is real but too undefined to size yet, so it's tracked, not logged as a full entry."},
+        {text:"Log only the cross-border comment, since cross-border trade is the bigger prize", correct:false,
+         feedback:"There's no product match or timeline behind the cross-border comment yet. Meanwhile the renewal — the one entry with a real date attached — gets missed."},
+        {text:"Wait until the next scheduled account review to log anything", correct:false,
+         feedback:"By the time a formal review comes around, the renewal date may already have passed to whichever bank acted on it first."}
+      ]
+    },
+    { // Set B - Ayeyie Textiles (fictional)
+      client:"Ayeyie Textiles Gh Ltd",
+      scenario:"Ayeyie's finance lead mentions, almost as an aside, that a large European buyer has just placed a bigger order, and that Ayeyie will need to pay suppliers faster than usual this quarter. There's no number yet. What should the RM do?",
+      options:[
+        {text:"Log a pipeline entry now for short-term trade/working-capital finance, with an illustrative volume range, an honest ~25% probability, herself as owner, and a date to follow up with a firmer figure", correct:true,
+         feedback:"This is exactly the pattern: a real signal, sized honestly even without a firm number yet, banded fairly, and owned with a date — logged the same day it was said, not after."},
+        {text:"Wait to log anything until Ayeyie provides an exact figure", correct:false,
+         feedback:"Waiting for a precise number means the signal sits nowhere in the meantime — and a competitor already close to Ayeyie's supplier payments may move first."},
+        {text:"Mention it informally to a colleague and let them decide if it's worth pursuing", correct:false,
+         feedback:"An informal mention with no named owner and no date attached is functionally the same as not logging it at all — it has nowhere to go."},
+        {text:"Assume the number will be small and skip logging it", correct:false,
+         feedback:"A bigger order from a European buyer plus a stated cash-timing need is precisely the kind of signal that turns into a lost opportunity later if it's never written down."}
+      ]
+    }
+  ];
+
+  var checkBody = document.getElementById("check-body");
+
+  function startCheck(){
+    var item = checkPool[Math.floor(Math.random()*checkPool.length)];
+    renderCheckQuestion(item);
+  }
+
+  function renderCheckQuestion(item){
+    var letters = ["A","B","C","D"];
+    var correctIndex = item.options.findIndex(function(o){ return o.correct; });
+    var html = '<p class="muted">Scenario: '+item.client+'</p>';
+    html += '<p><strong>'+item.scenario+'</strong></p>';
+    html += '<div class="option-list" role="group" aria-label="Choose one">'+renderOptionButtons(item.options, letters)+'</div>';
+    html += '<div id="check-feedback"></div>';
+    html += '<div class="btn-row no-print"><span></span><button class="btn btn-primary" id="check-next" type="button" disabled>Finish module</button></div>';
+    checkBody.innerHTML = html;
+
+    wireOptions(checkBody, item.options, correctIndex, "check-feedback", function(){
+      document.getElementById("check-next").disabled = false;
+    });
+    document.getElementById("check-next").addEventListener("click", function(){
+      state.completed = true;
+      saveState(state);
+      fetch('/api/training/module-complete', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ module: 2 })
+      }).catch(function(e){ console.warn('Could not report module completion to server', e); });
+      showScreen("complete");
+    });
+  }
+
+})();
+</script>
+</body>
+</html>

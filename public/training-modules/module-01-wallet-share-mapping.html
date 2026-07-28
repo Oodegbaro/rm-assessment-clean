@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>Module 1: Map the Wallet Before the Review</title>
+<style>
+  :root{
+    --navy:#1F4173;
+    --accent:#3168B9;
+    --light:#B0C7EA;
+    --neutral:#7F7F7F;
+    --bg:#F2F2F2;
+    --white:#FFFFFF;
+    --correct:#1E7A46;
+    --correct-bg:#E4F3EA;
+    --correct-border:#1E7A46;
+    --incorrect:#B3261E;
+    --incorrect-bg:#FBEAE8;
+    --incorrect-border:#B3261E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--navy);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+    font-size:16px;
+    -webkit-text-size-adjust:100%;
+  }
+  .app{max-width:600px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;}
+  header.topbar{
+    background:var(--navy);color:var(--white);padding:14px 16px 10px;
+    position:sticky;top:0;z-index:10;
+  }
+  header.topbar h1{font-size:15px;margin:0 0 8px;font-weight:600;letter-spacing:.2px;}
+  .progress-track{background:rgba(255,255,255,0.25);height:6px;border-radius:4px;overflow:hidden;}
+  .progress-fill{background:var(--white);height:100%;width:0%;transition:width .3s ease;}
+  .progress-label{font-size:11px;color:rgba(255,255,255,0.9);margin-top:6px;}
+
+  main{flex:1;padding:20px 18px 100px;}
+  .screen{display:none;}
+  .screen.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  h2.title{font-size:22px;margin:0 0 12px;color:var(--navy);font-weight:700;}
+  h3.subtitle{font-size:16px;margin:22px 0 8px;color:var(--navy);font-weight:700;}
+  p{margin:0 0 14px;font-size:16px;}
+  .big-number{font-size:44px;font-weight:800;color:var(--navy);line-height:1;margin:6px 0;}
+  .muted{color:var(--navy);font-size:14px;}
+  .card{
+    background:var(--white);border-radius:10px;padding:16px;margin:0 0 16px;
+    box-shadow:0 1px 3px rgba(31,65,115,0.12);
+  }
+  .card.tint{background:var(--light);color:var(--navy);}
+  .card.tint p, .card.tint li{color:var(--navy);}
+  .callout{
+    border-left:4px solid var(--accent);background:var(--white);
+    padding:12px 14px;border-radius:6px;margin:0 0 16px;font-size:15px;
+  }
+  .step-badge{
+    display:inline-block;background:var(--navy);color:var(--white);
+    font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;margin-bottom:10px;
+    letter-spacing:.3px;
+  }
+  ul.plain{padding-left:20px;margin:0 0 14px;}
+  ul.plain li{margin-bottom:8px;}
+  table.wallet{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:14px;}
+  table.wallet th{background:var(--navy);color:var(--white);text-align:left;padding:8px;font-size:12px;}
+  table.wallet td{padding:8px;border-bottom:1px solid var(--light);vertical-align:top;}
+  table.wallet tr:last-child td{border-bottom:none;}
+
+  .btn{
+    display:block;width:100%;text-align:center;padding:14px 18px;border-radius:10px;
+    font-size:16px;font-weight:700;border:none;cursor:pointer;min-height:48px;
+    font-family:inherit;
+  }
+  .btn-primary{background:var(--navy);color:var(--white);}
+  .btn-primary:active{background:var(--accent);}
+  .btn-secondary{background:var(--white);color:var(--navy);border:2px solid var(--navy);}
+  .btn-secondary:active{background:var(--light);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn-row{display:flex;gap:10px;margin-top:18px;}
+  .btn-row .btn{flex:1;}
+
+  footer.nav{
+    position:fixed;bottom:0;left:0;right:0;background:var(--bg);
+    border-top:1px solid var(--light);padding:12px 18px;
+    max-width:600px;margin:0 auto;
+  }
+  footer.nav .btn{margin:0;}
+
+  .option-list{margin:0 0 16px;}
+  .option{
+    display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;background:var(--white);
+    border:2px solid var(--light);border-radius:10px;padding:14px 16px;margin-bottom:10px;
+    font-size:15px;color:var(--navy);cursor:pointer;font-family:inherit;min-height:48px;
+  }
+  .option:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  .option:disabled{cursor:default;}
+  .option .letter{
+    display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;
+    background:var(--navy);color:var(--white);border-radius:50%;font-size:12px;font-weight:700;
+    flex-shrink:0;
+  }
+  .option .icon{flex-shrink:0;width:20px;display:none;margin-top:1px;}
+  .option .opt-text{flex:1;}
+  /* result state after an answer is submitted */
+  .option.is-correct{border-color:var(--correct-border);background:var(--correct-bg);font-weight:700;}
+  .option.is-correct .letter{background:var(--correct);}
+  .option.is-correct .icon.icon-check{display:inline-block;color:var(--correct);}
+  .option.is-incorrect{border-color:var(--incorrect-border);background:var(--incorrect-bg);}
+  .option.is-incorrect .letter{background:var(--incorrect);}
+  .option.is-incorrect .icon.icon-x{display:inline-block;color:var(--incorrect);}
+
+  .feedback{
+    background:var(--white);border:2px solid var(--navy);border-radius:10px;
+    padding:14px 16px;margin:6px 0 16px;font-size:15px;
+  }
+  .feedback .tag{font-weight:800;font-size:13px;color:var(--navy);display:flex;align-items:center;gap:6px;margin-bottom:8px;letter-spacing:.3px;text-transform:uppercase;}
+  .feedback.state-correct{border-color:var(--correct-border);}
+  .feedback.state-correct .tag{color:var(--correct);}
+  .feedback.state-incorrect{border-color:var(--incorrect-border);}
+  .feedback.state-incorrect .tag{color:var(--incorrect);}
+  .feedback .why-block{margin-top:10px;padding-top:10px;border-top:1px solid var(--light);}
+  .feedback .why-block strong{color:var(--navy);}
+
+  svg{display:block;max-width:100%;}
+  .icon-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--light);}
+  .icon-row:last-child{border-bottom:none;}
+  .icon-row .icon-box{
+    flex-shrink:0;width:40px;height:40px;background:var(--light);border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-row .icon-text{flex:1;font-size:14px;}
+  .icon-row .status{font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap;}
+
+  .dots{display:flex;gap:6px;justify-content:center;margin:16px 0;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--light);}
+  .dot.done{background:var(--navy);}
+
+  .jobaid{background:var(--white);border-radius:10px;padding:18px;border:2px solid var(--navy);}
+  .jobaid h3{margin-top:0;color:var(--navy);font-size:17px;}
+  .jobaid .field-row{display:flex;gap:10px;margin-bottom:8px;font-size:13px;}
+  .jobaid .field-row span{flex:1;border-bottom:1px solid var(--neutral);padding-bottom:4px;}
+  .jobaid .field-row label{font-weight:700;color:var(--navy);min-width:90px;}
+  .placeholder-flag{
+    background:var(--bg);border:1px dashed var(--neutral);border-radius:6px;
+    padding:8px 10px;font-size:12px;color:var(--navy);margin:10px 0;
+  }
+  .print-btn-wrap{margin-top:18px;}
+
+
+  @media (max-width:359px){
+    main{padding:16px 12px 100px;}
+    .big-number{font-size:36px;}
+  }
+
+  @media print{
+    header.topbar, footer.nav, .no-print{display:none !important;}
+    body{background:#fff;}
+    .app{max-width:100%;}
+    main{padding:0;}
+    .screen{display:none !important;}
+    #screen-jobaid.print-active{display:block !important;}
+    .jobaid{border:1px solid #000;box-shadow:none;}
+    .jobaid .field-row span{border-bottom:1px solid #000;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar" id="topbar">
+    <h1 id="stage-label">Module 1 · Map the Wallet Before the Review</h1>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label">Step 1 of 6 · Hook</div>
+  </header>
+
+  <main>
+
+    <!-- 1. HOOK -->
+    <section class="screen active" id="screen-hook" aria-labelledby="hook-h">
+      <span class="step-badge">HOOK</span>
+      <h2 class="title" id="hook-h">You've covered this client for two years. How much of their business do you actually hold?</h2>
+      <p>Efua has covered Solera Foods Ghana Ltd for two years. The Finance Manager always answers her calls. No complaints have ever come up in a review. It feels like a strong relationship.</p>
+      <div class="card tint" role="img" aria-label="Chart showing Access holds about 4 percent of Solera's total estimated banking business, with about 96 percent held by other banks.">
+        <svg viewBox="0 0 200 130" width="100%" height="130" focusable="false" aria-hidden="true">
+          <circle cx="65" cy="65" r="50" fill="none" stroke="#FFFFFF" stroke-width="18" opacity="0.55"/>
+          <circle cx="65" cy="65" r="50" fill="none" stroke="#1F4173" stroke-width="18"
+                  stroke-dasharray="12.6 301.6" stroke-dashoffset="0" transform="rotate(-90 65 65)"/>
+          <text x="65" y="70" text-anchor="middle" font-size="20" font-weight="700" fill="#1F4173" font-family="inherit">4%</text>
+          <text x="145" y="45" font-size="12" fill="#1F4173" font-weight="700">Access: ~4%</text>
+          <text x="145" y="62" font-size="12" fill="#1F4173">of estimated total</text>
+          <text x="145" y="77" font-size="12" fill="#1F4173">wallet</text>
+          <text x="145" y="100" font-size="12" fill="#1F4173" font-weight="700">Other banks: ~96%</text>
+        </svg>
+      </div>
+      <p>When Efua actually mapped it against every product Solera could plausibly be buying from a bank, Access held one thing: a current account. Nothing about the relationship was wrong. The gap was simply invisible — because no one had ever laid it out.</p>
+      <p class="muted">This is the single most common reason a "good" account underdelivers: not a bad relationship, a missing map.</p>
+    </section>
+
+    <!-- 2. BEHAVIOUR NAMED -->
+    <section class="screen" id="screen-behaviour" aria-labelledby="beh-h">
+      <span class="step-badge">THE BEHAVIOUR</span>
+      <h2 class="title" id="beh-h">Before your next client review, map what Access holds against the client's whole banking relationship — then pick one gap worth chasing first.</h2>
+      <p>That's the whole module. Everything from here on is how to do exactly that, using a real account as the walk-through.</p>
+      <div class="callout"><strong>Why this matters, in one line:</strong> most of the corporate wallet that's unclaimed isn't sitting with a stranger — it's sitting with a client Access already banks, just not for very much.</div>
+      <p class="muted">This is the "Think" step of account planning — building the fact base before you plan or engage. The rest of the account-planning discipline builds on this map.</p>
+    </section>
+
+    <!-- 3. WORKED EXAMPLE (sub-paginated) -->
+    <section class="screen" id="screen-example" aria-labelledby="ex-h">
+      <span class="step-badge">WORKED EXAMPLE</span>
+      <h2 class="title" id="ex-h">Solera Foods Ghana Ltd</h2>
+      <div class="dots" id="example-dots"></div>
+
+      <div class="example-step" data-step="1">
+        <p><strong>The account, in brief.</strong> Solera Foods Ghana Ltd is a packaged food and beverage manufacturer — subsidiary of a foreign parent group, about 60 independent distributors nationwide, estimated FY revenue GHS 2.1bn. Access holds their day-to-day current account and handles some local transfers. That's it.</p>
+        <p>Efua's first move isn't to guess what's missing. It's to write down, plainly, everything Access already holds — no product category skipped, no "we probably do some of that."</p>
+      </div>
+
+      <div class="example-step" data-step="2">
+        <p><strong>Step 1 — list what Access actually holds.</strong> Current account: yes. Local transfers: yes, occasionally. Lending: no. FX: no. Trade finance: no. Salary/payroll mandate: no. That's the whole list — one product, out of at least five plausible categories.</p>
+        <div class="icon-row"><div class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="2" fill="none" stroke="#1F4173" stroke-width="2"/><path d="M3 8 L12 3 L21 8" fill="none" stroke="#1F4173" stroke-width="2"/></svg>
+          </div><div class="icon-text">Current account / local transfers</div><div class="status">HELD</div></div>
+        <div class="icon-row"><div class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="4" fill="#1F4173"/><rect x="4" y="16" width="16" height="4" fill="#1F4173"/><rect x="4" y="4" width="16" height="4" fill="#1F4173"/></svg>
+          </div><div class="icon-text">Lending / facilities</div><div class="status">GAP</div></div>
+        <div class="icon-row"><div class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8 H20 M16 4 L20 8 L16 12" fill="none" stroke="#1F4173" stroke-width="2"/><path d="M20 16 H4 M8 12 L4 16 L8 20" fill="none" stroke="#1F4173" stroke-width="2"/></svg>
+          </div><div class="icon-text">Foreign exchange</div><div class="status">GAP</div></div>
+        <div class="icon-row"><div class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="9" width="20" height="9" rx="1" fill="none" stroke="#1F4173" stroke-width="2"/><line x1="6" y1="9" x2="6" y2="18" stroke="#1F4173" stroke-width="2"/><line x1="18" y1="9" x2="18" y2="18" stroke="#1F4173" stroke-width="2"/></svg>
+          </div><div class="icon-text">Trade finance (distributors)</div><div class="status">GAP</div></div>
+        <div class="icon-row"><div class="icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3" fill="none" stroke="#1F4173" stroke-width="2"/><path d="M6 20 C6 15 18 15 18 20" fill="none" stroke="#1F4173" stroke-width="2"/></svg>
+          </div><div class="icon-text">Salary / payroll mandate</div><div class="status">GAP</div></div>
+      </div>
+
+      <div class="example-step" data-step="3">
+        <p><strong>Step 2 — estimate the total size, without insider numbers.</strong> Efua doesn't have Solera's internal banking figures, and it's too early in the relationship to ask for them directly. So she uses a working shortcut instead of a guess: roughly <strong>3% of a client's turnover</strong> is a common proxy for their total banking revenue pool (or, if she can estimate it, their actual interest expense plus about 10% of their free cash float).</p>
+        <p>For Solera: 3% of an estimated GHS 2.1bn turnover ≈ <strong>GHS 63m</strong> estimated total banking revenue pool, spread across however many banks Solera uses.</p>
+      </div>
+
+      <div class="example-step" data-step="4">
+        <p><strong>Step 3 — work out Access's actual share.</strong> From the one product Access holds, Efua estimates Access's own revenue from Solera at roughly GHS 2.5m a year. Against the GHS 63m estimate: <strong>2.5 ÷ 63 ≈ 4%.</strong> That's the number from the hook — now Efua has it in writing, with a method behind it, not a feeling.</p>
+        <p class="muted">A number without a method can't be defended in a review. This one can.</p>
+      </div>
+
+      <div class="example-step" data-step="5">
+        <p><strong>Step 4 — prioritise, don't chase everything.</strong> Efua has four gaps: lending, FX, trade finance, salary mandate. The salary mandate is the largest number on paper. But she's never met Solera's Treasury team or HR decision-makers — she'd be opening a new relationship and pitching a major mandate switch at the same time.</p>
+        <p>Trade finance is smaller in headline size, but Efua already has warm contact with several of Solera's distributors through the Finance Manager she knows well. She picks <strong>distributor trade finance</strong> to pursue first — not because it's the biggest gap, but because it's the one she can actually reach right now.</p>
+        <div class="callout">The right first gap is the one where size and access line up — not just the biggest number on the page.</div>
+      </div>
+
+      <div class="btn-row no-print">
+        <button class="btn btn-secondary" id="ex-back" type="button">Back</button>
+        <button class="btn btn-primary" id="ex-next" type="button">Continue</button>
+      </div>
+    </section>
+
+    <!-- 4. PRACTICE -->
+    <section class="screen" id="screen-practice" aria-labelledby="pr-h">
+      <span class="step-badge">PRACTICE</span>
+      <h2 class="title" id="pr-h">Your turn — walk the same review with Efua</h2>
+      <div class="dots" id="practice-dots"></div>
+      <div id="practice-body"></div>
+    </section>
+
+    <!-- 5. JOB AID -->
+    <section class="screen" id="screen-jobaid" aria-labelledby="ja-h">
+      <span class="step-badge">JOB AID</span>
+      <h2 class="title" id="ja-h">Wallet map — keep this</h2>
+      <p class="muted">Fill this in before every top-tier client review. Takes about 10 minutes once the habit is set.</p>
+      <div class="jobaid">
+        <h3>Client Wallet Map</h3>
+        <div class="field-row"><label>Client</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Sector</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Date</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>RM</label><span>&nbsp;</span></div>
+        <table class="wallet">
+          <tr><th>Product category</th><th>Held w/ Access?</th><th>Est. value</th><th>Likely held elsewhere / why</th></tr>
+          <tr><td>Lending / facilities</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>Foreign exchange</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>Trade finance</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>Cash mgmt / deposits</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>Salary / payroll</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        </table>
+        <div class="field-row"><label>Est. total wallet</label><span>turnover x ~3%, or interest expense + 10% free cash float</span></div>
+        <div class="field-row"><label>Access share</label><span>Access revenue ÷ estimated total wallet</span></div>
+        <div class="field-row"><label>Priority gap</label><span>&nbsp;</span></div>
+        <div class="field-row"><label>Why this one</label><span>value vs. how reachable it is right now</span></div>
+        <div class="placeholder-flag">⚑ CONFIRM WITH ABG: check this matches the current live account-plan template/system before relying on it for a real submission.</div>
+      </div>
+      <div class="print-btn-wrap no-print">
+        <button class="btn btn-secondary" id="print-btn" type="button">Print or save this page</button>
+      </div>
+      <div class="btn-row no-print">
+        <button class="btn btn-primary" id="ja-next" type="button">Continue to the check</button>
+      </div>
+    </section>
+
+    <!-- 6. CHECK (one quick scenario, not scored — full certification happens in the separate assessment) -->
+    <section class="screen" id="screen-check" aria-labelledby="ck-h">
+      <span class="step-badge">CHECK</span>
+      <h2 class="title" id="ck-h">One quick scenario before you go</h2>
+      <p class="muted">This isn't scored — you still need to answer it to continue. The real test is in the separate certification assessment.</p>
+      <div id="check-body"></div>
+    </section>
+
+    <!-- 7. COMPLETE -->
+    <section class="screen" id="screen-complete" aria-labelledby="comp-h">
+      <span class="step-badge">DONE</span>
+      <h2 class="title" id="comp-h">Module complete</h2>
+      <p>Wallet-share mapping, in one line: list what you hold, estimate the total honestly, then chase the gap where value and access line up.</p>
+      <p>Your job aid is saved on the previous screen — print it, or come back to this page any time before your next top-tier client review.</p>
+      <div class="btn-row no-print">
+        <button class="btn btn-secondary" id="back-to-jobaid" type="button">Back to job aid</button>
+        <button class="btn btn-primary" id="restart-btn" type="button">Restart module</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="nav no-print" id="footer-nav" style="display:none;">
+    <button class="btn btn-primary" id="footer-continue" type="button">Continue</button>
+  </footer>
+</div>
+
+<div aria-live="polite" class="visually-hidden" id="live-region" style="position:absolute;left:-9999px;"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- storage with graceful fallback ---------- */
+  var memoryStore = {};
+  var storageAvailable = (function(){
+    try{
+      var k = "__abg_test__";
+      window.localStorage.setItem(k,"1");
+      window.localStorage.removeItem(k);
+      return true;
+    }catch(e){ return false; }
+  })();
+  function saveState(state){
+    try{
+      if(storageAvailable){ window.localStorage.setItem("abg_m1_state", JSON.stringify(state)); }
+      else { memoryStore.state = state; }
+    }catch(e){ memoryStore.state = state; }
+  }
+  function loadState(){
+    try{
+      if(storageAvailable){
+        var raw = window.localStorage.getItem("abg_m1_state");
+        return raw ? JSON.parse(raw) : null;
+      }
+      return memoryStore.state || null;
+    }catch(e){ return memoryStore.state || null; }
+  }
+
+  var state = loadState() || { screen:"hook", checkAttempt:0 };
+
+  /* ---------- screen order + progress ---------- */
+  var STAGES = [
+    {id:"hook", label:"Hook"},
+    {id:"behaviour", label:"The behaviour"},
+    {id:"example", label:"Worked example"},
+    {id:"practice", label:"Practice"},
+    {id:"jobaid", label:"Job aid"},
+    {id:"check", label:"Check"}
+  ];
+
+  var screens = document.querySelectorAll(".screen");
+  var progressFill = document.getElementById("progress-fill");
+  var progressLabel = document.getElementById("progress-label");
+  var footerNav = document.getElementById("footer-nav");
+  var footerContinue = document.getElementById("footer-continue");
+  var liveRegion = document.getElementById("live-region");
+
+  function announce(msg){ liveRegion.textContent = msg; }
+
+  function stageIndexFor(screenId){
+    var map = {hook:0,behaviour:1,example:2,practice:3,jobaid:4,check:5,results:5,complete:5};
+    return map[screenId] !== undefined ? map[screenId] : 0;
+  }
+
+  function showScreen(id, opts){
+    opts = opts || {};
+    for(var i=0;i<screens.length;i++){ screens[i].classList.remove("active"); }
+    var target = document.getElementById("screen-"+id);
+    if(target){ target.classList.add("active"); }
+    window.scrollTo(0,0);
+    var idx = stageIndexFor(id);
+    var pct = Math.round(((idx+1)/STAGES.length)*100);
+    progressFill.style.width = pct+"%";
+    var lbl = STAGES[idx] ? STAGES[idx].label : "";
+    progressLabel.textContent = "Step "+(idx+1)+" of "+STAGES.length+" · "+lbl;
+    footerNav.style.display = "none";
+    state.screen = id;
+    saveState(state);
+    announce(lbl+" screen");
+  }
+
+  /* resume, but always start fresh at hook on first load of a session for simplicity of QA;
+     still restore if mid-module */
+  showScreen(state.screen || "hook");
+
+  /* ---------- simple screen-to-screen buttons ---------- */
+  document.getElementById("ja-next").addEventListener("click", function(){ showScreen("check"); startCheck(); });
+  document.getElementById("back-to-jobaid").addEventListener("click", function(){ showScreen("jobaid"); });
+  document.getElementById("restart-btn").addEventListener("click", function(){
+    state = {screen:"hook"};
+    saveState(state);
+    showScreen("hook");
+  });
+  document.getElementById("print-btn").addEventListener("click", function(){
+    document.getElementById("screen-jobaid").classList.add("print-active");
+    window.print();
+  });
+
+  /* Hook -> Behaviour -> Example handled via footer or dedicated buttons */
+  document.getElementById("screen-hook").insertAdjacentHTML("beforeend",
+    '<div class="btn-row no-print"><span></span><button class="btn btn-primary" id="hook-next" type="button">Continue</button></div>');
+  document.getElementById("hook-next").addEventListener("click", function(){ showScreen("behaviour"); });
+
+  document.getElementById("screen-behaviour").insertAdjacentHTML("beforeend",
+    '<div class="btn-row no-print"><button class="btn btn-secondary" id="beh-back" type="button">Back</button><button class="btn btn-primary" id="beh-next" type="button">See it worked through</button></div>');
+  document.getElementById("beh-back").addEventListener("click", function(){ showScreen("hook"); });
+  document.getElementById("beh-next").addEventListener("click", function(){ showScreen("example"); });
+
+  /* ---------- worked example pagination ---------- */
+  var exSteps = Array.prototype.slice.call(document.querySelectorAll(".example-step"));
+  var exIndex = 0;
+  var exDots = document.getElementById("example-dots");
+  function renderExDots(){
+    exDots.innerHTML = "";
+    exSteps.forEach(function(_, i){
+      var d = document.createElement("span");
+      d.className = "dot"+(i<=exIndex?" done":"");
+      exDots.appendChild(d);
+    });
+  }
+  function renderExStep(){
+    exSteps.forEach(function(s,i){ s.style.display = (i===exIndex)?"block":"none"; });
+    renderExDots();
+    document.getElementById("ex-next").textContent = (exIndex===exSteps.length-1) ? "Continue to practice" : "Next";
+  }
+  document.getElementById("ex-back").addEventListener("click", function(){
+    if(exIndex>0){ exIndex--; renderExStep(); }
+    else { showScreen("behaviour"); }
+  });
+  document.getElementById("ex-next").addEventListener("click", function(){
+    if(exIndex<exSteps.length-1){ exIndex++; renderExStep(); }
+    else { showScreen("practice"); startPractice(); }
+  });
+  renderExStep();
+
+  /* ================= PRACTICE ================= */
+  var practiceData = [
+    {
+      scenario:"Efua has one hour before the Solera review. Which should she do first?",
+      options:[
+        {text:"Re-read old call notes for any competitor gossip", correct:false,
+         feedback:"The notes may help later, but right now Efua still doesn't know what Access actually holds today. She spends twenty minutes re-reading old memos and walks into the review no better prepared than before."},
+        {text:"List everything Access currently holds with Solera, product by product", correct:true,
+         feedback:"This is the foundation everything else depends on. Efua now has a plain, complete list — one product held, several categories untouched — instead of a vague impression."},
+        {text:"Ask the Finance Manager directly, “how are we doing?”", correct:false,
+         feedback:"The Finance Manager says, “things are going well” — which is true, and tells Efua nothing about where the other 96% of the relationship actually sits."},
+        {text:"Wait and see if the client raises any gaps themselves", correct:false,
+         feedback:"The review comes and goes. Solera doesn't raise anything, because from their side nothing feels wrong either — the gap is invisible to them too."}
+      ]
+    },
+    {
+      scenario:"Efua has Access's product list: a current account and occasional transfers, nothing else. She has no access to Solera's internal financials. What's the fastest credible way to estimate what's missing?",
+      options:[
+        {text:"Pick a round number that feels about right", correct:false,
+         feedback:"A guess with no method behind it can't be defended in the review — and a client can usually tell the difference between an estimate and a number pulled from thin air."},
+        {text:"Ask Solera to disclose their full banking relationships", correct:false,
+         feedback:"Solera has little reason to hand that over to a bank holding one product with them. This early, the ask lands as presumptuous rather than commercial."},
+        {text:"Use a turnover-based proxy — roughly 3% of known revenue — as a working estimate", correct:true,
+         feedback:"This gives Efua a defensible working number — GHS 63m estimated total wallet — built from a method she can explain, not a feeling she can't."},
+        {text:"Skip sizing and just list the product categories with gaps", correct:false,
+         feedback:"Without a size, every gap looks equally urgent. Efua has no way to tell a GHS 60m opportunity from a GHS 2m one."}
+      ]
+    },
+    {
+      scenario:"Efua finds gaps in lending, FX, trade finance and the salary mandate. The salary mandate is the largest number on paper. Which should she prioritise?",
+      options:[
+        {text:"The salary mandate — it's the biggest number", correct:false,
+         feedback:"It's the biggest number, but Efua has never met Solera's Treasury or HR decision-makers. She'd be opening a brand-new relationship and pitching a major mandate switch at the same time — a hard combination to pull off at once."},
+        {text:"The gap she's best positioned to actually reach, even if it's not the largest", correct:true,
+         feedback:"Trade finance is smaller on paper, but Efua already has warm access to Solera's distributors through the Finance Manager she knows well. Size and access line up — this is the one worth pursuing first."},
+        {text:"All four gaps at once, to maximise her odds", correct:false,
+         feedback:"Four simultaneous pitches, most with no existing relationship behind them, reads to the client as a scattershot approach — not a plan."},
+        {text:"None yet — wait until Solera asks for something", correct:false,
+         feedback:"Nothing changes. The gap stays invisible to Solera, because from where they sit, the relationship still feels perfectly fine."}
+      ]
+    },
+    {
+      scenario:"Efua wants to raise the distributor trade-finance idea with the Finance Manager at the review. What's the strongest way in?",
+      options:[
+        {text:"Lead with Access's need to grow its wallet share", correct:false,
+         feedback:"Access's wallet-share goal isn't the Finance Manager's problem to solve. She listens politely, and nothing moves afterwards."},
+        {text:"Ask generally whether Solera would consider “more products” with Access", correct:false,
+         feedback:"“More products” isn't something the Finance Manager can act on or take upward to her own decision-makers. The conversation ends exactly where it started."},
+        {text:"Lead with a specific, sized opportunity tied to something Solera already needs — financing for distributors Access already has visibility into", correct:true,
+         feedback:"This gives the Finance Manager something concrete and sized to carry forward internally — not a vague ask, an actual proposal she can act on."},
+        {text:"Wait for the next formal tender process and respond then", correct:false,
+         feedback:"By the time a tender appears, a competitor already engaged with the distributors may have framed the terms first."}
+      ]
+    }
+  ];
+  var practiceIndex = 0;
+  var practiceAnswered = false;
+  var practiceDots = document.getElementById("practice-dots");
+  var practiceBody = document.getElementById("practice-body");
+
+  function renderPracticeDots(){
+    practiceDots.innerHTML = "";
+    practiceData.forEach(function(_,i){
+      var d = document.createElement("span");
+      d.className = "dot"+(i<practiceIndex?" done":"");
+      practiceDots.appendChild(d);
+    });
+  }
+
+  function startPractice(){ practiceIndex = 0; practiceAnswered=false; renderPractice(); }
+
+  var CHECK_ICON = '<svg class="icon icon-check" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7.6 13.6 4.4 10.4l-1.4 1.4L7.6 16.4l9.4-9.4-1.4-1.4z"/></svg>';
+  var X_ICON = '<svg class="icon icon-x" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4.9 3.5 3.5 4.9 8.6 10l-5.1 5.1 1.4 1.4L10 11.4l5.1 5.1 1.4-1.4L11.4 10l5.1-5.1-1.4-1.4L10 8.6z"/></svg>';
+
+  function renderOptionButtons(options, letters){
+    var html = '';
+    options.forEach(function(opt,i){
+      html += '<button type="button" class="option" data-i="'+i+'">'
+            + '<span class="letter">'+letters[i]+'</span>'
+            + CHECK_ICON + X_ICON
+            + '<span class="opt-text">'+opt.text+'</span>'
+            + '</button>';
+    });
+    return html;
+  }
+
+  function wireOptions(container, options, correctIndex, feedbackTargetId, onDone){
+    var answered = false;
+    var optionButtons = container.querySelectorAll(".option");
+    optionButtons.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        if(answered) return;
+        answered = true;
+        var i = parseInt(btn.getAttribute("data-i"),10);
+        optionButtons.forEach(function(b){ b.disabled = true; });
+        optionButtons[correctIndex].classList.add("is-correct");
+        if(i !== correctIndex){ btn.classList.add("is-incorrect"); }
+        var opt = options[i];
+        var fb = document.getElementById(feedbackTargetId);
+        if(opt.correct){
+          fb.innerHTML = '<div class="feedback state-correct"><span class="tag">'+CHECK_ICON+' Correct — that\'s the best move</span>'+opt.feedback+'</div>';
+        } else {
+          fb.innerHTML = '<div class="feedback state-incorrect"><span class="tag">'+X_ICON+' Not quite</span>'
+                        + '<div>'+opt.feedback+'</div>'
+                        + '<div class="why-block"><strong>The best move: &ldquo;'+options[correctIndex].text+'.&rdquo;</strong><br>'+options[correctIndex].feedback+'</div>'
+                        + '</div>';
+        }
+        announce(opt.correct ? "Correct, best move selected" : "Not the best move — explanation shown");
+        onDone();
+      });
+    });
+  }
+
+  function renderPractice(){
+    renderPracticeDots();
+    var item = practiceData[practiceIndex];
+    var letters = ["A","B","C","D"];
+    var correctIndex = item.options.findIndex(function(o){ return o.correct; });
+    var html = '<p><strong>Decision '+(practiceIndex+1)+' of '+practiceData.length+'.</strong> '+item.scenario+'</p>';
+    html += '<div class="option-list" role="group" aria-label="Choose one">'+renderOptionButtons(item.options, letters)+'</div>';
+    html += '<div id="practice-feedback"></div>';
+    html += '<div class="btn-row no-print"><button class="btn btn-secondary" id="practice-back" type="button">Back</button><button class="btn btn-primary" id="practice-next" type="button" disabled>Next</button></div>';
+    practiceBody.innerHTML = html;
+    practiceAnswered = false;
+
+    wireOptions(practiceBody, item.options, correctIndex, "practice-feedback", function(){
+      document.getElementById("practice-next").disabled = false;
+    });
+    document.getElementById("practice-back").addEventListener("click", function(){
+      if(practiceIndex>0){ practiceIndex--; renderPractice(); }
+      else { showScreen("example"); }
+    });
+    document.getElementById("practice-next").addEventListener("click", function(){
+      if(practiceIndex < practiceData.length-1){ practiceIndex++; renderPractice(); }
+      else { showScreen("jobaid"); }
+    });
+  }
+
+  /* ================= CHECK =================
+     One quick, non-scored scenario. Must be answered to progress, but does not
+     gate completion on correctness — full certification lives in the separate
+     30-question assessment tool, not in-module. A small pool gives variety across
+     opens/restarts without turning this into a graded retry loop. */
+  var checkPool = [];
+  var _checkSetsRaw = [
+    { // Set A - colleague / generic Top-50 client
+      client:"a colleague's account",
+      qs:[
+        {scenario:"A colleague tells you, “I've banked this client three years, they love us, we're solid.” What should you ask first?",
+         options:[
+           {text:"How many products does Access hold, mapped against everything the client could plausibly need?", correct:true,
+            feedback:"This turns a feeling into a fact base — exactly the first move that matters, before anything else gets planned."},
+           {text:"Has the client ever complained?", correct:false,
+            feedback:"No complaints doesn't mean no gap. Most of a wallet can be missing without a single complaint ever being raised."},
+           {text:"What's the client's total revenue?", correct:false,
+            feedback:"Revenue is a useful input later, but on its own it says nothing about what Access holds versus what's held elsewhere."},
+           {text:"Nothing — it sounds like the relationship is already fine", correct:false,
+            feedback:"A comfortable relationship and a well-penetrated wallet are two different things. This account could easily be sitting at single-digit wallet share."}
+         ]},
+        {scenario:"Your colleague has no access to the client's internal financials. What should they use to size the opportunity?",
+         options:[
+           {text:"A round number that feels about right", correct:false,
+            feedback:"An unsupported guess can't be defended later, in a review or with a client."},
+           {text:"A turnover-based proxy — roughly 3% of known revenue — as a working estimate", correct:true,
+            feedback:"This gives a defensible, method-based estimate instead of a guess — enough to prioritise against, even without insider numbers."},
+           {text:"Ask the client to share their full banking relationships upfront", correct:false,
+            feedback:"Too early, and too large an ask for a relationship that isn't yet deep. It's more likely to create suspicion than get an honest answer."},
+           {text:"Skip sizing entirely and just note the missing categories", correct:false,
+            feedback:"Without a size, every gap looks equally urgent, and time gets spent on the easiest conversation instead of the most valuable one."}
+         ]},
+        {scenario:"Your colleague finds two gaps: FX (large) and lending (smaller). They know the client's CFO well, but have no relationship with Treasury. Which should they chase first?",
+         options:[
+           {text:"FX — it's the bigger number", correct:false,
+            feedback:"Size without access is a slow, uncertain pitch. Without a Treasury relationship, this conversation would be starting from zero on two fronts at once."},
+           {text:"Lending — smaller, but they already have the right relationship in place", correct:true,
+            feedback:"This is where size and access actually line up. It's the realistic first move, not necessarily the biggest one on paper."},
+           {text:"Both, in parallel", correct:false,
+            feedback:"Running two unfamiliar pitches at once, one with no existing access, spreads effort thin without improving the odds on either."},
+           {text:"Neither — wait for the client to raise a need", correct:false,
+            feedback:"Nothing moves. The gap stays exactly as invisible to the client as it was before."}
+         ]}
+      ]
+    },
+    { // Set B - Kessben Logistics (fictional)
+      client:"Kessben Logistics Gh Ltd",
+      qs:[
+        {scenario:"Kessben Logistics Gh Ltd runs a haulage fleet across Ghana and neighbouring countries. Access holds their local current account only. What's the first move before their account review?",
+         options:[
+           {text:"List every product Access holds against the full range Kessben could need — fleet financing, FX, cross-border trade, cash management", correct:true,
+            feedback:"A complete, honest list — not a guess — is what turns “we bank them” into a real picture of where the relationship actually stands."},
+           {text:"Assume fleet financing is already covered since they're a long-standing client", correct:false,
+            feedback:"Long-standing says nothing about product coverage. Plenty of long relationships sit at one product, same as Solera did."},
+           {text:"Ask them outright to name every bank they use", correct:false,
+            feedback:"Worth asking eventually, but not the first move — and not likely to get a full, honest answer this early."},
+           {text:"Focus only on what Kessben has mentioned wanting", correct:false,
+            feedback:"This limits the map to what's already been said out loud, missing gaps the client hasn't raised because, to them, nothing feels missing."}
+         ]},
+        {scenario:"Kessben's exact banking figures aren't available. What's a reasonable way to estimate their total banking wallet?",
+         options:[
+           {text:"A turnover-based proxy, such as roughly 3% of their known revenue", correct:true,
+            feedback:"Same method as any other account: a defensible estimate beats an unsupported guess, and gives something to prioritise against."},
+           {text:"Assume it matches whatever facility size was mentioned once in passing", correct:false,
+            feedback:"One number mentioned in passing isn't a wallet estimate — it's a single data point that could easily be wrong or partial."},
+           {text:"Use the same number as a completely different client, for speed", correct:false,
+            feedback:"Wallet size depends on the client's own turnover and needs — borrowing another client's number isn't an estimate, it's a coincidence at best."},
+           {text:"Leave it blank until finance provides an audited figure", correct:false,
+            feedback:"That figure may never arrive. The estimate exists specifically so the RM isn't stuck waiting for data that isn't coming."}
+         ]},
+        {scenario:"Gaps show up in FX (large, tied to cross-border fuel purchases) and fleet financing (smaller, but Access already has a contact in Kessben's operations team). Which comes first?",
+         options:[
+           {text:"FX, because cross-border fuel costs are the bigger number", correct:false,
+            feedback:"Bigger doesn't help if there's no route in. This pitch would be starting cold, with no existing relationship to build on."},
+           {text:"Fleet financing, because it's where an existing relationship already gives real access", correct:true,
+            feedback:"Same logic as before: the best first gap is where value and reachability line up, not just wherever the number is largest."},
+           {text:"Whichever one Kessben's finance team mentions next", correct:false,
+            feedback:"This hands prioritisation to chance rather than to a plan — exactly what a wallet map exists to prevent."},
+           {text:"Both, to be safe", correct:false,
+            feedback:"Two unfamiliar pitches at once dilutes effort on both, especially when one of them has no relationship behind it yet."}
+         ]}
+      ]
+    },
+    { // Set C - Ayeyie Textiles (fictional)
+      client:"Ayeyie Textiles Gh Ltd",
+      qs:[
+        {scenario:"Ayeyie Textiles Gh Ltd exports finished garments and receives payment in US dollars. Access holds their local operating account. What should come first, before their review?",
+         options:[
+           {text:"A full list of what Access holds against every plausible category — including FX and trade, given their export flows", correct:true,
+            feedback:"Export flows are a strong hint that FX and trade finance matter here — but the list still has to be checked category by category, not assumed."},
+           {text:"Assume FX is already being handled well since payments come in reliably", correct:false,
+            feedback:"Payments arriving reliably says nothing about which bank is converting and holding that USD flow — it could easily be a competitor."},
+           {text:"Wait until the next renewal cycle to look at this", correct:false,
+            feedback:"Waiting doesn't create any new information — it just delays finding out what's already true today."},
+           {text:"Focus only on the current account, since that's the active relationship", correct:false,
+            feedback:"That's exactly the trap: mistaking the one product that's active for the whole relationship."}
+         ]},
+        {scenario:"There's no access to Ayeyie's internal figures yet. How should the wallet size be estimated?",
+         options:[
+           {text:"A turnover-based proxy, roughly 3% of estimated revenue, as a working figure", correct:true,
+            feedback:"Consistent, defensible, and usable even without insider access — the same method works across any client type."},
+           {text:"Base it on the size of their factory alone", correct:false,
+            feedback:"Physical scale doesn't map cleanly to banking revenue — it's a proxy for the wrong thing."},
+           {text:"Ask a competitor bank what they estimate", correct:false,
+            feedback:"Not a realistic or appropriate source — and not something a competitor would share."},
+           {text:"Don't estimate; note only that “there's probably a gap”", correct:false,
+            feedback:"Without a number, there's no way to compare this gap against any other account's gap, or to know if it's worth chasing at all."}
+         ]},
+        {scenario:"Gaps appear in trade finance (large, tied to export documentation) and cash management (smaller, but the finance manager already trusts Access on daily banking). Which first?",
+         options:[
+           {text:"Trade finance — it's the larger opportunity", correct:false,
+            feedback:"Larger, but without the trust already built through daily banking, this pitch has further to travel before it lands."},
+           {text:"Cash management — smaller, but built on a relationship that already exists", correct:true,
+            feedback:"The same pattern again: start where value and an existing relationship overlap, then use that footing to earn the larger opportunity later."},
+           {text:"Whichever one the finance manager brings up first", correct:false,
+            feedback:"Leaves the decision to chance rather than to a deliberate read of value against access."},
+           {text:"Neither, until a formal RFP is issued", correct:false,
+            feedback:"Waiting for a formal process risks a competitor already active in trade documentation getting there first."}
+         ]}
+      ]
+    }
+  ];
+
+  /* flatten: pull just the prioritisation-decision question (index 2) out of each
+     client set — that's the question that tests this module's actual behaviour
+     (value vs. access), asked about a client the learner hasn't seen in practice. */
+  _checkSetsRaw.forEach(function(set){
+    var q = set.qs[2];
+    checkPool.push({ client:set.client, scenario:q.scenario, options:q.options });
+  });
+
+  var checkBody = document.getElementById("check-body");
+
+  function startCheck(){
+    var item = checkPool[Math.floor(Math.random()*checkPool.length)];
+    renderCheckQuestion(item);
+  }
+
+  function renderCheckQuestion(item){
+    var letters = ["A","B","C","D"];
+    var correctIndex = item.options.findIndex(function(o){ return o.correct; });
+    var html = '<p class="muted">Scenario: '+item.client+'</p>';
+    html += '<p><strong>'+item.scenario+'</strong></p>';
+    html += '<div class="option-list" role="group" aria-label="Choose one">'+renderOptionButtons(item.options, letters)+'</div>';
+    html += '<div id="check-feedback"></div>';
+    html += '<div class="btn-row no-print"><span></span><button class="btn btn-primary" id="check-next" type="button" disabled>Finish module</button></div>';
+    checkBody.innerHTML = html;
+
+    wireOptions(checkBody, item.options, correctIndex, "check-feedback", function(){
+      document.getElementById("check-next").disabled = false;
+    });
+    document.getElementById("check-next").addEventListener("click", function(){
+      state.completed = true;
+      saveState(state);
+      fetch('/api/training/module-complete', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ module: 1 })
+      }).catch(function(e){ console.warn('Could not report module completion to server', e); });
+      showScreen("complete");
+    });
+  }
+
+})();
+</script>
+</body>
+</html>
