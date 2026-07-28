@@ -171,6 +171,9 @@
 </head>
 <body>
 <div class="app">
+  <div style="background:#12182B;padding:6px 16px;text-align:right;">
+    <a href="/training" style="color:#D4D6E0;font-size:12px;font-weight:600;text-decoration:none;">&larr; Home</a>
+  </div>
 
   <header class="topbar" id="topbar">
     <h1 id="stage-label">Module 5 · Get There Before the Window Closes</h1>
@@ -323,7 +326,7 @@
       <p>Your checklist is saved on the previous screen — print it, or return to this page before your next account file review.</p>
       <div class="btn-row no-print">
         <button class="btn btn-secondary" id="back-to-jobaid" type="button">Back to job aid</button>
-        <button class="btn btn-primary" id="restart-btn" type="button">Restart module</button>
+        <a class="btn btn-primary" href="/training" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">Continue to training hub &rarr;</a>
       </div>
     </section>
 
@@ -416,11 +419,6 @@
   /* ---------- simple screen-to-screen buttons ---------- */
   document.getElementById("ja-next").addEventListener("click", function(){ showScreen("check"); startCheck(); });
   document.getElementById("back-to-jobaid").addEventListener("click", function(){ showScreen("jobaid"); });
-  document.getElementById("restart-btn").addEventListener("click", function(){
-    state = {screen:"hook"};
-    saveState(state);
-    showScreen("hook");
-  });
   document.getElementById("print-btn").addEventListener("click", function(){
     document.getElementById("screen-jobaid").classList.add("print-active");
     window.print();
